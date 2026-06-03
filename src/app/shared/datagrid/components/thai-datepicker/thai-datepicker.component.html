@@ -1,0 +1,150 @@
+<div class="thai-dp" [class.disabled]="disabled" [class.invalid]="!isValid()">
+
+  <!-- Input Field -->
+  <div class="thai-dp__input-wrap">
+    <input
+      class="thai-dp__input"
+      [class]="cssClass"
+      type="text"
+      [placeholder]="placeholder"
+      [disabled]="disabled"
+      [readonly]="readonly"
+      [value]="inputText()"
+      (input)="onInputChange($any($event.target).value)"
+      (focus)="onInputFocus()"
+      (blur)="onInputBlur()"
+    />
+    <button class="thai-dp__icon-btn" type="button"
+            [disabled]="disabled || readonly"
+            (click)="isOpen() ? closeCalendar() : openCalendar()">
+      📅
+    </button>
+    <button *ngIf="selectedDate()" class="thai-dp__clear-btn" type="button"
+            [disabled]="disabled || readonly"
+            (click)="clearDate()">✕</button>
+  </div>
+
+  <!-- Validation Message -->
+  <div *ngIf="!isValid()" class="thai-dp__error">รูปแบบวันที่ไม่ถูกต้อง</div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       Calendar Popup — position:fixed หนี overflow:hidden ของ datagrid TD
+       mousedown.prevent: ป้องกัน input blur (ไม่ reopen หลัง selectDay)
+       ═══════════════════════════════════════════════════════════════════════ -->
+  <div *ngIf="isOpen()" class="thai-dp__popup"
+       [style.top]="popupTop()"
+       [style.left]="popupLeft()"
+       (click)="$event.stopPropagation()"
+       (mousedown)="$event.preventDefault()">
+
+    <!-- ── Header ──────────────────────────────────────────────────────── -->
+    <div class="thai-dp__header">
+      <button class="nav-btn" type="button"
+              [title]="viewMode() === 'year' ? 'ย้อนหลัง 12 ปี' : 'ปีที่แล้ว'"
+              (click)="prevYear()">«</button>
+
+      <button *ngIf="viewMode() === 'day'" class="nav-btn" type="button"
+              title="เดือนที่แล้ว" (click)="prevMonth()">‹</button>
+
+      <!-- ── Title buttons (คลิกเพื่อเปลี่ยน view) ── -->
+      <div class="header-title">
+        <ng-container [ngSwitch]="viewMode()">
+
+          <!-- Day view → แสดง "เดือน ปี" แยกกันให้คลิกได้ -->
+          <ng-container *ngSwitchCase="'day'">
+            <button class="month-btn" type="button" title="เลือกเดือน"
+                    (click)="toggleMonthView()">
+              {{ MONTHS_FULL[viewMonth()] }}
+            </button>
+            <button class="year-btn" type="button" title="เลือกปี"
+                    (click)="toggleYearView()">
+              {{ viewYear() }}
+            </button>
+          </ng-container>
+
+          <!-- Month view → แสดงปี คลิกไปที่ year view -->
+          <ng-container *ngSwitchCase="'month'">
+            <button class="year-btn" type="button" title="เลือกปี"
+                    (click)="toggleYearView()">
+              {{ viewYear() }}
+            </button>
+          </ng-container>
+
+          <!-- Year view → แสดง range ปี -->
+          <ng-container *ngSwitchCase="'year'">
+            <span class="year-range-label">
+              {{ yearRangeStart() }} – {{ yearRangeStart() + 11 }}
+            </span>
+          </ng-container>
+
+        </ng-container>
+      </div>
+
+      <button *ngIf="viewMode() === 'day'" class="nav-btn" type="button"
+              title="เดือนถัดไป" (click)="nextMonth()">›</button>
+
+      <button class="nav-btn" type="button"
+              [title]="viewMode() === 'year' ? 'ไปข้างหน้า 12 ปี' : 'ปีถัดไป'"
+              (click)="nextYear()">»</button>
+    </div>
+
+    <!-- ── Day View ────────────────────────────────────────────────────── -->
+    <ng-container *ngIf="viewMode() === 'day'">
+      <div class="thai-dp__days-header">
+        <span *ngFor="let d of DAYS_HEADER"
+              [class.sunday]="d === 'อา'"
+              [class.saturday]="d === 'ส'">{{ d }}</span>
+      </div>
+      <div class="thai-dp__grid">
+        <ng-container *ngFor="let week of calendarDays()">
+          <button *ngFor="let day of week"
+                  class="thai-dp__day"
+                  type="button"
+                  [class.other-month]="!day.currentMonth"
+                  [class.today]="day.isToday"
+                  [class.selected]="isSelectedDay(day)"
+                  [class.disabled]="day.disabled"
+                  [class.sunday]="day.isSunday"
+                  [disabled]="day.disabled"
+                  (click)="selectDay(day)">
+            {{ day.day }}
+          </button>
+        </ng-container>
+      </div>
+      <div class="thai-dp__footer">
+        <button class="footer-btn today-btn" type="button" (click)="selectToday()">วันนี้</button>
+        <button class="footer-btn clear-btn" type="button" (click)="clearDate()">ล้างค่า</button>
+        <button class="footer-btn close-btn" type="button" (click)="closeCalendar()">ปิด</button>
+      </div>
+    </ng-container>
+
+    <!-- ── Month View ─────────────────────────────────────────────────── -->
+    <ng-container *ngIf="viewMode() === 'month'">
+      <div class="thai-dp__month-grid">
+        <button *ngFor="let m of MONTHS_SHORT; let i = index"
+                class="month-cell"
+                type="button"
+                [class.selected]="isSelectedMonth(i)"
+                [class.current]="isCurrentMonth(i)"
+                (click)="selectMonth(i)">
+          {{ m }}
+        </button>
+      </div>
+    </ng-container>
+
+    <!-- ── Year View ──────────────────────────────────────────────────── -->
+    <ng-container *ngIf="viewMode() === 'year'">
+      <div class="thai-dp__year-grid">
+        <button *ngFor="let y of yearRangeList()"
+                class="year-cell"
+                type="button"
+                [class.selected]="isSelectedYear(y)"
+                [class.current]="isCurrentYear(y)"
+                (click)="selectYear(y)">
+          {{ y }}
+        </button>
+      </div>
+    </ng-container>
+
+  </div>
+</div>

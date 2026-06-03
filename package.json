@@ -1,0 +1,62 @@
+{
+  "name": "datagrid-demo",
+  "version": "0.0.0",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve --port 4200",
+    "build": "ng build",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test",
+    "build:lib": "ng build ng-datagrid --configuration production",
+    "build:lib:dev": "ng build ng-datagrid",
+    "test:lib": "ng test ng-datagrid --watch=false",
+    "lint:lib": "ng lint ng-datagrid",
+    "release:patch": "standard-version --release-as patch",
+    "release:minor": "standard-version --release-as minor",
+    "release:major": "standard-version --release-as major",
+    "publish:lib": "npm run build:lib && cd dist/ng-datagrid && npm publish",
+    "prepare": "husky install || true"
+  },
+  "standard-version": {
+    "packageFiles": [
+      {
+        "filename": "projects/ng-datagrid/package.json",
+        "type": "json"
+      }
+    ],
+    "bumpFiles": [
+      {
+        "filename": "projects/ng-datagrid/package.json",
+        "type": "json"
+      }
+    ]
+  },
+  "private": true,
+  "packageManager": "npm@11.7.0",
+  "dependencies": {
+    "@angular/animations": "^21.2.15",
+    "@angular/common": "^21.2.0",
+    "@angular/compiler": "^21.2.0",
+    "@angular/core": "^21.2.0",
+    "@angular/forms": "^21.2.0",
+    "@angular/platform-browser": "^21.2.0",
+    "@angular/router": "^21.2.0",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@angular/build": "^21.2.13",
+    "@angular/cli": "^21.2.13",
+    "@angular/compiler-cli": "^21.2.0",
+    "@commitlint/cli": "^21.0.2",
+    "@commitlint/config-conventional": "^21.0.2",
+    "husky": "^9.1.7",
+    "jsdom": "^28.0.0",
+    "ng-packagr": "^21.2.0",
+    "prettier": "^3.8.1",
+    "standard-version": "^9.5.0",
+    "typescript": "~5.9.2",
+    "vitest": "^4.0.8"
+  }
+}

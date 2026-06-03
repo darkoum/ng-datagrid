@@ -1,0 +1,168 @@
+<div class="dx-form"
+     [class.dx-form-disabled]="disabled"
+     [class.dx-form-readonly]="readOnly"
+     [class.dx-form-label-left]="labelMode === 'left'"
+     [class.dx-form-cols-2]="colCount === 2">
+
+  <!-- ── Shared editor template ────────────────────────────────────────────── -->
+  <ng-template #editorTpl let-item="item">
+    <div class="dx-form-editor" [ngSwitch]="getEditorType(item)">
+
+      <!-- Custom template -->
+      <ng-container *ngSwitchCase="'custom'">
+        <ng-container *ngTemplateOutlet="templateMap[item.editCellTemplate ?? ''];
+          context: { value: getValue(item.dataField), item: item, updateField: updateField.bind(this) }">
+        </ng-container>
+      </ng-container>
+
+      <!-- dxDateBox -->
+      <app-thai-datepicker *ngSwitchCase="'dxDateBox'"
+        [ngModel]="getValue(item.dataField)"
+        (valueChange)="updateField(item.dataField, $event)"
+        [disabled]="disabled || readOnly"
+        [format]="getFormat(item)">
+      </app-thai-datepicker>
+
+      <!-- dxSelectBox — ใช้ app-select-box (มี search) -->
+      <app-select-box *ngSwitchCase="'dxSelectBox'"
+        [ngModel]="getValue(item.dataField)"
+        (ngModelChange)="updateField(item.dataField, $event)"
+        [dataSource]="getDataSource(item)"
+        [valueExpr]="getValueExpr(item)"
+        [displayExpr]="getDisplayExpr(item)"
+        [searchEnabled]="getSearchEnabled(item)"
+        [showClearButton]="getShowClearButton(item)"
+        [placeholder]="getPlaceholder(item) || 'เลือก...'"
+        [disabled]="disabled || readOnly">
+      </app-select-box>
+
+      <!-- dxTagBox — multi-select -->
+      <app-tag-box *ngSwitchCase="'dxTagBox'"
+        [ngModel]="getValue(item.dataField)"
+        (ngModelChange)="updateField(item.dataField, $event)"
+        [dataSource]="getDataSource(item)"
+        [valueExpr]="getValueExpr(item)"
+        [displayExpr]="getDisplayExpr(item)"
+        [searchEnabled]="getSearchEnabled(item)"
+        [showClearButton]="getShowClearButton(item)"
+        [placeholder]="getPlaceholder(item) || 'เลือก...'"
+        [disabled]="disabled || readOnly">
+      </app-tag-box>
+
+      <!-- dxCheckBox — ใช้ app-check-box (custom UI) -->
+      <app-check-box *ngSwitchCase="'dxCheckBox'"
+        [ngModel]="getValue(item.dataField)"
+        (ngModelChange)="updateField(item.dataField, $event)"
+        [text]="getText(item)"
+        [disabled]="disabled || readOnly">
+      </app-check-box>
+
+      <!-- dxSwitch -->
+      <app-switch *ngSwitchCase="'dxSwitch'"
+        [ngModel]="getValue(item.dataField)"
+        (ngModelChange)="updateField(item.dataField, $event)"
+        [switchedOnText]="getSwitchedOnText(item)"
+        [switchedOffText]="getSwitchedOffText(item)"
+        [disabled]="disabled || readOnly">
+      </app-switch>
+
+      <!-- dxRadioGroup -->
+      <app-radio-group *ngSwitchCase="'dxRadioGroup'"
+        [ngModel]="getValue(item.dataField)"
+        (ngModelChange)="updateField(item.dataField, $event)"
+        [items]="getDataSource(item)"
+        [valueExpr]="getValueExpr(item)"
+        [displayExpr]="getDisplayExpr(item)"
+        [layout]="getLayout(item)"
+        [disabled]="disabled || readOnly">
+      </app-radio-group>
+
+      <!-- dxNumberBox — ใช้ app-number-box (spin buttons) -->
+      <app-number-box *ngSwitchCase="'dxNumberBox'"
+        [ngModel]="getValue(item.dataField)"
+        (ngModelChange)="updateField(item.dataField, $event)"
+        [min]="getMin(item)"
+        [max]="getMax(item)"
+        [step]="getStep(item)"
+        [showSpinButtons]="getShowSpinButtons(item)"
+        [showClearButton]="getShowClearButton(item)"
+        [placeholder]="getPlaceholder(item)"
+        [disabled]="disabled || readOnly">
+      </app-number-box>
+
+      <!-- dxTextArea — ใช้ app-text-area -->
+      <app-text-area *ngSwitchCase="'dxTextArea'"
+        [ngModel]="getValue(item.dataField)"
+        (ngModelChange)="updateField(item.dataField, $event)"
+        [rows]="getRows(item)"
+        [placeholder]="getPlaceholder(item)"
+        [disabled]="disabled || readOnly">
+      </app-text-area>
+
+      <!-- dxTextBox (default) -->
+      <input *ngSwitchDefault type="text" class="dx-form-input"
+             [ngModel]="getValue(item.dataField)"
+             (ngModelChange)="updateField(item.dataField, $event)"
+             [disabled]="disabled || readOnly"
+             [attr.placeholder]="getPlaceholder(item) || null" />
+    </div>
+
+    <!-- hint text -->
+    <div *ngIf="item.editorOptions?.['hint']" class="dx-form-hint">
+      ℹ {{ item.editorOptions?.['hint'] }}
+    </div>
+  </ng-template>
+
+  <!-- ── Shared field template (label + editor) ─────────────────────────────── -->
+  <ng-template #fieldTpl let-item="item">
+    <!-- Label -->
+    <label *ngIf="labelMode !== 'hidden' && item.label?.visible !== false"
+           class="dx-form-label"
+           [style.min-width.px]="labelMode === 'left' ? labelWidth : null">
+      {{ getItemLabel(item) }}
+      <span *ngIf="showColonAfterLabel">:</span>
+      <span *ngIf="item.isRequired && showRequiredMark" class="dx-form-required">*</span>
+    </label>
+    <!-- Editor -->
+    <ng-container *ngTemplateOutlet="editorTpl; context: { item: item }"></ng-container>
+  </ng-template>
+
+  <!-- ══════════════════════════════════════════════════════════════════════════
+       Main render loop
+  ══════════════════════════════════════════════════════════════════════════ -->
+  <ng-container *ngFor="let item of items">
+
+    <!-- ── Group ────────────────────────────────────────────────────────────── -->
+    <ng-container *ngIf="item.itemType === 'group'">
+      <div class="dx-form-group">
+        <div *ngIf="item.caption" class="dx-form-group-caption">{{ item.caption }}</div>
+        <div class="dx-form-group-body"
+             [class.dx-form-cols-2]="(item.colCount ?? 1) === 2"
+             [class.dx-form-label-left]="labelMode === 'left'">
+          <ng-container *ngFor="let sub of item.items ?? []">
+            <div *ngIf="sub.visible !== false && sub.itemType !== 'empty'"
+                 class="dx-form-item"
+                 [class.dx-form-col-full]="sub.colSpan === 2">
+              <ng-container *ngTemplateOutlet="fieldTpl; context: { item: sub }"></ng-container>
+            </div>
+            <div *ngIf="sub.itemType === 'empty'" class="dx-form-item-empty"></div>
+          </ng-container>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- ── Empty spacer ─────────────────────────────────────────────────────── -->
+    <div *ngIf="item.itemType === 'empty'" class="dx-form-item-empty"></div>
+
+    <!-- ── Simple field ─────────────────────────────────────────────────────── -->
+    <ng-container *ngIf="!item.itemType || item.itemType === 'simple'">
+      <div *ngIf="item.visible !== false"
+           class="dx-form-item"
+           [class.dx-form-col-full]="item.colSpan === 2">
+        <ng-container *ngTemplateOutlet="fieldTpl; context: { item: item }"></ng-container>
+      </div>
+    </ng-container>
+
+  </ng-container>
+
+</div>

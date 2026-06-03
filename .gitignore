@@ -1,0 +1,17 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+.angular/
+
+# Environment
+.env
+*.local
+
+# OS
+.DS_Store
+
+# Editor
+.vscode/
+*.swp

@@ -1,0 +1,418 @@
+<div class="dx-datagrid" [class.dx-bordered]="opts().showBorders !== false">
+
+  <!-- ─── Toolbar ─────────────────────────────────────────────────────────── -->
+  <div *ngIf="showToolbar()" class="dx-datagrid-toolbar">
+    <div class="toolbar-left">
+      <button *ngIf="showAddButton()" class="dx-btn dx-btn-primary" type="button" (click)="addRow()">
+        + {{ opts().editing?.texts?.addRow || 'เพิ่มแถว' }}
+      </button>
+      <ng-container *ngFor="let item of getCustomItems()">
+        <button class="dx-btn dx-btn-default" type="button" (click)="item.options.onClick()">
+          <ng-container *ngIf="item.options.icon">{{ item.options.icon }} </ng-container>
+          {{ item.options.text }}
+        </button>
+      </ng-container>
+    </div>
+    <div class="toolbar-right">
+      <input *ngIf="showSearchPanel()" class="dx-searchbox" type="text"
+             [placeholder]="opts().searchPanel?.placeholder || 'ค้นหา...'"
+             [value]="state.searchText()"
+             (input)="onSearch($any($event.target).value)" />
+      <button *ngIf="showExportButton()" class="dx-btn dx-btn-default" type="button"
+              (click)="exportData('xlsx')">⬇ Export</button>
+    </div>
+  </div>
+
+  <!-- ─── Error ───────────────────────────────────────────────────────────── -->
+  <div *ngIf="state.error()" class="dx-error-row">⚠ {{ state.error() }}</div>
+
+  <!-- ─── Popup Edit / Add (DevExtreme-like API) ──────────────────────────── -->
+  <ng-container *ngIf="popupVisible()">
+
+    <!--
+      ── Shared editor ng-template ──────────────────────────────────────────────
+      รับ context { f: FormItem } แล้ว render editor ตาม editorType
+      ใช้ร่วมกันทั้ง auto-columns และ form.items mode
+    -->
+    <ng-template #editorTpl let-f="f" let-field="field">
+      <div class="dx-popup-control" [ngSwitch]="f ? getFormItemEditorType(f) : getPopupInputType(field)">
+
+        <!-- custom editCellTemplate (auto-column mode only) -->
+        <ng-container *ngSwitchCase="'custom'">
+          <ng-container *ngTemplateOutlet="templateMap[field?.editCellTemplate];
+            context: { row: editRowData(), col: field, value: $any(editRowData())[field?._field] }">
+          </ng-container>
+        </ng-container>
+
+        <!-- dxDateBox -->
+        <app-thai-datepicker *ngSwitchCase="'dxDateBox'"
+          [(ngModel)]="$any(editRowData())[f ? f.dataField : field?._field]"
+          [format]="f?.editorOptions?.['format'] || 'shortDate'">
+        </app-thai-datepicker>
+
+        <!-- dxSelectBox -->
+        <select *ngSwitchCase="'dxSelectBox'" class="dx-popup-select"
+                [(ngModel)]="$any(editRowData())[f ? f.dataField : field?._field]">
+          <option value="">{{ f?.editorOptions?.['placeholder'] || '— เลือก —' }}</option>
+          <option *ngFor="let opt of (f ? getFormItemDataSource(f) : field?.lookup?.dataSource)"
+                  [value]="opt[f ? getFormItemValueExpr(f) : field?.lookup?.valueExpr]">
+            {{ opt[f ? getFormItemDisplayExpr(f) : field?.lookup?.displayExpr] }}
+          </option>
+        </select>
+
+        <!-- dxCheckBox -->
+        <label *ngSwitchCase="'dxCheckBox'" class="dx-popup-toggle">
+          <input type="checkbox"
+                 [(ngModel)]="$any(editRowData())[f ? f.dataField : field?._field]" />
+          <span>{{ $any(editRowData())[f ? f.dataField : field?._field] ? 'ใช่' : 'ไม่ใช่' }}</span>
+        </label>
+
+        <!-- dxNumberBox -->
+        <input *ngSwitchCase="'dxNumberBox'" type="number" class="dx-popup-input"
+               [(ngModel)]="$any(editRowData())[f ? f.dataField : field?._field]"
+               [attr.min]="f?.editorOptions?.['min'] ?? null"
+               [attr.max]="f?.editorOptions?.['max'] ?? null" />
+
+        <!-- dxTextArea -->
+        <textarea *ngSwitchCase="'dxTextArea'" class="dx-popup-textarea"
+                  [(ngModel)]="$any(editRowData())[f ? f.dataField : field?._field]"
+                  [attr.rows]="f?.editorOptions?.['rows'] || 3"></textarea>
+
+        <!-- dxTextBox (default) -->
+        <input *ngSwitchDefault type="text" class="dx-popup-input"
+               [(ngModel)]="$any(editRowData())[f ? f.dataField : field?._field]"
+               [attr.placeholder]="f?.editorOptions?.['placeholder'] ?? null" />
+      </div>
+    </ng-template>
+
+    <div class="dx-popup-overlay" (mousedown)="cancelEdit()">
+      <div class="dx-popup-box"
+           [style.width.px]="opts().editing?.popup?.width || 640"
+           [style.height.px]="opts().editing?.popup?.height || null"
+           (mousedown)="$event.stopPropagation()">
+
+        <!-- ── Header ── -->
+        <div class="dx-popup-header" *ngIf="opts().editing?.popup?.showTitle !== false">
+          <span class="dx-popup-title">
+            {{ popupMode() === 'add'
+               ? (opts().editing?.texts?.addRow || 'เพิ่มข้อมูล')
+               : (opts().editing?.popup?.title || 'แก้ไขข้อมูล') }}
+          </span>
+          <button class="dx-popup-close" type="button" (click)="cancelEdit()">✕</button>
+        </div>
+
+        <!-- ── Body ── -->
+        <div class="dx-popup-body">
+
+          <!-- ── A: Custom form.items (DevExtreme-like) ── -->
+          <ng-container *ngIf="opts().editing?.form?.items; else autoColumns">
+            <ng-container *ngFor="let item of opts().editing!.form!.items">
+
+              <!-- Group -->
+              <ng-container *ngIf="item.itemType === 'group'">
+                <div class="dx-popup-group">
+                  <div *ngIf="item.caption" class="dx-popup-group-caption">{{ item.caption }}</div>
+                  <div class="dx-popup-group-body"
+                       [class.dx-popup-cols-1]="(item.colCount ?? 2) === 1">
+                    <ng-container *ngFor="let sub of item.items ?? []">
+                      <div *ngIf="sub.visible !== false" class="dx-popup-field"
+                           [class.dx-col-full]="sub.colSpan === 2">
+                        <label class="dx-popup-label" *ngIf="sub.label?.visible !== false">
+                          {{ getFormItemLabel(sub) }}
+                        </label>
+                        <ng-container *ngTemplateOutlet="editorTpl; context: { f: sub }">
+                        </ng-container>
+                      </div>
+                    </ng-container>
+                  </div>
+                </div>
+              </ng-container>
+
+              <!-- Empty spacer -->
+              <div *ngIf="item.itemType === 'empty'" class="dx-popup-field-empty"></div>
+
+              <!-- Simple field -->
+              <ng-container *ngIf="!item.itemType || item.itemType === 'simple'">
+                <div *ngIf="item.visible !== false" class="dx-popup-field"
+                     [class.dx-col-full]="item.colSpan === 2">
+                  <label class="dx-popup-label" *ngIf="item.label?.visible !== false">
+                    {{ getFormItemLabel(item) }}
+                  </label>
+                  <ng-container *ngTemplateOutlet="editorTpl; context: { f: item }">
+                  </ng-container>
+                </div>
+              </ng-container>
+
+            </ng-container>
+          </ng-container>
+
+          <!-- ── B: Auto-generate จาก columns (ไม่ระบุ form.items) ── -->
+          <ng-template #autoColumns>
+            <div class="dx-popup-auto-grid" [class.dx-popup-cols-1]="getPopupColCount() === 1">
+              <div *ngFor="let col of editableColumns()" class="dx-popup-field">
+                <label class="dx-popup-label">{{ col.caption }}</label>
+                <ng-container *ngTemplateOutlet="editorTpl; context: { field: col }">
+                </ng-container>
+              </div>
+            </div>
+          </ng-template>
+
+        </div>
+
+        <!-- ── Footer ── -->
+        <div class="dx-popup-footer">
+          <button class="dx-btn dx-btn-success" type="button" (click)="savePopup()">
+            {{ opts().editing?.texts?.saveRowChanges || 'บันทึก' }}
+          </button>
+          <button class="dx-btn dx-btn-default" type="button" (click)="cancelEdit()">
+            {{ opts().editing?.texts?.cancelRowChanges || 'ยกเลิก' }}
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- ─── Delete Confirm Overlay ──────────────────────────────────────────── -->
+  <div *ngIf="deleteConfirmRow()" class="dx-overlay">
+    <div class="dx-dialog">
+      <p class="dx-dialog-message">
+        {{ opts().editing?.texts?.confirmDeleteMessage || 'ต้องการลบข้อมูลนี้ใช่หรือไม่?' }}
+      </p>
+      <div class="dx-dialog-buttons">
+        <button class="dx-btn dx-btn-danger"   type="button" (click)="executeDelete(deleteConfirmRow()!)">ลบ</button>
+        <button class="dx-btn dx-btn-default"  type="button" (click)="cancelDelete()">ยกเลิก</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Scroll Wrapper ──────────────────────────────────────────────────── -->
+  <div class="dx-datagrid-scroll-wrapper"
+       [style.max-height.px]="opts().scrolling?.mode === 'virtual' ? virtualContainerHeight : null"
+       (scroll)="opts().scrolling?.mode === 'virtual' ? onVirtualScroll($event) : null">
+
+    <!-- Virtual spacer top -->
+    <div *ngIf="opts().scrolling?.mode === 'virtual'" [style.height.px]="virtualOffsetY"></div>
+
+    <table class="dx-datagrid-table"
+           [class.row-lines]="opts().showRowLines !== false"
+           [class.col-lines]="opts().showColumnLines"
+           [class.alternating]="opts().rowAlternationEnabled"
+           [class.hoverable]="opts().hoverStateEnabled !== false">
+
+      <!-- ─── Header ───────────────────────────────────────────────────────── -->
+      <thead>
+        <tr>
+          <th *ngIf="opts().masterDetail?.enabled" class="dx-col-expand dx-col-header"></th>
+
+          <th *ngIf="opts().selection?.mode === 'multiple' && showCheckboxes()"
+              class="dx-col-checkbox dx-col-header">
+            <input type="checkbox"
+                   [checked]="state.isAllSelected()"
+                   (change)="onSelectAll($any($event.target).checked)" />
+          </th>
+
+          <th *ngFor="let col of columns()"
+              class="dx-col-header"
+              [class.sortable]="col.allowSorting !== false"
+              [class.dx-col-fixed-left]="col.fixed && col.fixedPosition !== 'right'"
+              [class.dx-col-fixed-right]="col.fixed && col.fixedPosition === 'right'"
+              [ngStyle]="getColumnStyle(col)"
+              [style.text-align]="col.alignment || 'left'"
+              appResizableColumn
+              [columnField]="col._field"
+              [minWidth]="col.minWidth || opts().columnMinWidth || 60"
+              (widthChanged)="onColumnWidthChanged($event)"
+              (click)="onSort(col)">
+            <span class="col-caption">{{ col.caption }}</span>
+            <span *ngIf="col.allowSorting !== false" class="sort-icon">
+              <ng-container [ngSwitch]="getSortDir(col._field)">
+                <span *ngSwitchCase="'asc'">▲</span>
+                <span *ngSwitchCase="'desc'">▼</span>
+                <span *ngSwitchDefault class="sort-placeholder">⇅</span>
+              </ng-container>
+              <sup *ngIf="state.sorts().length > 1 && getSortDir(col._field)">{{ getSortIndex(col._field) }}</sup>
+            </span>
+          </th>
+
+          <th *ngIf="opts().editing?.allowUpdating || opts().editing?.allowDeleting"
+              class="dx-col-header" style="width:120px;text-align:center;">
+            จัดการ
+          </th>
+        </tr>
+
+        <!-- Filter Row -->
+        <tr *ngIf="opts().filterRow?.visible" class="filter-row">
+          <th *ngIf="opts().masterDetail?.enabled"></th>
+          <th *ngIf="opts().selection?.mode === 'multiple' && showCheckboxes()"></th>
+          <th *ngFor="let col of columns()">
+            <input *ngIf="col.allowFiltering !== false"
+                   class="filter-input" type="text"
+                   [value]="filterValues[col._field] || ''"
+                   (input)="onFilterChange(col._field, $any($event.target).value)"
+                   [placeholder]="col.caption" />
+          </th>
+          <th *ngIf="opts().editing?.allowUpdating || opts().editing?.allowDeleting">
+            <button class="dx-btn-sm dx-btn-default" type="button" (click)="clearFilter()">ล้าง</button>
+          </th>
+        </tr>
+      </thead>
+
+      <!-- ─── Body ────────────────────────────────────────────────────────── -->
+      <tbody>
+
+        <!-- Loading -->
+        <tr *ngIf="state.loading()">
+          <td [colSpan]="colSpanTotal()" class="loading-cell">
+            <span class="loading-spinner"></span>
+            {{ opts().loadingText || 'กำลังโหลด...' }}
+          </td>
+        </tr>
+
+        <!-- No Data -->
+        <tr *ngIf="!state.loading() && state.rows().length === 0">
+          <td [colSpan]="colSpanTotal()" class="no-data-cell">
+            {{ opts().noDataText || 'ไม่พบข้อมูล' }}
+          </td>
+        </tr>
+
+        <!-- Data Rows -->
+        <ng-container *ngFor="let row of displayRows(); let i = index; trackBy: trackByKey">
+          <tr class="dx-row"
+              [class.dx-row-selected]="isRowSelected(row)"
+              [class.dx-row-editing]="isEditing(row)"
+              (click)="onRowClick(row, i, $event)"
+              (dblclick)="onRowDblClick(row, i, $event)">
+
+            <!-- Expand -->
+            <td *ngIf="opts().masterDetail?.enabled" class="dx-col-expand">
+              <button class="expand-btn" type="button"
+                      (click)="toggleDetail(row); $event.stopPropagation()">
+                {{ isExpanded(row) ? '▾' : '▸' }}
+              </button>
+            </td>
+
+            <!-- Checkbox -->
+            <td *ngIf="opts().selection?.mode === 'multiple' && showCheckboxes()"
+                class="dx-col-checkbox" (click)="$event.stopPropagation()">
+              <input type="checkbox" [checked]="isRowSelected(row)"
+                     (change)="onRowSelect(row)" />
+            </td>
+
+            <!-- Data Cells -->
+            <td *ngFor="let col of columns()"
+                [style.text-align]="col.alignment || 'left'"
+                [class.dx-col-fixed-left]="col.fixed && col.fixedPosition !== 'right'"
+                [class.dx-col-fixed-right]="col.fixed && col.fixedPosition === 'right'"
+                [class]="col.cssClass || ''">
+
+              <!-- Editing mode -->
+              <ng-container *ngIf="isEditing(row) && col.allowEditing !== false; else displayCell">
+                <ng-container *ngIf="col.editCellTemplate && templateMap[col.editCellTemplate]; else defaultEdit">
+                  <ng-container *ngTemplateOutlet="templateMap[col.editCellTemplate];
+                    context: { row: editRowData(), col: col, value: getCellValue(row, col) }">
+                  </ng-container>
+                </ng-container>
+                <ng-template #defaultEdit>
+                  <app-thai-datepicker
+                    *ngIf="col.dataType === 'date' || col.dataType === 'datetime'"
+                    [(ngModel)]="$any(editRowData())[col._field]"
+                    [format]="'shortDate'"
+                    (click)="$event.stopPropagation()">
+                  </app-thai-datepicker>
+                  <input *ngIf="col.dataType !== 'date' && col.dataType !== 'datetime'"
+                         class="edit-input" type="text"
+                         [(ngModel)]="$any(editRowData())[col._field]"
+                         (click)="$event.stopPropagation()" />
+                </ng-template>
+              </ng-container>
+
+              <!-- Display mode -->
+              <ng-template #displayCell>
+                <ng-container *ngIf="col.cellTemplate && templateMap[col.cellTemplate]; else defaultDisplay">
+                  <ng-container *ngTemplateOutlet="templateMap[col.cellTemplate];
+                    context: { row: row, col: col, value: getCellValue(row, col), displayValue: formatCellValue(row, col) }">
+                  </ng-container>
+                </ng-container>
+                <ng-template #defaultDisplay>{{ formatCellValue(row, col) }}</ng-template>
+              </ng-template>
+            </td>
+
+            <!-- Action column -->
+            <td *ngIf="opts().editing?.allowUpdating || opts().editing?.allowDeleting"
+                class="action-cell">
+              <ng-container *ngIf="!isEditing(row)">
+                <!-- ปุ่มถูก disabled เมื่อ row อื่นกำลังถูกแก้ไข -->
+                <button *ngIf="opts().editing?.allowUpdating"
+                        class="dx-btn-sm dx-btn-primary" type="button"
+                        [disabled]="isAnyEditing"
+                        [class.dx-btn-locked]="isAnyEditing"
+                        (click)="startEdit(row); $event.stopPropagation()">
+                  {{ opts().editing?.useIcons ? '✎' : 'แก้ไข' }}
+                </button>
+                <button *ngIf="opts().editing?.allowDeleting"
+                        class="dx-btn-sm dx-btn-danger" type="button"
+                        [disabled]="isAnyEditing"
+                        [class.dx-btn-locked]="isAnyEditing"
+                        (click)="confirmDelete(row); $event.stopPropagation()">
+                  {{ opts().editing?.useIcons ? '🗑' : (opts().editing?.texts?.deleteRow || 'ลบ') }}
+                </button>
+              </ng-container>
+              <ng-container *ngIf="isEditing(row)">
+                <button class="dx-btn-sm dx-btn-success" type="button"
+                        (click)="saveEdit(row); $event.stopPropagation()">
+                  {{ opts().editing?.texts?.saveRowChanges || 'บันทึก' }}
+                </button>
+                <button class="dx-btn-sm dx-btn-default" type="button"
+                        (click)="cancelEdit(); $event.stopPropagation()">
+                  {{ opts().editing?.texts?.cancelRowChanges || 'ยกเลิก' }}
+                </button>
+              </ng-container>
+            </td>
+          </tr>
+
+          <!-- Master-Detail Row -->
+          <tr *ngIf="opts().masterDetail?.enabled && isExpanded(row)" class="detail-row">
+            <td [colSpan]="colSpanTotal()" class="detail-cell">
+              <ng-container *ngIf="detailTemplate">
+                <ng-container *ngTemplateOutlet="detailTemplate; context: { row: row, $implicit: row }">
+                </ng-container>
+              </ng-container>
+            </td>
+          </tr>
+        </ng-container>
+      </tbody>
+    </table>
+
+    <!-- Virtual spacer bottom -->
+    <div *ngIf="opts().scrolling?.mode === 'virtual'" [style.height.px]="virtualBottomSpacer"></div>
+  </div>
+
+  <!-- ─── Pager ──────────────────────────────────────────────────────────── -->
+  <div *ngIf="opts().paging?.enabled !== false && state.totalCount() > 0"
+       class="dx-datagrid-pager">
+    <div class="pager-left">
+      <div *ngIf="opts().pager?.showPageSizeSelector" class="pager-size">
+        <select [value]="state.pageSize()"
+                (change)="onPageSizeChange(+$any($event.target).value)">
+          <option *ngFor="let s of allowedPageSizes()" [value]="s">{{ s }} แถว/หน้า</option>
+        </select>
+      </div>
+      <span *ngIf="opts().pager?.showInfo !== false" class="pager-info">{{ getPagerInfo() }}</span>
+    </div>
+    <div class="pager-nav">
+      <button class="pager-btn" type="button"
+              [disabled]="state.currentPage() <= 1"
+              (click)="goToPage(state.currentPage() - 1)">‹</button>
+      <ng-container *ngFor="let p of pageNumbers()">
+        <button class="pager-btn" type="button"
+                [class.active]="p === state.currentPage()"
+                [disabled]="p === '...'"
+                (click)="goToPage(p)">{{ p }}</button>
+      </ng-container>
+      <button class="pager-btn" type="button"
+              [disabled]="state.currentPage() >= state.totalPages()"
+              (click)="goToPage(state.currentPage() + 1)">›</button>
+    </div>
+  </div>
+</div>

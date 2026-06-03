@@ -1,0 +1,23 @@
+{
+  "name": "@vn/ng-datagrid",
+  "version": "1.0.0",
+  "description": "Angular DataGrid with Thai Date — Drop-in replacement for DevExtreme",
+  "keywords": ["angular", "datagrid", "thai-date", "datepicker", "devextreme", "standalone", "signals"],
+  "author": "Your Organization",
+  "license": "UNLICENSED",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com",
+    "access": "restricted"
+  },
+  "peerDependencies": {
+    "@angular/common": ">=17.0.0",
+    "@angular/core": ">=17.0.0",
+    "@angular/forms": ">=17.0.0",
+    "rxjs": ">=7.0.0"
+  },
+  "dependencies": {
+    "tslib": "^2.3.0",
+    "xlsx": "^0.18.5"
+  },
+  "sideEffects": false
+}

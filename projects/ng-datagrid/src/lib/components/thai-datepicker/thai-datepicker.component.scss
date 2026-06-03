@@ -1,0 +1,244 @@
+:host {
+  --dp-border:        #ddd;
+  --dp-border-focus:  #337ab7;
+  --dp-bg:            #fff;
+  --dp-header-bg:     #f5f5f5;
+  --dp-selected-bg:   #337ab7;
+  --dp-selected-text: #fff;
+  --dp-today-border:  #337ab7;
+  --dp-hover-bg:      #e8f4fd;
+  --dp-sunday-color:  #e74c3c;
+  --dp-other-month:   #ccc;
+  --dp-shadow:        0 2px 8px rgba(0,0,0,0.15);
+  --dp-radius:        4px;
+  --dp-font:          'Sarabun', 'TH Sarabun New', sans-serif;
+  display: block;
+  position: relative;
+  font-family: var(--dp-font);
+}
+
+.thai-dp__input-wrap {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--dp-border);
+  border-radius: var(--dp-radius);
+  background: var(--dp-bg);
+  overflow: hidden;
+  transition: border-color .2s;
+
+  &:focus-within {
+    border-color: var(--dp-border-focus);
+    box-shadow: 0 0 0 2px rgba(51,122,183,.2);
+  }
+}
+
+.thai-dp.invalid .thai-dp__input-wrap { border-color: #e74c3c; }
+.thai-dp.disabled .thai-dp__input-wrap { background: #f8f8f8; opacity: .7; cursor: not-allowed; }
+
+.thai-dp__input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 6px 10px;
+  font-size: 14px;
+  font-family: var(--dp-font);
+  background: transparent;
+  min-width: 0;
+  &:disabled { cursor: not-allowed; }
+}
+
+.thai-dp__icon-btn,
+.thai-dp__clear-btn {
+  border: none;
+  background: none;
+  padding: 0 8px;
+  cursor: pointer;
+  opacity: .6;
+  font-size: 16px;
+  line-height: 32px;
+  transition: opacity .15s;
+  &:hover:not(:disabled) { opacity: 1; }
+  &:disabled { cursor: not-allowed; }
+}
+
+.thai-dp__error {
+  font-size: 12px;
+  color: #e74c3c;
+  margin-top: 3px;
+}
+
+.thai-dp__popup {
+  /* position: fixed — หนีจาก overflow:hidden ของ table cell / datagrid */
+  position: fixed;
+  z-index: 9999;
+  background: var(--dp-bg);
+  border: 1px solid var(--dp-border);
+  border-radius: var(--dp-radius);
+  box-shadow: var(--dp-shadow);
+  width: 280px;
+  animation: dpFadeIn .15s ease;
+}
+
+@keyframes dpFadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.thai-dp__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px;
+  background: var(--dp-header-bg);
+  border-bottom: 1px solid var(--dp-border);
+  gap: 2px;
+
+  .nav-btn {
+    flex-shrink: 0;
+    background: none; border: none; cursor: pointer;
+    width: 28px; height: 28px; border-radius: 50%;
+    font-size: 14px; color: #555; transition: background .15s;
+    &:hover { background: #e0e0e0; }
+  }
+
+  .header-title {
+    flex: 1; display: flex; align-items: center; justify-content: center; gap: 4px;
+  }
+
+  /* ปุ่มเลือกเดือน / ปี — ขนาดเท่ากัน */
+  .month-btn,
+  .year-btn {
+    background: none; border: none; cursor: pointer;
+    font-size: 14px; font-weight: 700; color: #333;
+    height: 28px; line-height: 28px; padding: 0 8px;
+    border-radius: 4px; transition: background .15s;
+    white-space: nowrap;
+    &:hover { background: #dde8f5; color: var(--dp-border-focus); }
+  }
+
+  .year-range-label {
+    font-size: 14px; font-weight: 700; color: #333; padding: 2px 6px;
+    height: 28px; line-height: 28px;
+  }
+}
+
+/* ── Month Grid ─────────────────────────────────────────────────────── */
+.thai-dp__month-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 6px; padding: 12px 10px;
+
+  .month-cell {
+    background: none; border: 1px solid transparent; cursor: pointer;
+    border-radius: 6px; padding: 10px 4px; font-size: 14px;
+    font-family: var(--dp-font); text-align: center;
+    transition: background .12s, border-color .12s;
+    &:hover { background: var(--dp-hover-bg); border-color: #c5d8f0; }
+    &.selected { background: var(--dp-selected-bg); color: var(--dp-selected-text); font-weight: 700; border-color: transparent; }
+    &.current  { border-color: var(--dp-today-border); font-weight: 700; }
+  }
+}
+
+/* ── Year Grid ──────────────────────────────────────────────────────── */
+.thai-dp__year-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 6px; padding: 12px 10px;
+
+  .year-cell {
+    background: none; border: 1px solid transparent; cursor: pointer;
+    border-radius: 6px; padding: 10px 4px; font-size: 14px;
+    font-family: var(--dp-font); text-align: center;
+    transition: background .12s, border-color .12s;
+    &:hover { background: var(--dp-hover-bg); border-color: #c5d8f0; }
+    &.selected { background: var(--dp-selected-bg); color: var(--dp-selected-text); font-weight: 700; border-color: transparent; }
+    &.current  { border-color: var(--dp-today-border); font-weight: 700; }
+  }
+}
+
+.thai-dp__days-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  padding: 6px 8px 2px;
+
+  span {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: #666;
+    padding: 2px 0;
+    &.sunday   { color: var(--dp-sunday-color); }
+    &.saturday { color: #2980b9; }
+  }
+}
+
+.thai-dp__grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  padding: 4px 8px 8px;
+  gap: 2px;
+}
+
+.thai-dp__day {
+  background: none;
+  border: none;
+  cursor: pointer;
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  font-size: 13px;
+  font-family: var(--dp-font);
+  text-align: center;
+  line-height: 34px;
+  padding: 0;
+  transition: background .1s;
+  position: relative;
+
+  &:hover:not(.disabled):not(.selected) { background: var(--dp-hover-bg); }
+
+  &.today {
+    border: 2px solid var(--dp-today-border);
+    font-weight: 700;
+  }
+
+  &.selected {
+    background: var(--dp-selected-bg);
+    color: var(--dp-selected-text);
+    font-weight: 700;
+  }
+
+  &.other-month { color: var(--dp-other-month); }
+
+  &.disabled {
+    opacity: .35;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  &.sunday:not(.other-month) { color: var(--dp-sunday-color); }
+}
+
+.thai-dp__footer {
+  display: flex;
+  gap: 6px;
+  padding: 8px;
+  border-top: 1px solid var(--dp-border);
+  background: var(--dp-header-bg);
+  justify-content: flex-end;
+
+  .footer-btn {
+    border: 1px solid var(--dp-border);
+    background: var(--dp-bg);
+    border-radius: var(--dp-radius);
+    padding: 4px 12px;
+    font-size: 12px;
+    font-family: var(--dp-font);
+    cursor: pointer;
+    transition: all .15s;
+    &:hover { background: var(--dp-hover-bg); }
+  }
+
+  .today-btn {
+    border-color: var(--dp-border-focus);
+    color: var(--dp-border-focus);
+    &:hover { background: var(--dp-border-focus); color: #fff; }
+  }
+}

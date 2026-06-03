@@ -1,0 +1,717 @@
+<div class="demo-app">
+
+  <!-- ─── Header ────────────────────────────────────────────────────────── -->
+  <header class="demo-header">
+    <div class="header-title">
+      <h1>🗃️ Custom Angular DataGrid</h1>
+      <span class="header-badge">Angular 21 · Standalone · Signals</span>
+    </div>
+    <p>Drop-in replacement สำหรับ DevExtreme · Thai Date พ.ศ. · ไม่ต้อง install library</p>
+  </header>
+
+  <!-- ─── Summary Cards ─────────────────────────────────────────────────── -->
+  <div class="summary-cards">
+    <div class="card">
+      <div class="card-value">{{ totalOrders }}</div>
+      <div class="card-label">รายการทั้งหมด</div>
+    </div>
+    <div class="card card-blue">
+      <div class="card-value">{{ totalRevenue | number:'1.0-0' }}</div>
+      <div class="card-label">ยอดรวม (บาท)</div>
+    </div>
+    <div class="card card-orange">
+      <div class="card-value">{{ pendingCount }}</div>
+      <div class="card-label">รอดำเนินการ</div>
+    </div>
+    <div class="card card-green">
+      <div class="card-value">{{ paidCount }}</div>
+      <div class="card-label">ชำระแล้ว</div>
+    </div>
+  </div>
+
+  <!-- ─── Tabs ──────────────────────────────────────────────────────────── -->
+  <nav class="demo-tabs">
+    <button [class.active]="activeTab===0" (click)="activeTab=0">📋 Grid หลัก (50 แถว)</button>
+    <button [class.active]="activeTab===1" (click)="activeTab=1">✅ Selection + Edit</button>
+    <button [class.active]="activeTab===2" (click)="activeTab=2">🔽 Master-Detail</button>
+    <button [class.active]="activeTab===3" (click)="activeTab=3">⚡ Virtual Scroll (2,000 แถว)</button>
+    <button [class.active]="activeTab===4" (click)="activeTab=4">📅 Thai Datepicker</button>
+    <button [class.active]="activeTab===5" (click)="activeTab=5">🧩 Widgets ใหม่</button>
+    <button [class.active]="activeTab===6" (click)="activeTab=6">🪟 Popup Edit</button>
+    <button [class.active]="activeTab===7" (click)="activeTab=7">📝 DX Form</button>
+    <button [class.active]="activeTab===8" (click)="activeTab=8">🆕 Widgets ใหม่</button>
+  </nav>
+
+  <div class="demo-content">
+
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!-- Tab 0: Grid หลัก                                                  -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <section *ngIf="activeTab===0">
+      <div class="section-header">
+        <h2>รายการสั่งซื้อ — 50 รายการ</h2>
+        <p class="section-desc">Sorting หลายคอลัมน์ · Filter Row · Search Panel · Export XLSX · Column Resize · Thai Date พ.ศ.</p>
+      </div>
+
+      <app-datagrid [options]="grid1Options">
+
+        <!-- Status badge -->
+        <ng-template gridCellTemplate="statusTpl" let-value="value">
+          <span class="badge" [class]="getStatusClass(value)">{{ value }}</span>
+        </ng-template>
+
+        <!-- Paid icon -->
+        <ng-template gridCellTemplate="paidTpl" let-value="value">
+          <span [style.color]="value ? '#27ae60' : '#e74c3c'" [style.font-size]="'16px'">
+            {{ value ? '✓' : '✗' }}
+          </span>
+        </ng-template>
+
+      </app-datagrid>
+
+      <div class="hint-box">
+        💡 <strong>ทดสอบ:</strong>
+        คลิก header เพื่อ sort · กรอกช่อง filter row · ลาก edge ของ column เพื่อ resize · กด Export เพื่อดาวน์โหลด XLSX
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!-- Tab 1: Selection + Edit                                            -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <section *ngIf="activeTab===1">
+      <div class="section-header">
+        <h2>Selection + Inline Editing</h2>
+        <p class="section-desc">Checkbox selection · Row edit · Delete confirm · ยอดรวมที่เลือก</p>
+      </div>
+
+      <!-- ข้อมูลที่เลือก -->
+      <div class="selection-bar" *ngIf="selectedRows.length > 0">
+        <span class="sel-count">✅ เลือก {{ selectedRows.length }} รายการ</span>
+        <span class="sel-orders">
+          <span *ngFor="let r of selectedRows.slice(0,5)" class="badge badge-info">{{ r.orderNo }}</span>
+          <span *ngIf="selectedRows.length > 5" class="badge badge-default">+{{ selectedRows.length - 5 }}</span>
+        </span>
+        <span class="sel-total">ยอดรวม: <strong>{{ selectedTotal | number:'1.0-0' }}</strong> บาท</span>
+      </div>
+      <div class="selection-bar-empty" *ngIf="selectedRows.length === 0">
+        ☐ ยังไม่ได้เลือกรายการ — คลิก checkbox หน้าแถว
+      </div>
+
+      <app-datagrid [options]="grid2Options">
+        <ng-template gridCellTemplate="statusTpl2" let-value="value">
+          <span class="badge" [class]="getStatusClass(value)">{{ value }}</span>
+        </ng-template>
+      </app-datagrid>
+
+      <div class="hint-box">
+        💡 <strong>ทดสอบ:</strong>
+        Tick checkbox เพื่อเลือก · คลิก "แก้ไข" เพื่อ inline edit · คลิก "ลบ" → confirm dialog
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!-- Tab 2: Master-Detail                                               -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <section *ngIf="activeTab===2">
+      <div class="section-header">
+        <h2>Master-Detail Row</h2>
+        <p class="section-desc">คลิกปุ่ม ▸ เพื่อขยายดู detail ของแต่ละรายการ</p>
+      </div>
+
+      <app-datagrid [options]="grid3Options">
+
+        <ng-template gridCellTemplate="statusTpl3" let-value="value">
+          <span class="badge" [class]="getStatusClass(value)">{{ value }}</span>
+        </ng-template>
+
+        <!-- Detail template ────────────────────────────────────────────── -->
+        <ng-template gridDetailTemplate let-row="row">
+          <div class="detail-panel">
+            <div class="detail-grid">
+
+              <div class="detail-section">
+                <h4>📦 ข้อมูลคำสั่งซื้อ</h4>
+                <dl>
+                  <dt>เลขที่</dt>     <dd>{{ row.orderNo }}</dd>
+                  <dt>วันที่สั่ง</dt>  <dd>{{ row.orderDate | thaiDate:'long' }}</dd>
+                  <dt>วันครบกำหนด</dt><dd>{{ row.dueDate | thaiDate:'medium' }}</dd>
+                  <dt>หมวดหมู่</dt>   <dd>{{ row.category }}</dd>
+                </dl>
+              </div>
+
+              <div class="detail-section">
+                <h4>👤 ข้อมูลลูกค้า</h4>
+                <dl>
+                  <dt>ชื่อ</dt>       <dd>{{ row.customer }}</dd>
+                  <dt>จังหวัด</dt>    <dd>{{ row.province }}</dd>
+                  <dt>สถานะชำระ</dt>  <dd>
+                    <span [class]="row.isPaid ? 'badge badge-success' : 'badge badge-danger'">
+                      {{ row.isPaid ? '✓ ชำระแล้ว' : '✗ ยังไม่ชำระ' }}
+                    </span>
+                  </dd>
+                </dl>
+              </div>
+
+              <div class="detail-section">
+                <h4>💰 ข้อมูลการเงิน</h4>
+                <dl>
+                  <dt>จำนวน</dt>       <dd>{{ row.qty }} ชิ้น</dd>
+                  <dt>ราคา/ชิ้น</dt>   <dd>{{ row.unitPrice | number:'1.0-0' }} บาท</dd>
+                  <dt>ยอดรวม</dt>       <dd class="total-highlight">{{ row.total | number:'1.2-2' }} บาท</dd>
+                </dl>
+              </div>
+
+            </div>
+          </div>
+        </ng-template>
+
+      </app-datagrid>
+
+      <div class="hint-box">
+        💡 <strong>ทดสอบ:</strong> คลิก ▸ ที่หน้าแถวเพื่อขยาย detail — template ใช้ <code>thaiDate</code> pipe โดยตรง
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!-- Tab 3: Virtual Scroll                                              -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <section *ngIf="activeTab===3">
+      <div class="section-header">
+        <h2>Virtual Scroll — 2,000 แถว</h2>
+        <p class="section-desc">Render เฉพาะ rows ที่อยู่ใน viewport · Pagination 50/100/200 ต่อหน้า</p>
+      </div>
+
+      <div class="perf-badge">⚡ 2,000 rows · Virtual rendering · เร็วเหมือน 50 แถว</div>
+
+      <app-datagrid [options]="grid4Options"></app-datagrid>
+
+      <div class="hint-box">
+        💡 <strong>ทดสอบ:</strong> เปลี่ยน pageSize เป็น 200 แล้ว scroll · Sort/Filter ทำงานกับ 2,000 แถว
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!-- Tab 4: Thai Datepicker                                             -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <section *ngIf="activeTab===4">
+      <div class="section-header">
+        <h2>Thai Datepicker — รับ/แสดงวันที่เป็น พ.ศ.</h2>
+        <p class="section-desc">ControlValueAccessor · Auto-format · Parse พ.ศ. 2-4 หลัก · ปิดด้วยการคลิกนอก</p>
+      </div>
+
+      <!-- Datepicker row ───────────────────────────────────────────────── -->
+      <div class="dp-row">
+
+        <div class="dp-card">
+          <div class="dp-card-title">📅 shortDate <code>dd/mm/ปปปป</code></div>
+          <app-thai-datepicker
+            [(ngModel)]="selectedDate"
+            [format]="'shortDate'"
+            placeholder="เลือกวันที่">
+          </app-thai-datepicker>
+        </div>
+
+        <div class="dp-card">
+          <div class="dp-card-title">📅 medium <code>d MMMM ปปปป</code></div>
+          <app-thai-datepicker
+            [(ngModel)]="selectedDate"
+            [format]="'medium'"
+            placeholder="เลือกวันที่">
+          </app-thai-datepicker>
+        </div>
+
+        <div class="dp-card">
+          <div class="dp-card-title">📅 mediumDate <code>d ม.ค. ปปปป</code></div>
+          <app-thai-datepicker
+            [(ngModel)]="selectedDate"
+            [format]="'mediumDate'"
+            placeholder="เลือกวันที่">
+          </app-thai-datepicker>
+        </div>
+
+        <div class="dp-card">
+          <div class="dp-card-title">🚫 Disabled</div>
+          <app-thai-datepicker
+            [(ngModel)]="selectedDate"
+            [disabled]="true"
+            placeholder="(disabled)">
+          </app-thai-datepicker>
+        </div>
+
+      </div>
+
+      <!-- Formats table ────────────────────────────────────────────────── -->
+      <div class="format-box" *ngIf="selectedDate">
+        <h3>🔢 ThaiDate Pipe — ทุก format กับวันที่ที่เลือก</h3>
+        <div class="date-raw">
+          Date object: <code>{{ selectedDate | date:'yyyy-MM-dd (EEEE)' }}</code>
+        </div>
+        <table class="format-table">
+          <thead>
+            <tr><th>Format</th><th>ผลลัพธ์</th><th>ตัวอย่างใช้งาน</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>short</code></td>
+              <td class="result">{{ selectedDate | thaiDate:'short' }}</td>
+              <td class="usage">บนการ์ดขนาดเล็ก</td>
+            </tr>
+            <tr>
+              <td><code>mediumDate</code></td>
+              <td class="result">{{ selectedDate | thaiDate:'mediumDate' }}</td>
+              <td class="usage">ตาราง, รายงาน</td>
+            </tr>
+            <tr>
+              <td><code>medium</code></td>
+              <td class="result">{{ selectedDate | thaiDate:'medium' }}</td>
+              <td class="usage">ทั่วไป (แนะนำ)</td>
+            </tr>
+            <tr>
+              <td><code>long</code></td>
+              <td class="result">{{ selectedDate | thaiDate:'long' }}</td>
+              <td class="usage">เอกสารทางการ</td>
+            </tr>
+            <tr>
+              <td><code>shortDate</code></td>
+              <td class="result">{{ selectedDate | thaiDate:'shortDate' }}</td>
+              <td class="usage">form input</td>
+            </tr>
+            <tr>
+              <td><code>shortDateTime</code></td>
+              <td class="result">{{ selectedDate | thaiDate:'shortDateTime' }}</td>
+              <td class="usage">log, timestamp</td>
+            </tr>
+            <tr>
+              <td><code>mediumDateTime</code></td>
+              <td class="result">{{ selectedDate | thaiDate:'mediumDateTime' }}</td>
+              <td class="usage">รายงานละเอียด</td>
+            </tr>
+            <tr>
+              <td><code>timeOnly</code></td>
+              <td class="result">{{ selectedDate | thaiDate:'timeOnly' }}</td>
+              <td class="usage">แสดงเฉพาะเวลา</td>
+            </tr>
+            <tr>
+              <td><code>'d MMMM yyyy'</code></td>
+              <td class="result">{{ selectedDate | thaiDate:'d MMMM yyyy' }}</td>
+              <td class="usage">custom pattern</td>
+            </tr>
+            <tr>
+              <td><code>'dddd d MMM yy'</code></td>
+              <td class="result">{{ selectedDate | thaiDate:'dddd d MMM yy' }}</td>
+              <td class="usage">custom pattern</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="hint-box" *ngIf="!selectedDate">
+        💡 เลือกวันที่ด้านบนเพื่อดูผลลัพธ์ทุก format
+      </div>
+      <div class="hint-box" *ngIf="selectedDate">
+        💡 <strong>ทดสอบพิมพ์:</strong> พิมพ์ <code>25/06/2568</code> หรือ <code>25/06/68</code> แล้วกด Enter —
+        ระบบ parse พ.ศ. อัตโนมัติ
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!-- Tab 5: Widgets ใหม่                                               -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <section *ngIf="activeTab===5">
+      <div class="section-header">
+        <h2>🧩 Widgets — Drop-in replacements สำหรับ DevExtreme</h2>
+      </div>
+
+      <div class="widget-demo-grid">
+
+        <!-- ─── SelectBox ─────────────────────────────────────────────── -->
+        <div class="widget-card">
+          <h3>app-select-box <span class="badge">แทน dx-select-box</span></h3>
+          <label>เลือกจังหวัด</label>
+          <app-select-box
+            [dataSource]="provinceOptions"
+            displayExpr="label"
+            valueExpr="value"
+            [searchEnabled]="true"
+            [showClearButton]="true"
+            placeholder="เลือกจังหวัด..."
+            [(ngModel)]="wProvince"
+            (onValueChanged)="onProvinceChange($event)">
+          </app-select-box>
+          <div class="widget-result">ค่าที่เลือก: <code>{{ wProvince ?? 'null' }}</code></div>
+
+          <label style="margin-top:12px">เลือกหมวดหมู่ (ไม่มี search)</label>
+          <app-select-box
+            [dataSource]="categoryOptions"
+            displayExpr="label"
+            valueExpr="value"
+            [showClearButton]="true"
+            [(ngModel)]="wCategory">
+          </app-select-box>
+          <div class="widget-result">ค่าที่เลือก: <code>{{ wCategory ?? 'null' }}</code></div>
+        </div>
+
+        <!-- ─── NumberBox ─────────────────────────────────────────────── -->
+        <div class="widget-card">
+          <h3>app-number-box <span class="badge">แทน dx-number-box</span></h3>
+          <label>ปีการศึกษา</label>
+          <app-number-box
+            [(ngModel)]="wAcadYear"
+            [showSpinButtons]="true"
+            [min]="2500" [max]="2600" [step]="1"
+            [showClearButton]="true">
+          </app-number-box>
+          <div class="widget-result">ค่า: <code>{{ wAcadYear }}</code></div>
+
+          <label style="margin-top:12px">จำนวน (ไม่มี spin)</label>
+          <app-number-box
+            [(ngModel)]="wQty"
+            [showClearButton]="true"
+            placeholder="กรอกจำนวน">
+          </app-number-box>
+          <div class="widget-result">ค่า: <code>{{ wQty }}</code></div>
+        </div>
+
+        <!-- ─── TextBox ───────────────────────────────────────────────── -->
+        <div class="widget-card">
+          <h3>app-text-box <span class="badge">แทน dx-text-box</span></h3>
+          <label>ค้นหา</label>
+          <app-text-box
+            [(ngModel)]="wSearch"
+            [showClearButton]="true"
+            placeholder="พิมพ์ค้นหา..."
+            (onValueChanged)="onSearchChange($event)">
+          </app-text-box>
+          <div class="widget-result">ค่า: <code>{{ wSearch || '(ว่าง)' }}</code></div>
+
+          <label style="margin-top:12px">Password (disabled)</label>
+          <app-text-box
+            [(ngModel)]="wPassword"
+            mode="password"
+            [disabled]="true"
+            placeholder="(disabled)">
+          </app-text-box>
+        </div>
+
+        <!-- ─── Button ────────────────────────────────────────────────── -->
+        <div class="widget-card">
+          <h3>app-button <span class="badge">แทน dx-button</span></h3>
+          <div class="btn-group-demo">
+            <app-button text="ค้นหา"   icon="find"    type="default" (onClick)="onBtnClick('find')"></app-button>
+            <app-button text="บันทึก"  icon="save"    type="success" (onClick)="onBtnClick('save')"></app-button>
+            <app-button text="ลบ"      icon="trash"   type="danger"  (onClick)="onBtnClick('delete')"></app-button>
+            <app-button text="ยกเลิก"  icon="revert"  type="normal"  (onClick)="onBtnClick('cancel')"></app-button>
+            <app-button text="Export"  icon="exportxlsx" type="default" width="100%" (onClick)="onBtnClick('export')"></app-button>
+            <app-button text="Disabled" icon="find" type="default" [disabled]="true"></app-button>
+          </div>
+          <div class="widget-result">คลิกล่าสุด: <code>{{ lastBtnClick || '-' }}</code></div>
+        </div>
+
+        <!-- ─── LoadPanel ─────────────────────────────────────────────── -->
+        <div class="widget-card">
+          <h3>app-load-panel <span class="badge">แทน dx-load-panel</span></h3>
+          <app-button text="แสดง Loading" icon="refresh" type="default"
+            (onClick)="showLoading()">
+          </app-button>
+          <div class="widget-result">
+            <code>visible = {{ wLoading }}</code><br>
+            (จะปิดเองใน 2 วินาที)
+          </div>
+          <app-load-panel
+            [(visible)]="wLoading"
+            message="กำลังโหลดข้อมูล..."
+            [shading]="true"
+            [closeOnOutsideClick]="false">
+          </app-load-panel>
+        </div>
+
+        <!-- ─── Popup ─────────────────────────────────────────────────── -->
+        <div class="widget-card">
+          <h3>app-popup <span class="badge">แทน dx-popup</span></h3>
+          <app-button text="เปิด Popup" icon="plus" type="default"
+            (onClick)="wPopup = true">
+          </app-button>
+          <app-popup
+            [(visible)]="wPopup"
+            title="ตัวอย่าง Popup"
+            [showTitle]="true"
+            width="420px"
+            height="auto"
+            [closeOnOutsideClick]="true"
+            (onHiding)="wPopup = false">
+
+            <p>เนื้อหาใน Popup สามารถใส่ Component อื่นได้เลย</p>
+            <app-select-box
+              [dataSource]="provinceOptions"
+              displayExpr="label" valueExpr="value"
+              [searchEnabled]="true" [showClearButton]="true"
+              placeholder="เลือกจังหวัดใน Popup..."
+              [(ngModel)]="wPopupProvince">
+            </app-select-box>
+            <br>
+            <app-button text="ตกลง" type="success" (onClick)="wPopup = false" width="100%"></app-button>
+          </app-popup>
+          <div class="widget-result">
+            จังหวัดที่เลือกใน popup: <code>{{ wPopupProvince ?? '-' }}</code>
+          </div>
+        </div>
+
+        <!-- ─── TabPanel ──────────────────────────────────────────────── -->
+        <div class="widget-card widget-card--full">
+          <h3>app-tab-panel <span class="badge">แทน dx-tab-panel + dxi-item</span></h3>
+          <app-tab-panel (onSelectionChanged)="onTabChange($event)">
+
+            <app-tab-item title="📋 ข้อมูลทั่วไป">
+              <div style="padding:8px 0">
+                <p>เนื้อหาแท็บ 1 — ใส่ component อะไรก็ได้</p>
+                <app-text-box [(ngModel)]="wTabText" placeholder="พิมพ์อะไรก็ได้..." [showClearButton]="true"></app-text-box>
+              </div>
+            </app-tab-item>
+
+            <app-tab-item title="📅 วันที่">
+              <div style="padding:8px 0">
+                <p>เนื้อหาแท็บ 2 — Thai Datepicker</p>
+                <app-thai-datepicker [(ngModel)]="selectedDate" [format]="'mediumDate'"></app-thai-datepicker>
+              </div>
+            </app-tab-item>
+
+            <app-tab-item title="⚙ การตั้งค่า">
+              <div style="padding:8px 0">
+                <p>เนื้อหาแท็บ 3 — ปีการศึกษา</p>
+                <app-number-box [(ngModel)]="wAcadYear" [showSpinButtons]="true" [min]="2500" [max]="2600"></app-number-box>
+              </div>
+            </app-tab-item>
+
+          </app-tab-panel>
+          <div class="widget-result">แท็บปัจจุบัน: <code>{{ lastTabIndex }}</code></div>
+        </div>
+
+        <!-- ─── Accordion ─────────────────────────────────────────────── -->
+        <div class="widget-card widget-card--full">
+          <h3>app-accordion <span class="badge">แทน dx-accordion + dxi-item</span></h3>
+          <app-accordion [multiple]="false" [collapsible]="true">
+
+            <app-accordion-item title="🔍 เงื่อนไขการค้นหา">
+              <div style="display:flex;gap:12px;flex-wrap:wrap">
+                <div style="flex:1;min-width:140px">
+                  ปีการศึกษา
+                  <app-number-box [(ngModel)]="wAcadYear" [showSpinButtons]="true" [min]="2500" [max]="2600"></app-number-box>
+                </div>
+                <div style="flex:1;min-width:140px">
+                  จังหวัด
+                  <app-select-box [dataSource]="provinceOptions" displayExpr="label" valueExpr="value"
+                    [searchEnabled]="true" [showClearButton]="true" [(ngModel)]="wProvince"></app-select-box>
+                </div>
+                <div style="align-self:flex-end">
+                  <app-button text="ค้นหา" icon="find" type="default" (onClick)="onBtnClick('find')"></app-button>
+                </div>
+              </div>
+            </app-accordion-item>
+
+            <app-accordion-item title="📊 สรุปผล">
+              <p>จำนวนที่พบ: <strong>{{ totalOrders }} รายการ</strong></p>
+              <p>ยอดรวม: <strong>{{ totalRevenue | number:'1.0-0' }} บาท</strong></p>
+            </app-accordion-item>
+
+            <app-accordion-item title="⚙ การตั้งค่าเพิ่มเติม">
+              <app-text-box [(ngModel)]="wSearch" placeholder="หมายเหตุ..." [showClearButton]="true"></app-text-box>
+            </app-accordion-item>
+
+          </app-accordion>
+        </div>
+
+      </div><!-- /widget-demo-grid -->
+    </section>
+
+    <!-- ─── Tab 6: Popup Edit ─────────────────────────────────────────────── -->
+    <section *ngIf="activeTab===6">
+      <h2>🪟 Popup Edit Mode</h2>
+      <p class="section-desc">
+        <code>editing.mode = 'popup'</code> — กดปุ่ม <strong>แก้ไข</strong> หรือ <strong>เพิ่มคำสั่งซื้อ</strong>
+        เพื่อเปิด modal form · รองรับ date picker, text, number, boolean ในหนึ่งหน้าต่าง
+      </p>
+
+      <app-datagrid [options]="grid5Options">
+        <!-- ไม่ต้องใช้ cellTemplate ใดๆ เพราะ popup จัดการ form เอง -->
+      </app-datagrid>
+
+      <div class="tip-box" style="margin-top:12px;">
+        💡 <strong>ตั้งค่า:</strong>
+        <code>editing.mode = 'popup'</code> ·
+        <code>popup.width = 700</code> ·
+        <code>popup.colCount = 2</code> ·
+        คอลัมน์ที่ <code>allowEditing: false</code> จะไม่แสดงใน form
+      </div>
+    </section>
+
+    <!-- ─── Tab 7: DX Form ──────────────────────────────────────────────────── -->
+    <section *ngIf="activeTab===7" class="form-demo-section">
+      <h2>📝 DX Form — Standalone Form Component</h2>
+      <p class="section-desc">
+        <code>&lt;app-form&gt;</code> เทียบเท่า <code>dx-form</code> ของ DevExtreme ·
+        ใช้ได้นอก DataGrid · รองรับ group, colCount, dxDateBox, dxSelectBox, dxCheckBox, dxNumberBox, dxTextArea
+      </p>
+
+      <div class="form-demo-layout">
+
+        <!-- ── Form ── -->
+        <div class="form-demo-card">
+          <div class="form-demo-card-header">
+            <span>แบบฟอร์มข้อมูลพนักงาน</span>
+            <span class="form-demo-badge">app-form</span>
+          </div>
+
+          <app-form
+            [(formData)]="formData"
+            [items]="formItems"
+            [showRequiredMark]="true"
+            (onFieldDataChanged)="onFormFieldChanged($event)">
+          </app-form>
+
+          <!-- Actions -->
+          <div class="form-demo-actions">
+            <button class="demo-btn demo-btn-primary" type="button"
+                    (click)="formLastChanged = 'บันทึกแล้ว ✅ ' + formData['firstName'] + ' ' + formData['lastName']">
+              💾 บันทึก
+            </button>
+            <button class="demo-btn demo-btn-default" type="button"
+                    (click)="formData = {}; formLastChanged = 'ล้างแบบฟอร์มแล้ว'">
+              🗑 ล้าง
+            </button>
+          </div>
+        </div>
+
+        <!-- ── Preview ── -->
+        <div class="form-demo-preview">
+          <div class="form-preview-header">📊 ข้อมูล (formData)</div>
+
+          <div class="form-preview-change" *ngIf="formLastChanged">
+            <strong>Last change:</strong> {{ formLastChanged }}
+          </div>
+
+          <table class="form-preview-table">
+            <tbody>
+              <tr *ngFor="let key of $any(formData) | keyvalue">
+                <td class="preview-key">{{ key.key }}</td>
+                <td class="preview-val">{{ key.value }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+      <div class="tip-box" style="margin-top: 16px;">
+        💡 <strong>API เหมือน DevExtreme:</strong>
+        <code>[(formData)]</code> two-way ·
+        <code>[items]</code> FormItem[] ·
+        <code>(onFieldDataChanged)</code> · group, colCount, colSpan, isRequired, editorType, editorOptions
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!-- Tab 8: Widgets ใหม่ (check-box, date-box, tag-box, radio, textarea, switch) -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <section *ngIf="activeTab===8" style="padding: 20px;">
+      <h2>🆕 Widget Components ใหม่</h2>
+      <p style="color:#666; margin-bottom: 20px;">
+        6 components ใหม่ที่เพิ่มเข้ามา — ทุกตัว implement <code>ControlValueAccessor</code> รองรับ <code>[(ngModel)]</code> และ <code>formControlName</code>
+      </p>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+
+        <!-- CheckBox -->
+        <div class="widget-card">
+          <div class="widget-card-title">✅ app-check-box <span class="badge-dx">dx-check-box</span></div>
+          <div class="widget-demo-row">
+            <app-check-box [(ngModel)]="wCheckBox" text="เปิดใช้งาน"></app-check-box>
+            <app-check-box [(ngModel)]="wCheckBox" text="(disabled)" [disabled]="true"></app-check-box>
+          </div>
+          <div class="widget-val">value: <strong>{{ wCheckBox }}</strong></div>
+          <div class="widget-code"><code>&lt;app-check-box [(ngModel)]="val" text="ข้อความ"&gt;&lt;/app-check-box&gt;</code></div>
+        </div>
+
+        <!-- Switch -->
+        <div class="widget-card">
+          <div class="widget-card-title">🔘 app-switch <span class="badge-dx">dx-switch</span></div>
+          <div class="widget-demo-row">
+            <app-switch [(ngModel)]="wSwitch" switchedOnText="เปิด" switchedOffText="ปิด"></app-switch>
+            <app-switch [(ngModel)]="wSwitch" [disabled]="true"></app-switch>
+          </div>
+          <div class="widget-val">value: <strong>{{ wSwitch }}</strong></div>
+          <div class="widget-code"><code>&lt;app-switch [(ngModel)]="val" switchedOnText="เปิด" switchedOffText="ปิด"&gt;&lt;/app-switch&gt;</code></div>
+        </div>
+
+        <!-- DateBox -->
+        <div class="widget-card">
+          <div class="widget-card-title">📅 app-date-box <span class="badge-dx">dx-date-box</span></div>
+          <div class="widget-demo-row" style="flex-direction: column; align-items: stretch;">
+            <app-date-box [(ngModel)]="wDateBox" format="medium" placeholder="เลือกวันที่"></app-date-box>
+          </div>
+          <div class="widget-val">value: <strong>{{ wDateBox | date:'dd/MM/yyyy' }}</strong></div>
+          <div class="widget-code"><code>&lt;app-date-box [(ngModel)]="val" format="medium"&gt;&lt;/app-date-box&gt;</code></div>
+        </div>
+
+        <!-- TagBox -->
+        <div class="widget-card">
+          <div class="widget-card-title">🏷️ app-tag-box <span class="badge-dx">dx-tag-box</span></div>
+          <div class="widget-demo-row" style="flex-direction: column; align-items: stretch;">
+            <app-tag-box
+              [(ngModel)]="wTagBox"
+              [dataSource]="provinceOptions"
+              valueExpr="value"
+              displayExpr="label"
+              [searchEnabled]="true"
+              [showClearButton]="true"
+              placeholder="เลือกจังหวัด...">
+            </app-tag-box>
+          </div>
+          <div class="widget-val">selected: <strong>{{ wTagBox | json }}</strong></div>
+          <div class="widget-code"><code>&lt;app-tag-box [(ngModel)]="vals" [dataSource]="list" [searchEnabled]="true"&gt;&lt;/app-tag-box&gt;</code></div>
+        </div>
+
+        <!-- RadioGroup -->
+        <div class="widget-card">
+          <div class="widget-card-title">🔵 app-radio-group <span class="badge-dx">dx-radio-group</span></div>
+          <div class="widget-demo-row" style="flex-direction: column; gap: 12px;">
+            <div>
+              <div style="font-size:12px; color:#888; margin-bottom:6px;">vertical (default)</div>
+              <app-radio-group [(ngModel)]="wRadio" [items]="genderItems" displayExpr="text" valueExpr="value"></app-radio-group>
+            </div>
+            <div>
+              <div style="font-size:12px; color:#888; margin-bottom:6px;">horizontal</div>
+              <app-radio-group [(ngModel)]="wRadio" [items]="genderItems" displayExpr="text" valueExpr="value" layout="horizontal"></app-radio-group>
+            </div>
+          </div>
+          <div class="widget-val">value: <strong>{{ wRadio }}</strong></div>
+          <div class="widget-code"><code>&lt;app-radio-group [(ngModel)]="val" [items]="list" layout="horizontal"&gt;&lt;/app-radio-group&gt;</code></div>
+        </div>
+
+        <!-- TextArea -->
+        <div class="widget-card">
+          <div class="widget-card-title">📝 app-text-area <span class="badge-dx">dx-text-area</span></div>
+          <div class="widget-demo-row" style="flex-direction: column; align-items: stretch;">
+            <app-text-area
+              [(ngModel)]="wTextArea"
+              [rows]="3"
+              [maxLength]="200"
+              placeholder="กรอกข้อความ...">
+            </app-text-area>
+          </div>
+          <div class="widget-val">length: <strong>{{ wTextArea.length }}</strong> chars</div>
+          <div class="widget-code"><code>&lt;app-text-area [(ngModel)]="val" [rows]="4" [maxLength]="200"&gt;&lt;/app-text-area&gt;</code></div>
+        </div>
+
+      </div>
+
+      <!-- Usage summary -->
+      <div class="tip-box" style="margin-top: 20px;">
+        💡 <strong>ทุก component:</strong>
+        <code>[(ngModel)]</code> two-way binding ·
+        <code>[disabled]="true"</code> ·
+        <code>(onValueChanged)="fn($event)"</code> · ใส่ใน reactive forms ด้วย <code>formControlName</code> ได้เลย
+      </div>
+    </section>
+
+  </div><!-- /demo-content -->
+</div>
