@@ -1,0 +1,54 @@
+.page-header {
+  padding: 16px 0 12px;
+  border-bottom: 1px solid #e0e0e0;
+  margin-bottom: 16px;
+  h2 { margin: 0; font-size: 20px; color: #1a237e; }
+  .breadcrumb { margin: 4px 0 0; font-size: 12px; color: #90a4ae; }
+}
+
+.search-panel {
+  background: #f8f9fb;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.search-grid {
+  display: grid;
+  /* auto-fit: จัดคอลัมน์อัตโนมัติ min 160px — ไม่ overflow ทุกขนาดหน้าจอ */
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  align-items: end;
+
+  /* ปุ่มค้นหา/ล้างค่า — ยืดเต็มแถวเมื่อแคบ */
+  .search-actions {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+  }
+}
+
+.search-field {
+  min-width: 0;
+  label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #546e7a;
+    margin-bottom: 4px;
+  }
+}
+
+.search-actions {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
+.grid-container {
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  overflow: hidden;
+}

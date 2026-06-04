@@ -8,10 +8,7 @@
     "noPropertyAccessFromIndexSignature": true,
     "noImplicitReturns": true,
     "paths": {
-      "@darkoum/ng-datagrid": [
-        "./dist/ng-datagrid",
-        "./projects/ng-datagrid/src/public-api.ts"
-      ]
+      "@darkoum/ng-datagrid": ["./projects/ng-datagrid/src/public-api.ts", "./dist/ng-datagrid"]
     },
     "noFallthroughCasesInSwitch": true,
     "skipLibCheck": true,
@@ -40,6 +37,9 @@
     },
     {
       "path": "./projects/ng-datagrid/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/student-demo/tsconfig.app.json"
     }
   ]
 }

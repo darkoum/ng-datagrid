@@ -457,6 +457,36 @@ input[type="checkbox"] {
   gap: 14px;
 }
 
+/* ── Tab bar ── */
+.dx-popup-tab-bar {
+  display: flex;
+  border-bottom: 2px solid #e0e0e0;
+  margin: -18px -20px 14px;
+  padding: 0 20px;
+  background: #f8f9fb;
+  flex-wrap: wrap;
+}
+.dx-popup-tab-btn {
+  padding: 10px 18px;
+  border: none;
+  background: none;
+  font-size: 13px;
+  font-weight: 500;
+  color: #607d8b;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: color .15s, border-color .15s;
+  white-space: nowrap;
+  &:hover { color: #1565c0; }
+  &.active { color: #1565c0; border-bottom-color: #1565c0; font-weight: 600; }
+}
+.dx-popup-tab-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
 /* grid สำหรับ auto-column mode (ไม่มี form.items) */
 .dx-popup-auto-grid {
   display: grid;

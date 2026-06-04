@@ -58,6 +58,12 @@ export interface SelectionConfig {
   showCheckBoxesMode?: 'always' | 'onClick' | 'onLongTap' | 'none';
 }
 
+/** Tab สำหรับ tabbed popup form — เหมือน dxi-tab ใน DevExtreme */
+export interface FormTab {
+  title: string;
+  items: FormItem[];
+}
+
 /**
  * FormItem — เหมือน DevExtreme dxForm items
  * รองรับ simple field, group, empty
@@ -114,6 +120,8 @@ export interface EditingConfig {
     colCount?: 1 | 2;
     /** กำหนด layout แบบ custom — ถ้าไม่ระบุจะ auto-generate จาก columns */
     items?: FormItem[];
+    /** tabbed form — ถ้าระบุ tabs จะแสดงแบบ tab panel (เหมือน dxi-item itemType="tabbed" ใน v17) */
+    tabs?: FormTab[];
   };
   texts?: {
     saveRowChanges?: string;

@@ -44,10 +44,10 @@ export interface TbValueChangedEvent {
     </div>
   `,
   styles: [`
-    :host { display: block; }
+    :host { display: block; width: 100%; min-width: 0; }
 
     .app-tb {
-      display: flex; align-items: center;
+      display: flex; align-items: center; width: 100%; min-width: 0;
       border: 1px solid #ced4da; border-radius: 4px;
       background: #fff; overflow: hidden; transition: border-color .15s;
     }

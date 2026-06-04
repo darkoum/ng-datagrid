@@ -1,0 +1,62 @@
+<div class="page-header">
+  <h2>ระเบียนนักศึกษา (Student Registry)</h2>
+  <p class="breadcrumb">ระบบทะเบียน › ระเบียนนักศึกษา</p>
+</div>
+
+<!-- ─── Search Panel ─────────────────────────────────────────────────────── -->
+<div class="search-panel">
+  <div class="search-row">
+    <div class="sf">
+      <label>รหัสนักศึกษา</label>
+      <app-text-box [(ngModel)]="studentcode" [showClearButton]="true" placeholder="ค้นหา..."></app-text-box>
+    </div>
+    <div class="sf">
+      <label>ชื่อ</label>
+      <app-text-box [(ngModel)]="studentname" [showClearButton]="true" placeholder="ค้นหา..."></app-text-box>
+    </div>
+    <div class="sf">
+      <label>นามสกุล</label>
+      <app-text-box [(ngModel)]="studentsurname" [showClearButton]="true" placeholder="ค้นหา..."></app-text-box>
+    </div>
+    <div class="sf">
+      <label>สถานะนักศึกษา</label>
+      <app-select-box [(ngModel)]="studentstatus"
+        [dataSource]="mock.statusCombo" displayExpr="comboshow" valueExpr="comboid"
+        [searchEnabled]="true" [showClearButton]="true" placeholder="-- ทั้งหมด --">
+      </app-select-box>
+    </div>
+  </div>
+  <div class="search-row">
+    <div class="sf">
+      <label>ศูนย์/วิทยาเขต</label>
+      <app-select-box [(ngModel)]="campusid"
+        [dataSource]="mock.campusCombo" displayExpr="comboshow" valueExpr="comboid"
+        [searchEnabled]="true" [showClearButton]="true" placeholder="-- ทั้งหมด --">
+      </app-select-box>
+    </div>
+    <div class="sf">
+      <label>คณะ</label>
+      <app-select-box [(ngModel)]="facultyid"
+        [dataSource]="mock.facultyCombo" displayExpr="comboshow" valueExpr="comboid"
+        [searchEnabled]="true" [showClearButton]="true" placeholder="-- ทั้งหมด --">
+      </app-select-box>
+    </div>
+    <div class="sf">
+      <label>สาขาวิชา</label>
+      <app-select-box [(ngModel)]="programid"
+        [dataSource]="mock.programCombo" displayExpr="comboshow" valueExpr="comboid"
+        [searchEnabled]="true" [showClearButton]="true" placeholder="-- ทั้งหมด --">
+      </app-select-box>
+    </div>
+    <div class="sf"></div>
+  </div>
+  <div class="search-actions">
+    <app-button text="🔍 ค้นหา"  type="default" (onClick)="search()"></app-button>
+    <app-button text="↺ ล้างค่า" type="normal"  (onClick)="clearSearch()"></app-button>
+  </div>
+</div>
+
+<!-- ─── DataGrid ─────────────────────────────────────────────────────────── -->
+<div class="grid-container">
+  <app-datagrid [options]="gridOptions"></app-datagrid>
+</div>

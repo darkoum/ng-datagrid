@@ -1,0 +1,12 @@
+<div class="page-header">
+  <h2>ข้อมูลประเทศ (Country)</h2>
+  <p class="breadcrumb">ข้อมูลอ้างอิง › ประเทศ</p>
+</div>
+
+<div class="info-bar" *ngIf="lastAction()">
+  {{ lastAction() }}
+</div>
+
+<div class="grid-container">
+  <app-datagrid [options]="gridOptions"></app-datagrid>
+</div>

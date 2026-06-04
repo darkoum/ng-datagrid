@@ -60,11 +60,11 @@ export interface NbValueChangedEvent {
     </div>
   `,
   styles: [`
-    :host { display: block; }
+    :host { display: block; width: 100%; min-width: 0; }
 
     .app-nb {
       display: flex; align-items: stretch; border: 1px solid #ced4da;
-      border-radius: 4px; overflow: hidden; background: #fff;
+      border-radius: 4px; overflow: hidden; background: #fff; width: 100%;
     }
     .app-nb--disabled { background: #e9ecef; }
 

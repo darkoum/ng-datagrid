@@ -80,9 +80,9 @@ export interface SbValueChangedEvent {
     </div>
   `,
   styles: [`
-    :host { display: block; }
+    :host { display: block; width: 100%; min-width: 0; }
 
-    .app-sb { position: relative; font-size: 14px; }
+    .app-sb { position: relative; font-size: 14px; width: 100%; min-width: 0; }
 
     .app-sb__control {
       display: flex; align-items: center; justify-content: space-between;

@@ -7,7 +7,7 @@
   "license": "UNLICENSED",
   "publishConfig": {
     "registry": "https://npm.pkg.github.com",
-    "access": "restricted"
+    "access": "public"
   },
   "peerDependencies": {
     "@angular/common": ">=17.0.0",

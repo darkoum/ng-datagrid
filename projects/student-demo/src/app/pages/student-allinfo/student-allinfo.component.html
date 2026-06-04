@@ -1,0 +1,92 @@
+<div class="page-header">
+  <h2>ข้อมูลนักศึกษาทั้งหมด (All Info)</h2>
+  <p class="breadcrumb">ระบบทะเบียน › ข้อมูลนักศึกษาทั้งหมด</p>
+</div>
+
+<div class="search-bar">
+  <label>รหัสนักศึกษา</label>
+  <div class="search-input-group">
+    <app-text-box [(ngModel)]="searchCode" [showClearButton]="true"
+      placeholder="เช่น 640001001" (keydown.enter)="search()">
+    </app-text-box>
+    <app-button text="🔍 ค้นหา" type="default" (onClick)="search()"></app-button>
+  </div>
+  <span *ngIf="notFound()" class="not-found">ไม่พบนักศึกษา "{{ searchCode }}"</span>
+</div>
+
+<!-- Student header card -->
+<div class="student-card" *ngIf="student() as s">
+  <div class="card-rows">
+    <div class="info-row">
+      <span class="lbl">รหัสนักศึกษา :</span><span class="val code">{{ s.studentcode }}</span>
+      <span class="lbl">ชื่อ-นามสกุล :</span><span class="val">{{ getPrefixLabel(s) }}{{ s.studentname }} {{ s.studentsurname }}</span>
+      <span class="lbl">วันที่รับเข้า :</span><span class="val">{{ s.admitdate }}</span>
+    </div>
+    <div class="info-row">
+      <span class="lbl">ศูนย์/วิทยาเขต :</span><span class="val">{{ getCampusLabel(s) }}</span>
+      <span class="lbl">คณะ :</span><span class="val">{{ getFacultyLabel(s) }}</span>
+      <span class="lbl">สาขาวิชา :</span><span class="val">{{ getProgramLabel(s) }}</span>
+    </div>
+    <div class="info-row">
+      <span class="lbl">สถานภาพ :</span>
+      <span class="val badge" [class.active]="s.studentstatus===1">{{ getStatusLabel(s) }}</span>
+      <span class="lbl">ชั้นปี :</span><span class="val">{{ s.studentyear }}</span>
+      <span class="lbl">GPA :</span><span class="val">{{ s.gpa | number:'1.2-2' }}</span>
+    </div>
+  </div>
+</div>
+
+<!-- Two-panel layout: status grid + tabs -->
+<div class="two-panel" *ngIf="student()">
+  <!-- Left: สถานภาพรายภาค -->
+  <div class="panel-left">
+    <div class="section-title">สถานภาพรายภาค
+      <span class="hint" *ngIf="selectedSemester() as sem">— เลือก {{ sem.acadyear }}/{{ sem.semester }}</span>
+      <span class="hint" *ngIf="!selectedSemester()">← คลิกแถวเพื่อดูรายละเอียด</span>
+    </div>
+    <div class="grid-box" *ngIf="statusGridOptions() as opts">
+      <app-datagrid [options]="opts"></app-datagrid>
+    </div>
+  </div>
+
+  <!-- Right: Tab panel -->
+  <div class="panel-right">
+    <div class="tab-bar">
+      <button *ngFor="let t of tabs" class="tab-btn"
+              [class.active]="activeTab() === t.key"
+              type="button" (click)="setTab(t.key)">
+        {{ t.label }}
+      </button>
+    </div>
+    <div class="tab-content">
+      <!-- ผลลงทะเบียน -->
+      <div [style.display]="activeTab()==='enroll' ? 'block' : 'none'">
+        <div class="grid-box" *ngIf="enrollGridOptions() as opts">
+          <app-datagrid [options]="opts"></app-datagrid>
+        </div>
+      </div>
+      <!-- ตารางเรียน -->
+      <div [style.display]="activeTab()==='schedule' ? 'block' : 'none'">
+        <div class="grid-box" *ngIf="scheduleGridOptions() as opts">
+          <app-datagrid [options]="opts"></app-datagrid>
+        </div>
+      </div>
+      <!-- ตารางสอบ -->
+      <div [style.display]="activeTab()==='exam' ? 'block' : 'none'">
+        <div class="grid-box" *ngIf="examGridOptions() as opts">
+          <app-datagrid [options]="opts"></app-datagrid>
+        </div>
+      </div>
+      <!-- หนี้สิน -->
+      <div [style.display]="activeTab()==='fee' ? 'block' : 'none'">
+        <div class="grid-box" *ngIf="feeGridOptions() as opts">
+          <app-datagrid [options]="opts"></app-datagrid>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="empty-state" *ngIf="!student() && !notFound()">
+  <span>🔍 กรอกรหัสนักศึกษาแล้วกด ค้นหา</span>
+</div>

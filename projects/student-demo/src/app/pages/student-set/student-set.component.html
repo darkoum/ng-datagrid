@@ -1,0 +1,142 @@
+<div class="page-header">
+  <h2>กลุ่มนักศึกษา (Student Set)</h2>
+  <p class="breadcrumb">ระบบทะเบียน › กลุ่มนักศึกษา</p>
+</div>
+
+<!-- ─── Search Panel ─── -->
+<div class="search-panel">
+  <!-- แถว 1: 4 คอลัมน์เท่ากัน -->
+  <div class="search-row">
+    <div class="sf">
+      <label>ศูนย์/วิทยาเขต</label>
+      <app-select-box [(ngModel)]="camid" [dataSource]="mock.campusCombo"
+        displayExpr="comboshow" valueExpr="comboid" [searchEnabled]="true"
+        [showClearButton]="true" placeholder="-- ทั้งหมด --"></app-select-box>
+    </div>
+    <div class="sf">
+      <label>ระดับ</label>
+      <app-select-box [(ngModel)]="lvlid" [dataSource]="mock.levelCombo"
+        displayExpr="comboshow" valueExpr="comboid" [searchEnabled]="true"
+        [showClearButton]="true" placeholder="-- ทั้งหมด --"></app-select-box>
+    </div>
+    <div class="sf">
+      <label>คณะ</label>
+      <app-select-box [(ngModel)]="facid" [dataSource]="mock.facultyCombo"
+        displayExpr="comboshow" valueExpr="comboid" [searchEnabled]="true"
+        [showClearButton]="true" placeholder="-- ทั้งหมด --"></app-select-box>
+    </div>
+    <div class="sf">
+      <label>ปริญญา</label>
+      <app-select-box [(ngModel)]="degid" [dataSource]="mock.degreeCombo"
+        displayExpr="comboshow" valueExpr="comboid" [searchEnabled]="true"
+        [showClearButton]="true" placeholder="-- ทั้งหมด --"></app-select-box>
+    </div>
+  </div>
+  <!-- แถว 2: ปีที่เข้า + ภาคที่ + ชื่อกลุ่มฯ — 4 คอลัมน์เท่ากัน -->
+  <div class="search-row">
+    <div class="sf">
+      <label>ปีที่เข้า</label>
+      <app-number-box [(ngModel)]="admitacadyear" [showSpinButtons]="true" [min]="2550" [max]="2580"></app-number-box>
+    </div>
+    <div class="sf">
+      <label>ภาคที่</label>
+      <app-number-box [(ngModel)]="admitsemester" [showSpinButtons]="true" [min]="0" [max]="3"></app-number-box>
+    </div>
+    <div class="sf">
+      <label>ชื่อกลุ่มนักศึกษา ย่อ.</label>
+      <app-text-box [(ngModel)]="studentgroupabb" [showClearButton]="true" placeholder="ค้นหา..."></app-text-box>
+    </div>
+    <div class="sf"></div><!-- placeholder คอลัมน์ 4 -->
+  </div>
+  <!-- แถว Action -->
+  <div class="search-actions">
+    <app-button text="🔍 ค้นหา"      type="default" (onClick)="search()"></app-button>
+    <app-button text="↺ ล้างค่า"     type="normal"  (onClick)="clearSearch()"></app-button>
+    <app-button text="📋 คัดลอก"     type="default" (onClick)="showCopy()"></app-button>
+    <app-button text="⚙️ ปรับข้อมูล" type="normal"  (onClick)="showBatch()"></app-button>
+  </div>
+</div>
+
+<!-- ─── DataGrid: กลุ่มนักศึกษา ─── -->
+<div class="grid-container">
+  <app-datagrid [options]="studentSetGridOptions" (rowClick)="onRowClick($event.data)"></app-datagrid>
+</div>
+
+<!-- ─── DataGrid: รายชื่อนักศึกษา ─── -->
+<div class="student-list-section">
+  <div class="section-label">
+    รายชื่อนักศึกษา
+    <span class="group-badge" *ngIf="selectedSetName()">{{ selectedSetName() }}</span>
+    <span class="hint" *ngIf="!selectedSetName()">← คลิกแถวกลุ่มนักศึกษาเพื่อดูรายชื่อ</span>
+  </div>
+  <div class="grid-container">
+    <app-datagrid [options]="studentListGridOptions"></app-datagrid>
+  </div>
+</div>
+
+<!-- ════ Popup: คัดลอกกลุ่มนักศึกษา ════ -->
+<app-popup [visible]="popupCopyVisible()" (visibleChange)="popupCopyVisible.set($event)"
+  title="คัดลอกกลุ่มนักศึกษา" [width]="420" [height]="'auto'" [showTitle]="true">
+  <div class="popup-body">
+    <div class="pf">
+      <label>ศูนย์/วิทยาเขต</label>
+      <app-select-box [(ngModel)]="campusidcopy" [dataSource]="mock.campusCombo"
+        displayExpr="comboshow" valueExpr="comboid" [searchEnabled]="true"></app-select-box>
+    </div>
+    <div class="pf">
+      <label>ระดับ</label>
+      <app-select-box [(ngModel)]="levelidcopy" [dataSource]="mock.levelCombo"
+        displayExpr="comboshow" valueExpr="comboid" [searchEnabled]="true"></app-select-box>
+    </div>
+    <div class="pf">
+      <label>คณะ</label>
+      <app-select-box [(ngModel)]="facultyidcopy" [dataSource]="mock.facultyCombo"
+        displayExpr="comboshow" valueExpr="comboid" [searchEnabled]="true"></app-select-box>
+    </div>
+    <div class="pf-row">
+      <div class="pf">
+        <label>ปีที่เข้า</label>
+        <app-number-box [(ngModel)]="admitaccopy" [showSpinButtons]="true" [min]="2550" [max]="2580"></app-number-box>
+      </div>
+      <div class="pf">
+        <label>ภาคที่</label>
+        <app-number-box [(ngModel)]="admitsemcopy" [showSpinButtons]="true" [min]="0" [max]="3"></app-number-box>
+      </div>
+    </div>
+    <div class="popup-actions">
+      <app-button text="📋 คัดลอก" type="success" (onClick)="onCopy()"></app-button>
+      <app-button text="ยกเลิก"   type="normal"  (onClick)="popupCopyVisible.set(false)"></app-button>
+    </div>
+  </div>
+</app-popup>
+
+<!-- ════ Popup: ปรับข้อมูลเป็นชุด ════ -->
+<app-popup [visible]="popupBatchVisible()" (visibleChange)="popupBatchVisible.set($event)"
+  title="ปรับข้อมูลกลุ่มนักศึกษาเป็นชุด" [width]="420" [height]="'auto'" [showTitle]="true">
+  <div class="popup-body">
+    <div class="pf">
+      <label>การประเมินผล</label>
+      <app-select-box [(ngModel)]="batchAcadid" [dataSource]="mock.acadCombo"
+        displayExpr="comboshow" valueExpr="comboid" [showClearButton]="true" [searchEnabled]="true"></app-select-box>
+    </div>
+    <div class="pf">
+      <label>บัญชีค่าใช้จ่าย</label>
+      <app-select-box [(ngModel)]="batchFeegroupid" [dataSource]="mock.feeGroupCombo"
+        displayExpr="comboshow" valueExpr="comboid" [showClearButton]="true" [searchEnabled]="true"></app-select-box>
+    </div>
+    <div class="pf">
+      <label>ปฏิทินการศึกษา</label>
+      <app-select-box [(ngModel)]="batchSchedulegroupid" [dataSource]="mock.scheduleCombo"
+        displayExpr="comboshow" valueExpr="comboid" [showClearButton]="true" [searchEnabled]="true"></app-select-box>
+    </div>
+    <div class="pf">
+      <label>สถานะกลุ่มนักศึกษา</label>
+      <app-select-box [(ngModel)]="batchStatus" [dataSource]="mock.setStatusCombo"
+        displayExpr="comboshow" valueExpr="comboid" [showClearButton]="true" [searchEnabled]="true"></app-select-box>
+    </div>
+    <div class="popup-actions">
+      <app-button text="⚙️ ปรับข้อมูล" type="success" (onClick)="onBatch()"></app-button>
+      <app-button text="ยกเลิก"        type="normal"  (onClick)="popupBatchVisible.set(false)"></app-button>
+    </div>
+  </div>
+</app-popup>

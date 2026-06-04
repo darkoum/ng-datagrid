@@ -1,0 +1,263 @@
+.page-header {
+  padding: 16px 0 12px;
+  border-bottom: 1px solid #e0e0e0;
+  margin-bottom: 20px;
+  h2 { margin: 0; font-size: 20px; color: #1a237e; }
+  .breadcrumb { margin: 4px 0 0; font-size: 12px; color: #90a4ae; }
+}
+
+// ─── Section wrapper ──────────────────────────────────────────────────────
+.demo-section {
+  background: #f8f9fb;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.section-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a237e;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #e8eaf6;
+}
+
+// ─── Section desc ────────────────────────────────────────────────────────
+.section-desc {
+  font-size: 13px; color: #546e7a; margin-bottom: 16px; line-height: 1.6;
+  code { background: #e8eaf6; color: #1a237e; padding: 1px 5px; border-radius: 3px; font-family: monospace; }
+  .icon-hint { font-size: 16px; vertical-align: middle; }
+}
+
+// ─── Form Tabs ────────────────────────────────────────────────────────────
+.form-tabs {
+  display: flex; gap: 4px; margin-bottom: 0;
+  border-bottom: 2px solid #e0e0e0;
+}
+.tab-btn {
+  padding: 8px 16px; border: none; background: none; cursor: pointer;
+  font-size: 13px; color: #546e7a; border-bottom: 3px solid transparent;
+  margin-bottom: -2px; border-radius: 4px 4px 0 0; transition: all .15s;
+  font-family: 'Sarabun', sans-serif;
+  &:hover { background: #f5f5f5; color: #1565c0; }
+  &.active { color: #1565c0; font-weight: 700; border-bottom-color: #1565c0; background: #e8f0fe; }
+}
+
+// ─── Form card ────────────────────────────────────────────────────────────
+.form-card {
+  background: #fff; border: 1px solid #e0e0e0;
+  border-top: none; border-radius: 0 0 8px 8px;
+  padding: 20px; margin-bottom: 16px;
+}
+.form-group-title {
+  font-size: 13px; font-weight: 700; color: #3949ab;
+  margin-bottom: 14px;
+  &.mt { margin-top: 20px; padding-top: 16px; border-top: 1px solid #f0f0f0; }
+}
+
+// ─── Form fields ─────────────────────────────────────────────────────────
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+.field-wrap {
+  min-width: 0;
+  label {
+    display: block; font-size: 12px; font-weight: 600;
+    color: #546e7a; margin-bottom: 5px;
+    .required { color: #e53935; }
+  }
+  app-date-box { width: 100%; display: block; }
+}
+.field-preview {
+  margin-top: 5px; font-size: 12px; color: #1565c0;
+  background: #e8f0fe; padding: 4px 8px; border-radius: 4px;
+}
+.field-hint {
+  margin-top: 5px; font-size: 12px; color: #90a4ae; font-style: italic;
+}
+.age-display {
+  font-size: 24px; font-weight: 700; color: #1a237e;
+  padding: 8px 0; line-height: 1;
+}
+
+// ─── Passport expire badge ────────────────────────────────────────────────
+.passport-expire { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.expire-badge {
+  font-size: 11px; font-weight: 700; padding: 2px 6px; border-radius: 10px;
+  background: #e8f5e9; color: #2e7d32;
+  &.expired { background: #ffebee; color: #c62828; }
+}
+
+// ─── Form actions ─────────────────────────────────────────────────────────
+.form-actions {
+  display: flex; align-items: center; gap: 12px; padding-top: 8px;
+}
+.save-toast {
+  font-size: 13px; color: #2e7d32; font-weight: 700;
+  background: #e8f5e9; padding: 6px 14px; border-radius: 20px;
+  animation: fadeIn .3s;
+}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+
+// ─── Saved summary ────────────────────────────────────────────────────────
+.saved-summary {
+  margin-top: 16px; background: #fff; border: 1px solid #c8e6c9;
+  border-radius: 8px; padding: 16px;
+}
+.summary-title {
+  font-size: 13px; font-weight: 700; color: #2e7d32; margin-bottom: 12px;
+}
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+}
+.summary-item {
+  display: flex; flex-direction: column; gap: 2px;
+  .lbl { font-size: 11px; color: #90a4ae; font-weight: 600; }
+  .val { font-size: 13px; color: #1a237e; font-weight: 600; }
+}
+
+// ─── Date picker cards ────────────────────────────────────────────────────
+.demo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.demo-card {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 14px;
+
+  .card-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #546e7a;
+    margin-bottom: 8px;
+  }
+
+  .card-result {
+    margin-top: 8px;
+    font-size: 13px;
+    color: #1565c0;
+    background: #e8f0fe;
+    padding: 6px 10px;
+    border-radius: 4px;
+    code { font-family: monospace; }
+  }
+
+  .card-hint {
+    margin-top: 8px;
+    font-size: 12px;
+    color: #90a4ae;
+    font-style: italic;
+  }
+}
+
+// ─── Format table ─────────────────────────────────────────────────────────
+.format-picker-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  .format-picker-label { font-size: 13px; font-weight: 600; color: #546e7a; white-space: nowrap; }
+  app-date-box { width: 200px; }
+}
+
+.format-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  background: #fff;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid #e0e0e0;
+
+  thead tr { background: #e8eaf6; }
+  th {
+    padding: 10px 14px; text-align: left;
+    font-size: 12px; font-weight: 700; color: #3949ab;
+  }
+  td { padding: 9px 14px; border-top: 1px solid #f5f5f5; }
+  tr:hover td { background: #f8f9fb; }
+}
+
+.fmt-code {
+  background: #e8eaf6; color: #1a237e;
+  padding: 2px 6px; border-radius: 3px;
+  font-family: monospace; font-size: 12px;
+}
+.fmt-result {
+  font-weight: 600; color: #1565c0;
+}
+.fmt-desc { color: #546e7a; }
+.tmpl-code {
+  background: #fff3e0; color: #e65100;
+  padding: 2px 6px; border-radius: 3px;
+  font-family: monospace; font-size: 11px;
+}
+
+// ─── Format legend ────────────────────────────────────────────────────────
+.format-legend {
+  margin-top: 16px;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 14px;
+
+  .legend-title {
+    font-size: 13px; font-weight: 700; color: #1a237e;
+    margin-bottom: 10px;
+  }
+  .legend-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 6px;
+  }
+  .legend-item {
+    font-size: 12px; color: #455a64;
+    code {
+      background: #e8eaf6; color: #1a237e;
+      padding: 1px 5px; border-radius: 3px;
+      font-family: monospace; margin-right: 6px;
+    }
+  }
+}
+
+// ─── DataGrid section ─────────────────────────────────────────────────────
+.grid-note {
+  font-size: 13px; color: #546e7a; margin-bottom: 12px;
+  code {
+    background: #e8eaf6; color: #1a237e;
+    padding: 1px 5px; border-radius: 3px; font-family: monospace;
+  }
+}
+
+.grid-container {
+  background: #fff; border-radius: 6px;
+  border: 1px solid #e0e0e0; overflow: hidden;
+  margin-bottom: 16px;
+}
+
+// ─── Code block ───────────────────────────────────────────────────────────
+.code-block {
+  background: #263238; border-radius: 6px; overflow: hidden;
+  .code-label {
+    background: #37474f; color: #90a4ae;
+    font-size: 11px; font-weight: 700; padding: 6px 14px;
+    text-transform: uppercase; letter-spacing: .05em;
+  }
+  pre {
+    margin: 0; padding: 14px 16px;
+    code {
+      font-family: 'Fira Code', 'Courier New', monospace;
+      font-size: 13px; color: #cfd8dc; line-height: 1.6;
+    }
+  }
+}

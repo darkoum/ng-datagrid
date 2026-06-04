@@ -1,0 +1,31 @@
+<div class="app-layout">
+  <header class="topbar">
+    <div class="topbar-brand">
+      <span class="topbar-icon">🎓</span>
+      <span class="topbar-title">ระบบทะเบียนนักศึกษา</span>
+      <span class="topbar-sub">@darkoum/ng-datagrid demo</span>
+    </div>
+    <div class="topbar-user">👤 ผู้ดูแลระบบ</div>
+  </header>
+  <div class="app-body">
+    <aside class="sidebar">
+      <div class="sidebar-section">ข้อมูลนักศึกษา</div>
+      <a routerLink="/student-master" routerLinkActive="active" class="sidebar-link">📋 ข้อมูลนักศึกษา</a>
+      <a routerLink="/student-set"      routerLinkActive="active" class="sidebar-link">👥 กลุ่มนักศึกษา</a>
+      <a routerLink="/student-registry" routerLinkActive="active" class="sidebar-link">📝 ระเบียนนักศึกษา</a>
+      <a routerLink="/student-status"   routerLinkActive="active" class="sidebar-link">🔄 สถานภาพนักศึกษา</a>
+      <a routerLink="/student-bioentry" routerLinkActive="active" class="sidebar-link">📋 บันทึกชีวประวัติ</a>
+      <a routerLink="/student-allinfo"  routerLinkActive="active" class="sidebar-link">🗂 ข้อมูลทั้งหมด</a>
+      <div class="sidebar-section">ตัวอย่าง</div>
+      <a routerLink="/date-demo" routerLinkActive="active" class="sidebar-link">📅 วันที่ไทย (พ.ศ.)</a>
+      <div class="sidebar-section">ข้อมูลอ้างอิง</div>
+      <a routerLink="/country-master" routerLinkActive="active" class="sidebar-link">🌍 ประเทศ (Inline Edit)</a>
+      <div class="sidebar-section">รายวิชา</div>
+      <a class="sidebar-link disabled">📚 ลงทะเบียน</a>
+      <a class="sidebar-link disabled">📝 ผลการเรียน</a>
+      <div class="sidebar-section">รายงาน</div>
+      <a class="sidebar-link disabled">📊 รายงานสถิติ</a>
+    </aside>
+    <main class="main-content"><router-outlet></router-outlet></main>
+  </div>
+</div>

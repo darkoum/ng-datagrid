@@ -1,0 +1,64 @@
+<div class="page-header">
+  <h2>สถานภาพนักศึกษา (Student Status)</h2>
+  <p class="breadcrumb">ระบบทะเบียน › สถานภาพนักศึกษา</p>
+</div>
+
+<!-- Search -->
+<div class="search-bar">
+  <label>รหัสนักศึกษา</label>
+  <div class="search-input-group">
+    <app-text-box [(ngModel)]="searchCode" [showClearButton]="true"
+      placeholder="กรอกรหัสนักศึกษา เช่น 640001001"
+      (keydown.enter)="search()">
+    </app-text-box>
+    <app-button text="🔍 ค้นหา" type="default" (onClick)="search()"></app-button>
+  </div>
+  <span *ngIf="notFound()" class="not-found">ไม่พบข้อมูลนักศึกษา "{{ searchCode }}"</span>
+</div>
+
+<!-- Student Header Card -->
+<div class="student-card" *ngIf="student() as s">
+  <div class="student-card-info">
+    <div class="info-row">
+      <span class="info-label">รหัสนักศึกษา :</span>
+      <span class="info-value code">{{ s.studentcode }}</span>
+      <span class="info-label">ชื่อ-นามสกุล :</span>
+      <span class="info-value">{{ getPrefixLabel(s) }}{{ s.studentname }} {{ s.studentsurname }}</span>
+      <span class="info-label">วันที่รับเข้า :</span>
+      <span class="info-value">{{ s.admitdate }}</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">คณะ :</span>
+      <span class="info-value">{{ getFacultyLabel(s) }}</span>
+      <span class="info-label">สาขาวิชา :</span>
+      <span class="info-value">{{ getProgramLabel(s) }}</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">สถานภาพ :</span>
+      <span class="info-value status-badge" [class.active]="s.studentstatus===1">{{ getStatusLabel(s) }}</span>
+      <span class="info-label">ชั้นปี :</span>
+      <span class="info-value">{{ s.studentyear }}</span>
+      <span class="info-label">GPA :</span>
+      <span class="info-value">{{ s.gpa | number:'1.2-2' }}</span>
+    </div>
+  </div>
+</div>
+
+<!-- สถานะรายภาค Grid -->
+<ng-container *ngIf="statusGridOptions() as opts">
+  <div class="section-title">สถานะรายภาค</div>
+  <div class="grid-container">
+    <app-datagrid [options]="opts"></app-datagrid>
+  </div>
+
+  <!-- ประวัติการแก้ไข -->
+  <div class="section-title" style="margin-top:16px">ประวัติการแก้ไข</div>
+  <div class="grid-container" *ngIf="historyGridOptions() as hopts">
+    <app-datagrid [options]="hopts"></app-datagrid>
+  </div>
+</ng-container>
+
+<!-- Empty state -->
+<div class="empty-state" *ngIf="!student() && !notFound()">
+  <span>🔍 กรอกรหัสนักศึกษาแล้วกด ค้นหา</span>
+</div>

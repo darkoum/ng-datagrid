@@ -1,0 +1,38 @@
+.page-header {
+  padding: 16px 0 12px;
+  border-bottom: 1px solid #e0e0e0;
+  margin-bottom: 16px;
+  h2 { margin: 0; font-size: 20px; color: #1a237e; }
+  .breadcrumb { margin: 4px 0 0; font-size: 12px; color: #90a4ae; }
+}
+
+.search-panel {
+  background: #f8f9fb;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+}
+.search-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 10px;
+  align-items: end;
+}
+.sf {
+  min-width: 0;
+  label { display: block; font-size: 12px; font-weight: 600; color: #546e7a; margin-bottom: 4px; }
+  app-text-box, app-select-box, app-number-box { display: block; width: 100%; }
+}
+.search-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.grid-container {
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  overflow: hidden;
+}

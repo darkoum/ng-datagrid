@@ -50,7 +50,14 @@ type NormalizedColumn<T> = GridColumn<T> & { _field: string };
   providers: [DatagridStateService, VirtualScrollService],
 })
 export class DatagridComponent<T = any> implements OnInit, AfterContentInit, OnDestroy {
-  @Input() set options(val: DataGridOptions<T>) { this._options.set(val ?? {}); }
+  private _initialized = false;
+  @Input() set options(val: DataGridOptions<T>) {
+    this._options.set(val ?? {});
+    if (this._initialized) {
+      this.state.currentPage.set(1);  // reset pagination when data changes
+      this.loadData();
+    }
+  }
 
   @Output() rowClick         = new EventEmitter<RowClickEvent<T>>();
   @Output() rowDblClick      = new EventEmitter<RowClickEvent<T>>();
@@ -126,6 +133,7 @@ export class DatagridComponent<T = any> implements OnInit, AfterContentInit, OnD
   /** popup mode signals */
   popupVisible       = signal(false);
   popupMode          = signal<'add' | 'edit'>('edit');
+  activeTabIndex     = signal(0);
   filterValues: Record<string, string> = {};
 
   templateMap:    Record<string, TemplateRef<any>> = {};
@@ -141,6 +149,7 @@ export class DatagridComponent<T = any> implements OnInit, AfterContentInit, OnD
     const ps = this.opts().paging?.pageSize;
     if (ps) this.state.pageSize.set(ps);
     this.loadData();
+    this._initialized = true;
   }
 
   ngAfterContentInit(): void {
@@ -320,6 +329,7 @@ export class DatagridComponent<T = any> implements OnInit, AfterContentInit, OnD
     this.editRowData.set({ ...row });
     if (this.isPopupMode()) {
       this.popupMode.set('edit');
+      this.activeTabIndex.set(0);
       this.popupVisible.set(true);
     }
   }
@@ -423,6 +433,7 @@ export class DatagridComponent<T = any> implements OnInit, AfterContentInit, OnD
       this.editRowData.set({} as Partial<T>);
       this.editRowKey.set('__new__' as any);
       this.popupMode.set('add');
+      this.activeTabIndex.set(0);
       this.popupVisible.set(true);
       return;
     }

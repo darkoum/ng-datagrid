@@ -1,0 +1,187 @@
+<div class="page-header">
+  <h2>📅 วันที่ภาษาไทย (พ.ศ.)</h2>
+  <p class="breadcrumb">ระบบทะเบียน › ตัวอย่างวันที่ไทย</p>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════════
+     Section 1 — แบบฟอร์มนักศึกษา (เหมือน v17 popup)
+     ════════════════════════════════════════════════════════════════════ -->
+<div class="demo-section">
+  <div class="section-title">📋 แบบฟอร์มข้อมูลนักศึกษา — กรอกวันที่ พ.ศ. โดยตรง</div>
+  <p class="section-desc">
+    พิมพ์วันที่รูปแบบ <strong>วว/ดด/ปปปป</strong> (เช่น <code>01/06/2564</code>) หรือกดไอคอน
+    <span class="icon-hint">🗓</span> เพื่อเปิดปฏิทิน พ.ศ. — ค่าที่ได้เป็น <code>Date</code> ค.ศ. ปกติ
+  </p>
+
+  <!-- Tabs -->
+  <div class="form-tabs">
+    <button class="tab-btn" [class.active]="activeTab() === 'education'" (click)="activeTab.set('education')">
+      🎓 ข้อมูลการศึกษา
+    </button>
+    <button class="tab-btn" [class.active]="activeTab() === 'personal'" (click)="activeTab.set('personal')">
+      👤 ข้อมูลส่วนบุคคล
+    </button>
+    <button class="tab-btn" [class.active]="activeTab() === 'document'" (click)="activeTab.set('document')">
+      📄 เอกสาร / วีซ่า
+    </button>
+  </div>
+
+  <!-- Tab: ข้อมูลการศึกษา -->
+  <div class="form-card" *ngIf="activeTab() === 'education'">
+    <div class="form-group-title">📚 วันที่การศึกษา</div>
+    <div class="form-grid">
+      <div class="field-wrap">
+        <label>วันที่รับเข้า <span class="required">*</span></label>
+        <app-date-box [(ngModel)]="form.admitdate" [showClearButton]="true" placeholder="วว/ดด/ปปปป"></app-date-box>
+        <div class="field-preview" *ngIf="form.admitdate">{{ fmt(form.admitdate, 'long') }}</div>
+      </div>
+      <div class="field-wrap">
+        <label>วันที่จบ / พ้นสภาพ</label>
+        <app-date-box [(ngModel)]="form.finishdate" [showClearButton]="true" placeholder="วว/ดด/ปปปป"></app-date-box>
+        <div class="field-preview" *ngIf="form.finishdate">{{ fmt(form.finishdate, 'long') }}</div>
+        <div class="field-hint" *ngIf="!form.finishdate">ยังไม่มีข้อมูล</div>
+      </div>
+      <div class="field-wrap">
+        <label>วันที่สำเร็จการศึกษาเดิม</label>
+        <app-date-box [(ngModel)]="form.entrygraduatedate" [showClearButton]="true" placeholder="วว/ดด/ปปปป"></app-date-box>
+        <div class="field-preview" *ngIf="form.entrygraduatedate">{{ fmt(form.entrygraduatedate, 'medium') }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab: ข้อมูลส่วนบุคคล -->
+  <div class="form-card" *ngIf="activeTab() === 'personal'">
+    <div class="form-group-title">👤 วัน เดือน ปีเกิด</div>
+    <div class="form-grid">
+      <div class="field-wrap">
+        <label>วัน เดือน ปีเกิด</label>
+        <app-date-box [(ngModel)]="form.birthdate" [showClearButton]="true" placeholder="วว/ดด/ปปปป"
+          [max]="today"></app-date-box>
+        <div class="field-preview" *ngIf="form.birthdate">{{ fmt(form.birthdate, 'long') }}</div>
+      </div>
+      <div class="field-wrap" *ngIf="form.birthdate">
+        <label>อายุ (คำนวณอัตโนมัติ)</label>
+        <div class="age-display">
+          {{ calcAge(form.birthdate) }} ปี
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab: เอกสาร / วีซ่า -->
+  <div class="form-card" *ngIf="activeTab() === 'document'">
+    <div class="form-group-title">🛂 หนังสือเดินทาง (Passport)</div>
+    <div class="form-grid">
+      <div class="field-wrap">
+        <label>วันที่ออก Passport</label>
+        <app-date-box [(ngModel)]="form.passportstartdate" [showClearButton]="true" placeholder="วว/ดด/ปปปป"></app-date-box>
+        <div class="field-preview" *ngIf="form.passportstartdate">{{ fmt(form.passportstartdate, 'mediumDate') }}</div>
+      </div>
+      <div class="field-wrap">
+        <label>วันที่หมดอายุ Passport</label>
+        <app-date-box [(ngModel)]="form.passportenddate" [showClearButton]="true" placeholder="วว/ดด/ปปปป"></app-date-box>
+        <div class="field-preview passport-expire" *ngIf="form.passportenddate">
+          {{ fmt(form.passportenddate, 'mediumDate') }}
+          <span class="expire-badge" [class.expired]="isExpired(form.passportenddate)">
+            {{ isExpired(form.passportenddate) ? '⚠️ หมดอายุแล้ว' : '✅ ยังใช้ได้' }}
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="form-group-title mt">🪪 วีซ่า (Visa)</div>
+    <div class="form-grid">
+      <div class="field-wrap">
+        <label>วันที่ออก Visa</label>
+        <app-date-box [(ngModel)]="form.visastartdate" [showClearButton]="true" placeholder="วว/ดด/ปปปป"></app-date-box>
+        <div class="field-preview" *ngIf="form.visastartdate">{{ fmt(form.visastartdate, 'mediumDate') }}</div>
+      </div>
+      <div class="field-wrap">
+        <label>วันที่หมดอายุ Visa</label>
+        <app-date-box [(ngModel)]="form.visaexpire" [showClearButton]="true" placeholder="วว/ดด/ปปปป"></app-date-box>
+        <div class="field-preview" *ngIf="form.visaexpire">{{ fmt(form.visaexpire, 'mediumDate') }}</div>
+      </div>
+    </div>
+    <div class="form-group-title mt">♿ บัตรคนพิการ</div>
+    <div class="form-grid">
+      <div class="field-wrap">
+        <label>วันที่ออกบัตร</label>
+        <app-date-box [(ngModel)]="form.deformcard_startdate" [showClearButton]="true" placeholder="วว/ดด/ปปปป"></app-date-box>
+      </div>
+      <div class="field-wrap">
+        <label>วันหมดอายุ</label>
+        <app-date-box [(ngModel)]="form.deformcard_enddate" [showClearButton]="true" placeholder="วว/ดด/ปปปป"></app-date-box>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action + Saved summary -->
+  <div class="form-actions">
+    <app-button text="💾 บันทึก" type="default" (onClick)="saveForm()"></app-button>
+    <div class="save-toast" *ngIf="saved()">✅ บันทึกสำเร็จ!</div>
+  </div>
+
+  <!-- Saved summary -->
+  <div class="saved-summary" *ngIf="savedForm">
+    <div class="summary-title">📊 ข้อมูลที่บันทึก (JS Date → แสดงผล พ.ศ.)</div>
+    <div class="summary-grid">
+      <div class="summary-item"><span class="lbl">วันที่รับเข้า</span><span class="val">{{ fmt(savedForm.admitdate) }}</span></div>
+      <div class="summary-item"><span class="lbl">วันที่จบ/พ้นสภาพ</span><span class="val">{{ fmt(savedForm.finishdate) }}</span></div>
+      <div class="summary-item"><span class="lbl">วันเกิด</span><span class="val">{{ fmt(savedForm.birthdate, 'long') }}</span></div>
+      <div class="summary-item"><span class="lbl">วันออก Passport</span><span class="val">{{ fmt(savedForm.passportstartdate, 'mediumDate') }}</span></div>
+      <div class="summary-item"><span class="lbl">วันหมดอายุ Passport</span><span class="val">{{ fmt(savedForm.passportenddate, 'mediumDate') }}</span></div>
+      <div class="summary-item"><span class="lbl">วันออก Visa</span><span class="val">{{ fmt(savedForm.visastartdate, 'mediumDate') }}</span></div>
+      <div class="summary-item"><span class="lbl">วันหมดอายุ Visa</span><span class="val">{{ fmt(savedForm.visaexpire, 'mediumDate') }}</span></div>
+      <div class="summary-item"><span class="lbl">วันสำเร็จการศึกษาเดิม</span><span class="val">{{ fmt(savedForm.entrygraduatedate) }}</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════════
+     Section 2 — ThaiDatePipe formats
+     ════════════════════════════════════════════════════════════════════ -->
+<div class="demo-section">
+  <div class="section-title">🎨 ThaiDatePipe — รูปแบบการแสดงผลทั้งหมด</div>
+  <div class="format-picker-row">
+    <span class="format-picker-label">เลือกวันที่:</span>
+    <app-date-box [(ngModel)]="selectedDate" [showClearButton]="true" placeholder="วว/ดด/ปปปป"></app-date-box>
+  </div>
+  <table class="format-table">
+    <thead><tr>
+      <th>Format</th><th>ผลลัพธ์</th><th>คำอธิบาย</th><th>Template</th>
+    </tr></thead>
+    <tbody>
+      <tr *ngFor="let f of formats">
+        <td><code class="fmt-code">{{ f.label }}</code></td>
+        <td class="fmt-result">{{ getFormatted(f.label) }}</td>
+        <td class="fmt-desc">{{ f.desc }}</td>
+        <td><code class="tmpl-code">{{ '{{ d | thaiDate:\'' + f.label + '\' }}' }}</code></td>
+      </tr>
+      <tr>
+        <td><code class="fmt-code">custom</code></td>
+        <td class="fmt-result">{{ selectedDate() | thaiDate:'dddd d MMMM yyyy' }}</td>
+        <td class="fmt-desc">Pattern: dddd d MMMM yyyy</td>
+        <td><code class="tmpl-code">{{ '{{ d | thaiDate:\'dddd d MMMM yyyy\' }}' }}</code></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════════
+     Section 3 — DataGrid thaiDate
+     ════════════════════════════════════════════════════════════════════ -->
+<div class="demo-section">
+  <div class="section-title">📊 DataGrid — วันที่เป็น พ.ศ. อัตโนมัติ (thaiDate: true)</div>
+  <div class="grid-container">
+    <app-datagrid [options]="gridOptions"></app-datagrid>
+  </div>
+  <div class="code-block">
+    <div class="code-label">gridOptions</div>
+    <pre><code>gridOptions: DataGridOptions = &#123;
+  thaiDate: true,           // ✅ เปิดวันที่ไทย
+  thaiDateFormat: 'medium', // "1 มิถุนายน 2567"
+  columns: [
+    &#123; dataField: 'startDate', dataType: 'date', format: 'long' &#125;
+  ]
+&#125;</code></pre>
+  </div>
+</div>

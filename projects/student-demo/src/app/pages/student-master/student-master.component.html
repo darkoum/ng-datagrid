@@ -1,0 +1,43 @@
+<div class="page-header">
+  <h2>ข้อมูลนักศึกษา</h2>
+  <p class="breadcrumb">ระบบทะเบียน › ข้อมูลนักศึกษา</p>
+</div>
+
+<!-- ─── Search Panel ─── -->
+<div class="search-panel">
+  <div class="search-grid">
+    <div class="search-field">
+      <label>รหัสนักศึกษา</label>
+      <app-text-box [(ngModel)]="studentcode" placeholder="การค้นหาบางส่วนใช้ *" [showClearButton]="true"></app-text-box>
+    </div>
+    <div class="search-field">
+      <label>ชื่อ</label>
+      <app-text-box [(ngModel)]="studentname" placeholder="การค้นหาบางส่วนใช้ *" [showClearButton]="true"></app-text-box>
+    </div>
+    <div class="search-field">
+      <label>นามสกุล</label>
+      <app-text-box [(ngModel)]="studentsurname" placeholder="การค้นหาบางส่วนใช้ *" [showClearButton]="true"></app-text-box>
+    </div>
+    <div class="search-field">
+      <label>สถานภาพ</label>
+      <app-select-box [(ngModel)]="studentstatus" [dataSource]="mock.statusCombo"
+        displayExpr="comboshow" valueExpr="comboid" [searchEnabled]="true"
+        [showClearButton]="true" placeholder="-- ทั้งหมด --"></app-select-box>
+    </div>
+    <div class="search-field">
+      <label>คณะ</label>
+      <app-select-box [(ngModel)]="facultyid" [dataSource]="mock.facultyCombo"
+        displayExpr="comboshow" valueExpr="comboid" [searchEnabled]="true"
+        [showClearButton]="true" placeholder="-- ทั้งหมด --"></app-select-box>
+    </div>
+    <div class="search-actions">
+      <app-button text="🔍 ค้นหา" type="default" (onClick)="search()"></app-button>
+      <app-button text="↺ ล้างค่า" type="normal" (onClick)="clearSearch()"></app-button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── DataGrid ─── -->
+<div class="grid-container">
+  <app-datagrid [options]="gridOptions"></app-datagrid>
+</div>

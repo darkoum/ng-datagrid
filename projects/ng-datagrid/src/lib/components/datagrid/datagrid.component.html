@@ -104,58 +104,63 @@
         <!-- ── Body ── -->
         <div class="dx-popup-body">
 
-          <!-- ── A: Custom form.items (DevExtreme-like) ── -->
-          <ng-container *ngIf="opts().editing?.form?.items; else autoColumns">
-            <ng-container *ngFor="let item of opts().editing!.form!.items">
-
-              <!-- Group -->
+          <!-- shared template: render a list of FormItems -->
+          <ng-template #itemListTpl let-items="items">
+            <ng-container *ngFor="let item of items">
               <ng-container *ngIf="item.itemType === 'group'">
                 <div class="dx-popup-group">
                   <div *ngIf="item.caption" class="dx-popup-group-caption">{{ item.caption }}</div>
-                  <div class="dx-popup-group-body"
-                       [class.dx-popup-cols-1]="(item.colCount ?? 2) === 1">
+                  <div class="dx-popup-group-body" [class.dx-popup-cols-1]="(item.colCount ?? 2) === 1">
                     <ng-container *ngFor="let sub of item.items ?? []">
-                      <div *ngIf="sub.visible !== false" class="dx-popup-field"
-                           [class.dx-col-full]="sub.colSpan === 2">
-                        <label class="dx-popup-label" *ngIf="sub.label?.visible !== false">
-                          {{ getFormItemLabel(sub) }}
-                        </label>
-                        <ng-container *ngTemplateOutlet="editorTpl; context: { f: sub }">
-                        </ng-container>
+                      <div *ngIf="sub.visible !== false" class="dx-popup-field" [class.dx-col-full]="sub.colSpan === 2">
+                        <label class="dx-popup-label" *ngIf="sub.label?.visible !== false">{{ getFormItemLabel(sub) }}</label>
+                        <ng-container *ngTemplateOutlet="editorTpl; context: { f: sub }"></ng-container>
                       </div>
                     </ng-container>
                   </div>
                 </div>
               </ng-container>
-
-              <!-- Empty spacer -->
               <div *ngIf="item.itemType === 'empty'" class="dx-popup-field-empty"></div>
-
-              <!-- Simple field -->
               <ng-container *ngIf="!item.itemType || item.itemType === 'simple'">
-                <div *ngIf="item.visible !== false" class="dx-popup-field"
-                     [class.dx-col-full]="item.colSpan === 2">
-                  <label class="dx-popup-label" *ngIf="item.label?.visible !== false">
-                    {{ getFormItemLabel(item) }}
-                  </label>
-                  <ng-container *ngTemplateOutlet="editorTpl; context: { f: item }">
-                  </ng-container>
+                <div *ngIf="item.visible !== false" class="dx-popup-field" [class.dx-col-full]="item.colSpan === 2">
+                  <label class="dx-popup-label" *ngIf="item.label?.visible !== false">{{ getFormItemLabel(item) }}</label>
+                  <ng-container *ngTemplateOutlet="editorTpl; context: { f: item }"></ng-container>
                 </div>
               </ng-container>
-
             </ng-container>
+          </ng-template>
+
+          <!-- ── A: Tabbed form (form.tabs) ── -->
+          <ng-container *ngIf="opts().editing?.form?.tabs as tabs">
+            <div class="dx-popup-tab-bar">
+              <button *ngFor="let tab of tabs; let i = index"
+                      class="dx-popup-tab-btn" type="button"
+                      [class.active]="activeTabIndex() === i"
+                      (click)="activeTabIndex.set(i)">
+                {{ tab.title }}
+              </button>
+            </div>
+            <div *ngFor="let tab of tabs; let i = index"
+                 class="dx-popup-tab-panel"
+                 [style.display]="activeTabIndex() === i ? 'block' : 'none'">
+              <ng-container *ngTemplateOutlet="itemListTpl; context: { items: tab.items }"></ng-container>
+            </div>
           </ng-container>
 
-          <!-- ── B: Auto-generate จาก columns (ไม่ระบุ form.items) ── -->
-          <ng-template #autoColumns>
+          <!-- ── B: Custom form.items (DevExtreme-like) ── -->
+          <ng-container *ngIf="!opts().editing?.form?.tabs && opts().editing?.form?.items">
+            <ng-container *ngTemplateOutlet="itemListTpl; context: { items: opts().editing!.form!.items }"></ng-container>
+          </ng-container>
+
+          <!-- ── C: Auto-generate จาก columns ── -->
+          <ng-container *ngIf="!opts().editing?.form?.tabs && !opts().editing?.form?.items">
             <div class="dx-popup-auto-grid" [class.dx-popup-cols-1]="getPopupColCount() === 1">
               <div *ngFor="let col of editableColumns()" class="dx-popup-field">
                 <label class="dx-popup-label">{{ col.caption }}</label>
-                <ng-container *ngTemplateOutlet="editorTpl; context: { field: col }">
-                </ng-container>
+                <ng-container *ngTemplateOutlet="editorTpl; context: { field: col }"></ng-container>
               </div>
             </div>
-          </ng-template>
+          </ng-container>
 
         </div>
 
