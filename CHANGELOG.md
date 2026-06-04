@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to `@vn/ng-datagrid` will be documented in this file.
+All notable changes to `@darkoum/ng-datagrid` will be documented in this file.
 
 ## [1.0.0] — 2026-06-03
 

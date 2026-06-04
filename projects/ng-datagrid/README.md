@@ -1,4 +1,4 @@
-# @vn/ng-datagrid
+# @darkoum/ng-datagrid
 
 > Angular 21 DataGrid พร้อม Thai Date — Drop-in replacement สำหรับ DevExtreme  
 > Standalone · Signals · ไม่ต้องซื้อ License
@@ -7,10 +7,10 @@
 
 ```bash
 # 1. เพิ่ม .npmrc ในโปรเจคของคุณ
-echo "@vn:registry=https://npm.pkg.github.com" >> .npmrc
+echo "@darkoum:registry=https://npm.pkg.github.com" >> .npmrc
 
 # 2. ติดตั้ง
-npm install @vn/ng-datagrid
+npm install @darkoum/ng-datagrid
 ```
 
 ## Components
@@ -38,7 +38,7 @@ npm install @vn/ng-datagrid
 ## การใช้งาน
 
 ```typescript
-import { DatagridModule } from '@vn/ng-datagrid';
+import { DatagridModule } from '@darkoum/ng-datagrid';
 
 @Component({
   standalone: true,

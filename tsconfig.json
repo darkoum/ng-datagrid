@@ -8,7 +8,7 @@
     "noPropertyAccessFromIndexSignature": true,
     "noImplicitReturns": true,
     "paths": {
-      "@vn/ng-datagrid": [
+      "@darkoum/ng-datagrid": [
         "./dist/ng-datagrid",
         "./projects/ng-datagrid/src/public-api.ts"
       ]
