@@ -9,6 +9,7 @@ import { StudentBioentryComponent } from './pages/student-bioentry/student-bioen
 import { StudentAllinfoComponent } from './pages/student-allinfo/student-allinfo.component';
 import { EnrollRegistrationComponent } from './pages/enroll-registration/enroll-registration.component';
 import { GradeResultComponent } from './pages/grade-result/grade-result.component';
+import { DocsComponent } from './pages/docs/docs.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'student-master', pathMatch: 'full' },
@@ -22,4 +23,5 @@ export const routes: Routes = [
   { path: 'student-allinfo',  component: StudentAllinfoComponent },
   { path: 'enroll',           component: EnrollRegistrationComponent },
   { path: 'grade',            component: GradeResultComponent },
+  { path: 'docs',             component: DocsComponent },
 ];
