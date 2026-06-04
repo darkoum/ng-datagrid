@@ -1,0 +1,1908 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>@darkoum/ng-datagrid — Angular Component Library</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Segoe UI','Sarabun',sans-serif;font-size:14px;color:#303030;background:#fff;display:flex;flex-direction:column;min-height:100vh}
+
+/* ── Topbar ── */
+.topbar{height:50px;background:#1a1a2e;display:flex;align-items:center;padding:0 20px;gap:16px;position:fixed;top:0;left:0;right:0;z-index:1000;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.topbar-logo{font-size:16px;font-weight:700;color:#fff;text-decoration:none;display:flex;align-items:center;gap:8px}
+.topbar-logo span{color:#4fc3f7}
+.topbar-badge{font-size:10px;background:#4fc3f7;color:#1a1a2e;border-radius:10px;padding:2px 8px;font-weight:700}
+.topbar-links{margin-left:auto;display:flex;gap:20px}
+.topbar-links a{color:#b0bec5;text-decoration:none;font-size:13px}
+.topbar-links a:hover{color:#fff}
+
+/* ── Layout ── */
+.layout{display:flex;margin-top:50px;min-height:calc(100vh - 50px)}
+
+/* ── Sidebar ── */
+.sidebar{width:240px;flex-shrink:0;background:#f8f9fb;border-right:1px solid #e0e0e0;position:fixed;top:50px;bottom:0;overflow-y:auto;padding:12px 0 40px}
+.sidebar::-webkit-scrollbar{width:4px}
+.sidebar::-webkit-scrollbar-thumb{background:#ccc;border-radius:2px}
+.sidebar-section-title{font-size:10.5px;font-weight:700;color:#90a4ae;text-transform:uppercase;letter-spacing:.08em;padding:10px 16px 4px}
+.sidebar a{display:block;padding:5px 16px 5px 20px;color:#455a64;text-decoration:none;font-size:12.5px;border-left:3px solid transparent;transition:all .15s;line-height:1.4}
+.sidebar a:hover{color:#1565c0;background:#e8f0fe;border-left-color:#1565c0}
+.sidebar a.active{color:#1565c0;background:#e8f0fe;border-left-color:#1565c0;font-weight:600}
+.sidebar a.sub{padding-left:30px;font-size:12px}
+
+/* ── Main ── */
+.main{margin-left:240px;flex:1;max-width:920px;padding:36px 44px 80px}
+
+/* ── Page header ── */
+.page-header{border-bottom:1px solid #e0e0e0;padding-bottom:20px;margin-bottom:32px}
+.page-header h1{font-size:26px;font-weight:700;color:#1a237e;margin-bottom:8px}
+.page-header .subtitle{color:#546e7a;font-size:14px;line-height:1.6}
+.badge-a{display:inline-flex;align-items:center;background:#e3f2fd;color:#1565c0;border-radius:4px;padding:2px 9px;font-size:11px;font-weight:600;margin-right:5px}
+
+/* ── Section ── */
+.section{margin-bottom:52px;scroll-margin-top:66px}
+.section h2{font-size:20px;font-weight:700;color:#1a237e;margin-bottom:14px;padding-bottom:7px;border-bottom:2px solid #e8eaf6}
+.section h3{font-size:15px;font-weight:700;color:#37474f;margin:22px 0 9px}
+.section p{color:#546e7a;line-height:1.7;margin-bottom:10px}
+
+/* ── Note ── */
+.note{background:#e3f2fd;border-left:4px solid #1565c0;border-radius:0 4px 4px 0;padding:10px 14px;margin:14px 0;color:#0d47a1;font-size:13px;line-height:1.6}
+.note.success{background:#e8f5e9;border-left-color:#2e7d32;color:#1b5e20}
+.note.warning{background:#fff8e1;border-left-color:#f57f17;color:#e65100}
+
+/* ── Code ── */
+pre{background:#1e1e2e;border-radius:6px;padding:16px 18px;overflow-x:auto;margin:12px 0;font-size:12.5px;line-height:1.65;position:relative}
+pre code{font-family:'Consolas','Courier New',monospace;color:#cdd6f4}
+.lang-label{position:absolute;top:7px;right:10px;font-size:9px;color:#6c7086;font-family:monospace;text-transform:uppercase;letter-spacing:.06em}
+.k{color:#cba6f7}.kw{color:#89b4fa}.s{color:#a6e3a1}.n{color:#f38ba8}.c{color:#6c7086;font-style:italic}.p{color:#fab387}.d{color:#f9e2af}.t{color:#94e2d5}
+p code,td code,li code{background:#f0f4ff;color:#1565c0;border-radius:3px;padding:1px 5px;font-size:12px;font-family:'Consolas',monospace}
+
+/* ── Tables ── */
+.api-table{width:100%;border-collapse:collapse;margin:10px 0 18px;font-size:13px}
+.api-table th{background:#e8eaf6;color:#1a237e;font-weight:700;padding:8px 12px;text-align:left;border-bottom:2px solid #c5cae9}
+.api-table td{padding:7px 12px;border-bottom:1px solid #f0f0f0;vertical-align:top;line-height:1.5}
+.api-table tr:last-child td{border-bottom:none}
+.api-table tr:hover td{background:#fafafa}
+.tag-new{background:#fce4ec;color:#c62828;border-radius:3px;padding:1px 5px;font-size:10px;font-weight:700}
+
+/* ── Component cards ── */
+.component-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin:14px 0}
+.component-card{border:1px solid #e0e0e0;border-radius:6px;padding:12px 14px;text-decoration:none;color:#37474f;transition:all .15s;display:flex;flex-direction:column;gap:3px}
+.component-card:hover{border-color:#1565c0;background:#e8f0fe;color:#1565c0;transform:translateY(-1px);box-shadow:0 3px 8px rgba(21,101,192,.12)}
+.cc-icon{font-size:18px}
+.cc-name{font-weight:700;font-size:12.5px}
+.cc-desc{font-size:11px;color:#90a4ae}
+
+/* ── Demo box ── */
+.demo-box{border:1px solid #e0e0e0;border-radius:8px;overflow:visible;margin:14px 0}
+.demo-box-tabs{display:flex;background:#f5f5f5;border-bottom:1px solid #e0e0e0;border-radius:8px 8px 0 0}
+.demo-box-tab{padding:8px 18px;font-size:12.5px;border:none;background:none;cursor:pointer;color:#546e7a;font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s}
+.demo-box-tab.active,.demo-box-tab:hover{color:#1565c0;background:#fff;border-bottom-color:#1565c0}
+.demo-panel{display:none;padding:20px}
+.demo-panel.active{display:block}
+.demo-panel.code-panel{padding:0}
+.demo-panel.code-panel pre{margin:0;border-radius:0}
+.demo-result{background:#fafafa;border:1px solid #eeeeee;border-radius:6px;padding:16px 18px;display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start;min-height:56px}
+.demo-value{font-size:12px;color:#78909c;background:#f0f4ff;border-radius:4px;padding:4px 10px;margin-top:10px}
+
+/* ── Divider ── */
+hr.divider{border:none;border-top:1px solid #eeeeee;margin:28px 0}
+
+/* ── Back to top ── */
+.back-top{position:fixed;bottom:22px;right:22px;width:34px;height:34px;background:#1565c0;color:#fff;border:none;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.2);text-decoration:none;z-index:999}
+
+/* ═══════════════════════════════════════════════════
+   DEMO COMPONENT STYLES  (vanilla mimics of Angular)
+═══════════════════════════════════════════════════ */
+
+/* Button */
+.dx-btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:5px 14px;border-radius:4px;border:1px solid transparent;font-size:13.5px;cursor:pointer;user-select:none;white-space:nowrap;transition:all .15s;min-height:34px;font-family:inherit}
+.dx-btn[disabled]{opacity:.55;cursor:not-allowed}
+.dx-btn-default{background:#0d6efd;color:#fff;border-color:#0d6efd}
+.dx-btn-default:hover:not([disabled]){background:#0b5ed7}
+.dx-btn-success{background:#198754;color:#fff;border-color:#198754}
+.dx-btn-success:hover:not([disabled]){background:#157347}
+.dx-btn-danger{background:#dc3545;color:#fff;border-color:#dc3545}
+.dx-btn-danger:hover:not([disabled]){background:#bb2d3b}
+.dx-btn-normal{background:#fff;color:#495057;border-color:#ced4da}
+.dx-btn-normal:hover:not([disabled]){background:#f8f9fa}
+.dx-btn-back{background:transparent;color:#6c757d;border-color:#6c757d}
+.dx-btn-back:hover:not([disabled]){background:#f8f9fa}
+.dx-click-msg{font-size:12px;color:#546e7a;margin-top:8px;width:100%}
+
+/* CheckBox */
+.dx-cb{display:inline-flex;align-items:center;gap:8px;cursor:pointer;user-select:none;font-size:14px;color:#333}
+.dx-cb input{display:none}
+.dx-cb-box{flex-shrink:0;width:18px;height:18px;border:2px solid #ced4da;border-radius:3px;background:#fff;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.dx-cb:hover .dx-cb-box{border-color:#337ab7}
+.dx-cb.checked .dx-cb-box{background:#337ab7;border-color:#337ab7}
+.dx-cb-check{color:#fff;font-size:11px;font-weight:700;display:none}
+.dx-cb.checked .dx-cb-check{display:block}
+
+/* Switch */
+.dx-sw{display:inline-flex;align-items:center;cursor:pointer;user-select:none}
+.dx-sw input{display:none}
+.dx-sw-track{position:relative;display:inline-flex;align-items:center;width:52px;height:26px;background:#ced4da;border-radius:13px;padding:0 3px;transition:background .2s}
+.dx-sw.on .dx-sw-track{background:#337ab7}
+.dx-sw-thumb{position:absolute;left:3px;width:20px;height:20px;background:#fff;border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .2s}
+.dx-sw.on .dx-sw-thumb{transform:translateX(26px)}
+.dx-sw-label{position:absolute;font-size:10px;font-weight:700;color:#fff;right:6px;line-height:1;letter-spacing:.02em;transition:all .2s}
+.dx-sw.on .dx-sw-label{right:auto;left:6px}
+
+/* TextBox */
+.dx-tb{display:flex;align-items:center;border:1px solid #ced4da;border-radius:4px;background:#fff;overflow:hidden;transition:border-color .15s;max-width:320px}
+.dx-tb:focus-within{border-color:#86b7fe;box-shadow:0 0 0 2px rgba(13,110,253,.12)}
+.dx-tb input{flex:1;border:none;outline:none;padding:5px 8px;font-size:13.5px;background:transparent;min-width:0;font-family:inherit}
+.dx-tb-clear{flex-shrink:0;background:none;border:none;cursor:pointer;color:#adb5bd;font-size:11px;padding:0 7px}
+.dx-tb-clear:hover{color:#495057}
+
+/* NumberBox */
+.dx-nb{display:flex;align-items:stretch;border:1px solid #ced4da;border-radius:4px;overflow:hidden;background:#fff;max-width:180px}
+.dx-nb input{flex:1;border:none;outline:none;padding:5px 8px;font-size:13.5px;background:transparent;text-align:right;min-width:0;font-family:inherit}
+.dx-nb input[type=number]::-webkit-inner-spin-button,.dx-nb input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none}
+.dx-nb input[type=number]{-moz-appearance:textfield}
+.dx-nb-spin{flex-shrink:0;width:28px;border:none;background:#f8f9fa;cursor:pointer;font-size:16px;color:#495057;border-left:1px solid #ced4da;display:flex;align-items:center;justify-content:center;user-select:none;transition:background .15s}
+.dx-nb-spin:first-child{border-left:none;border-right:1px solid #ced4da;order:-1}
+.dx-nb-spin:hover{background:#e2e6ea}
+
+/* SelectBox */
+.dx-sb{position:relative;font-size:13.5px;max-width:280px}
+.dx-sb-control{display:flex;align-items:center;justify-content:space-between;border:1px solid #ced4da;border-radius:4px;padding:5px 8px;background:#fff;cursor:pointer;min-height:34px;user-select:none;transition:border-color .15s}
+.dx-sb.open .dx-sb-control,.dx-sb-control:hover{border-color:#86b7fe}
+.dx-sb-text{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dx-sb-ph{color:#adb5bd}
+.dx-sb-arrow{color:#adb5bd;font-size:11px;transition:transform .2s;margin-left:6px}
+.dx-sb.open .dx-sb-arrow{transform:rotate(180deg)}
+.dx-sb-dropdown{position:absolute;top:calc(100% + 2px);left:0;right:0;z-index:100;background:#fff;border:1px solid #dee2e6;border-radius:4px;box-shadow:0 4px 12px rgba(0,0,0,.12);display:none}
+.dx-sb.open .dx-sb-dropdown{display:block}
+.dx-sb-search-wrap{padding:6px 8px;border-bottom:1px solid #f0f0f0}
+.dx-sb-search{width:100%;border:1px solid #dee2e6;border-radius:3px;padding:4px 8px;font-size:13px;outline:none;box-sizing:border-box;font-family:inherit}
+.dx-sb-search:focus{border-color:#86b7fe}
+.dx-sb-list{max-height:190px;overflow-y:auto}
+.dx-sb-item{padding:7px 12px;cursor:pointer;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dx-sb-item:hover{background:#f0f7ff}
+.dx-sb-item.active{background:#e3f0ff;color:#0d6efd;font-weight:500}
+.dx-sb-empty{padding:10px 12px;color:#adb5bd;font-size:13px}
+
+/* TagBox */
+.dx-tbx{position:relative;font-size:13.5px;max-width:360px}
+.dx-tbx-control{display:flex;align-items:flex-start;justify-content:space-between;border:1px solid #ced4da;border-radius:4px;padding:4px 8px;background:#fff;cursor:pointer;min-height:34px;user-select:none;gap:4px;transition:border-color .15s}
+.dx-tbx.open .dx-tbx-control,.dx-tbx-control:hover{border-color:#86b7fe}
+.dx-tbx-tags{flex:1;display:flex;flex-wrap:wrap;gap:4px;min-height:24px;align-items:center}
+.dx-tag{display:inline-flex;align-items:center;gap:4px;background:#e3f0ff;color:#0d6efd;border-radius:3px;padding:2px 6px;font-size:12px;line-height:1.4}
+.dx-tag-rm{background:none;border:none;cursor:pointer;color:inherit;font-size:10px;padding:0;line-height:1;opacity:.7}
+.dx-tag-rm:hover{opacity:1}
+.dx-tbx-ph{color:#adb5bd;line-height:24px;font-size:13px}
+.dx-tbx-arrow{color:#adb5bd;font-size:11px;flex-shrink:0;align-self:center;transition:transform .2s}
+.dx-tbx.open .dx-tbx-arrow{transform:rotate(180deg)}
+.dx-tbx-dropdown{position:absolute;top:calc(100% + 2px);left:0;right:0;z-index:100;background:#fff;border:1px solid #dee2e6;border-radius:4px;box-shadow:0 4px 12px rgba(0,0,0,.12);display:none}
+.dx-tbx.open .dx-tbx-dropdown{display:block}
+.dx-tbx-list{max-height:200px;overflow-y:auto}
+.dx-tbx-item{display:flex;align-items:center;gap:8px;padding:7px 12px;cursor:pointer;font-size:13.5px}
+.dx-tbx-item:hover{background:#f0f7ff}
+.dx-tbx-item.sel{background:#e3f0ff}
+.dx-tbx-chk{width:14px;flex-shrink:0;color:#0d6efd;font-size:12px;font-weight:700}
+
+/* RadioGroup */
+.dx-rg{display:flex;flex-direction:column;gap:8px}
+.dx-rg.h{flex-direction:row;flex-wrap:wrap;gap:16px}
+.dx-rg-item{display:inline-flex;align-items:center;gap:8px;cursor:pointer;user-select:none;font-size:13.5px;color:#333}
+.dx-rg-item input{display:none}
+.dx-rg-radio{flex-shrink:0;width:18px;height:18px;border:2px solid #ced4da;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;transition:border-color .15s}
+.dx-rg-item:hover .dx-rg-radio{border-color:#337ab7}
+.dx-rg-item.sel .dx-rg-radio{border-color:#337ab7}
+.dx-rg-dot{width:9px;height:9px;background:#337ab7;border-radius:50%;display:none}
+.dx-rg-item.sel .dx-rg-dot{display:block}
+
+/* TextArea */
+.dx-ta{position:relative;max-width:380px}
+.dx-ta textarea{width:100%;box-sizing:border-box;border:1px solid #ced4da;border-radius:4px;padding:7px 10px;font-size:13.5px;font-family:inherit;outline:none;background:#fff;color:#333;resize:vertical;line-height:1.5;transition:border-color .15s}
+.dx-ta textarea:focus{border-color:#86b7fe;box-shadow:0 0 0 2px rgba(13,110,253,.12)}
+.dx-ta-counter{text-align:right;font-size:11px;color:#adb5bd;margin-top:2px}
+
+/* Popup */
+.dx-pp-overlay{position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;animation:ppFade .15s ease}
+.dx-pp-box{background:#fff;border-radius:6px;box-shadow:0 8px 32px rgba(0,0,0,.25);width:460px;max-width:94vw;display:flex;flex-direction:column;animation:ppSlide .15s ease}
+@keyframes ppFade{from{opacity:0}to{opacity:1}}
+@keyframes ppSlide{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}
+.dx-pp-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #dee2e6;background:#f8f9fa;flex-shrink:0}
+.dx-pp-title{font-size:15px;font-weight:600;color:#212529}
+.dx-pp-close{background:none;border:none;cursor:pointer;color:#6c757d;font-size:16px;padding:2px 5px;border-radius:3px;line-height:1}
+.dx-pp-close:hover{background:#e9ecef;color:#212529}
+.dx-pp-body{padding:16px;overflow-y:auto;flex:1}
+.dx-pp-footer{display:flex;gap:8px;justify-content:flex-end;padding:10px 16px;border-top:1px solid #dee2e6;background:#f8f9fa}
+
+/* TabPanel */
+.dx-tp{border:1px solid #dee2e6;border-radius:4px;overflow:hidden}
+.dx-tp-tabs{display:flex;background:#f8f9fa;border-bottom:1px solid #dee2e6}
+.dx-tp-tab{padding:9px 20px;border:none;background:none;cursor:pointer;font-size:13.5px;color:#546e7a;border-bottom:2px solid transparent;margin-bottom:-1px;font-family:inherit;transition:all .15s}
+.dx-tp-tab.active{color:#1565c0;background:#fff;border-bottom-color:#1565c0;font-weight:600}
+.dx-tp-tab:hover:not(.active){color:#1565c0;background:#e8f0fe}
+.dx-tp-panel{display:none;padding:16px}
+.dx-tp-panel.active{display:block}
+
+/* Accordion */
+.dx-acc{border:1px solid #dee2e6;border-radius:4px;overflow:hidden}
+.dx-acc-item{border-bottom:1px solid #dee2e6}
+.dx-acc-item:last-child{border-bottom:none}
+.dx-acc-header{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;cursor:pointer;background:#f8f9fa;font-size:13.5px;font-weight:600;color:#37474f;user-select:none;transition:background .15s}
+.dx-acc-header:hover{background:#e8f0fe;color:#1565c0}
+.dx-acc-header.open{background:#e8f0fe;color:#1565c0}
+.dx-acc-arrow{font-size:11px;transition:transform .2s;color:#90a4ae}
+.dx-acc-header.open .dx-acc-arrow{transform:rotate(180deg);color:#1565c0}
+.dx-acc-body{display:none;padding:14px 16px;font-size:13.5px;color:#546e7a;line-height:1.7;background:#fff}
+.dx-acc-body.open{display:block}
+
+/* DataGrid mini */
+.dx-grid-mini{border:1px solid #dee2e6;border-radius:4px;overflow:hidden;font-size:13px}
+.dx-grid-mini table{width:100%;border-collapse:collapse}
+.dx-grid-mini th{background:#f1f3f9;padding:8px 12px;text-align:left;font-weight:700;color:#37474f;border-bottom:2px solid #dee2e6;cursor:pointer;user-select:none;white-space:nowrap}
+.dx-grid-mini th:hover{background:#e3e8f5}
+.dx-grid-mini td{padding:7px 12px;border-bottom:1px solid #f0f0f0;color:#303030}
+.dx-grid-mini tr:last-child td{border-bottom:none}
+.dx-grid-mini tr:nth-child(even) td{background:#fafbff}
+.dx-grid-mini tr:hover td{background:#f0f7ff}
+.dx-sort{margin-left:4px;font-size:10px;color:#90a4ae}
+.dx-sort.asc::after{content:'↑';color:#1565c0}
+.dx-sort.desc::after{content:'↓';color:#1565c0}
+
+/* Thai DatePicker */
+.dx-dp{position:relative;max-width:240px}
+.dx-dp-input{display:flex;align-items:center;border:1px solid #ced4da;border-radius:4px;background:#fff;cursor:pointer;min-height:34px;padding:0 10px;font-size:13.5px;gap:8px;transition:border-color .15s;user-select:none}
+.dx-dp-input:hover,.dx-dp.open .dx-dp-input{border-color:#86b7fe;box-shadow:0 0 0 2px rgba(13,110,253,.1)}
+.dx-dp-text{flex:1;color:#333}
+.dx-dp-text.ph{color:#adb5bd}
+.dx-dp-icon{color:#adb5bd;font-size:14px}
+.dx-dp-popup{position:fixed;z-index:2000;background:#fff;border:1px solid #dee2e6;border-radius:6px;box-shadow:0 6px 20px rgba(0,0,0,.15);width:270px;display:none;padding:12px}
+.dx-dp.open .dx-dp-popup{display:block}
+.dx-dp-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.dx-dp-nav{background:none;border:none;cursor:pointer;width:28px;height:28px;border-radius:4px;font-size:16px;display:flex;align-items:center;justify-content:center;color:#546e7a;transition:background .15s}
+.dx-dp-nav:hover{background:#e8f0fe;color:#1565c0}
+.dx-dp-month-year{display:flex;gap:4px}
+.dx-dp-month-btn,.dx-dp-year-btn{background:none;border:none;cursor:pointer;font-size:14px;font-weight:700;color:#1a237e;padding:2px 6px;border-radius:3px;font-family:inherit}
+.dx-dp-month-btn:hover,.dx-dp-year-btn:hover{background:#e8eaf6}
+.dx-dp-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.dx-dp-dow{text-align:center;font-size:11px;font-weight:700;color:#90a4ae;padding:3px 0}
+.dx-dp-cell{text-align:center;font-size:13px;padding:5px 2px;border-radius:4px;cursor:pointer;color:#333;transition:background .1s}
+.dx-dp-cell:hover{background:#e8f0fe;color:#1565c0}
+.dx-dp-cell.today{font-weight:700;color:#1565c0}
+.dx-dp-cell.selected{background:#1565c0;color:#fff;font-weight:700}
+.dx-dp-cell.other{color:#c0c0c0}
+.dx-dp-cell.other:hover{background:#f5f5f5;color:#aaa}
+.dx-dp-footer{display:flex;justify-content:space-between;margin-top:8px;padding-top:8px;border-top:1px solid #f0f0f0}
+.dx-dp-footer-btn{background:none;border:none;cursor:pointer;font-size:12.5px;color:#1565c0;padding:3px 6px;border-radius:3px;font-family:inherit}
+.dx-dp-footer-btn:hover{background:#e8f0fe}
+
+/* LoadPanel */
+.dx-lp{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:20px;background:#fff;border-radius:6px;border:1px solid #dee2e6;min-height:80px}
+.dx-lp-spin{width:36px;height:36px;border:3px solid #e3f0ff;border-top-color:#337ab7;border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.dx-lp-msg{font-size:13px;color:#546e7a}
+
+/* Form mini */
+.dx-form-mini{display:flex;flex-direction:column;gap:14px}
+.dx-form-group-mini{border:1px solid #dee2e6;border-radius:4px}
+.dx-form-group-caption-mini{padding:7px 14px;background:#eef3f8;font-size:12px;font-weight:700;color:#337ab7;border-bottom:1px solid #dee2e6;border-radius:3px 3px 0 0}
+.dx-form-group-body-mini{padding:14px;display:grid;grid-template-columns:1fr 1fr;gap:12px 20px;align-items:start}
+.dx-form-item-mini{display:flex;flex-direction:column;gap:4px}
+.dx-form-label-mini{font-size:12px;font-weight:600;color:#546e7a}
+.dx-form-input-mini{width:100%;height:32px;border:1px solid #ced4da;border-radius:4px;padding:0 9px;font-size:13px;outline:none;font-family:inherit;transition:border-color .15s}
+.dx-form-input-mini:focus{border-color:#86b7fe}
+.dx-form-col-full{grid-column:1/-1}
+</style>
+</head>
+<body>
+
+<!-- Topbar -->
+<nav class="topbar">
+  <a class="topbar-logo" href="#"><span>@darkoum</span>/ng-datagrid</a>
+  <span class="topbar-badge">v1.1.0</span>
+  <div class="topbar-links">
+    <a href="#getting-started">เริ่มต้น</a>
+    <a href="#datagrid">DataGrid</a>
+    <a href="#form">Form</a>
+    <a href="#select-box">Widgets</a>
+    <a href="https://darkoum.github.io/ng-datagrid/" target="_blank" style="color:#4fc3f7">🚀 Live Demo</a>
+    <a href="https://github.com/darkoum/ng-datagrid" target="_blank" style="color:#4fc3f7">GitHub</a>
+  </div>
+</nav>
+
+<div class="layout">
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-section-title">เริ่มต้นใช้งาน</div>
+  <a href="#getting-started" class="active">ภาพรวม</a>
+  <a href="#installation">ติดตั้ง</a>
+  <a href="#quick-start">Quick Start</a>
+  <a href="#publish">Publish & แจกจ่าย</a>
+  <a href="#publish-github" class="sub">GitHub Packages</a>
+  <a href="#publish-file" class="sub">แชร์ไฟล์ตรง</a>
+  <a href="#publish-update" class="sub">อัปเดต Version</a>
+  <div class="sidebar-section-title">Data Components</div>
+  <a href="#datagrid">DataGrid</a>
+  <a href="#datagrid-columns" class="sub">Columns</a>
+  <a href="#datagrid-editing" class="sub">Editing</a>
+  <a href="#datagrid-popup" class="sub">Popup Edit</a>
+  <a href="#datagrid-tabs" class="sub">Tabbed Popup <span style="background:#fce4ec;color:#c62828;border-radius:2px;padding:0 4px;font-size:9px;font-weight:700">NEW</span></a>
+  <a href="#datagrid-filter" class="sub">Filter &amp; Search</a>
+  <a href="#datagrid-export" class="sub">Export</a>
+  <a href="#datagrid-virtual" class="sub">Virtual Scroll</a>
+  <a href="#form">Form</a>
+  <a href="#form-items" class="sub">Items &amp; Groups</a>
+  <a href="#form-editors" class="sub">Editor Types</a>
+  <div class="sidebar-section-title">Input Widgets</div>
+  <a href="#select-box">SelectBox</a>
+  <a href="#number-box">NumberBox</a>
+  <a href="#text-box">TextBox</a>
+  <a href="#check-box">CheckBox</a>
+  <a href="#switch">Switch</a>
+  <a href="#date-box">DateBox</a>
+  <a href="#tag-box">TagBox</a>
+  <a href="#radio-group">RadioGroup</a>
+  <a href="#text-area">TextArea</a>
+  <div class="sidebar-section-title">Layout &amp; Action</div>
+  <a href="#button">Button</a>
+  <a href="#popup">Popup</a>
+  <a href="#tab-panel">TabPanel</a>
+  <a href="#accordion">Accordion</a>
+  <a href="#load-panel">LoadPanel</a>
+  <div class="sidebar-section-title">Pipes</div>
+  <a href="#thai-date-pipe">ThaiDate Pipe</a>
+</aside>
+
+<!-- Main -->
+<main class="main">
+
+<!-- ══ Header ══ -->
+<div class="page-header" id="getting-started">
+  <h1>@darkoum/ng-datagrid</h1>
+  <div style="margin-bottom:10px">
+    <span class="badge-a">Angular 21</span>
+    <span class="badge-a">Standalone</span>
+    <span class="badge-a">Signals</span>
+    <span class="badge-a">Thai Date พ.ศ.</span>
+  </div>
+  <p class="subtitle">Drop-in replacement สำหรับ DevExtreme · API ใกล้เคียงเดิม · ไม่ต้องซื้อ License</p>
+</div>
+
+<!-- Component Overview -->
+<section class="section">
+  <h2>Components ทั้งหมด</h2>
+  <div class="component-grid">
+    <a class="component-card" href="#datagrid"><div class="cc-icon">📊</div><div class="cc-name">app-datagrid</div><div class="cc-desc">dx-data-grid</div></a>
+    <a class="component-card" href="#form"><div class="cc-icon">📋</div><div class="cc-name">app-form</div><div class="cc-desc">dx-form</div></a>
+    <a class="component-card" href="#select-box"><div class="cc-icon">🔽</div><div class="cc-name">app-select-box</div><div class="cc-desc">dx-select-box</div></a>
+    <a class="component-card" href="#number-box"><div class="cc-icon">🔢</div><div class="cc-name">app-number-box</div><div class="cc-desc">dx-number-box</div></a>
+    <a class="component-card" href="#text-box"><div class="cc-icon">✏️</div><div class="cc-name">app-text-box</div><div class="cc-desc">dx-text-box</div></a>
+    <a class="component-card" href="#check-box"><div class="cc-icon">☑️</div><div class="cc-name">app-check-box</div><div class="cc-desc">dx-check-box</div></a>
+    <a class="component-card" href="#switch"><div class="cc-icon">🔘</div><div class="cc-name">app-switch</div><div class="cc-desc">dx-switch</div></a>
+    <a class="component-card" href="#date-box"><div class="cc-icon">📅</div><div class="cc-name">app-date-box</div><div class="cc-desc">dx-date-box</div></a>
+    <a class="component-card" href="#tag-box"><div class="cc-icon">🏷️</div><div class="cc-name">app-tag-box</div><div class="cc-desc">dx-tag-box</div></a>
+    <a class="component-card" href="#radio-group"><div class="cc-icon">🔵</div><div class="cc-name">app-radio-group</div><div class="cc-desc">dx-radio-group</div></a>
+    <a class="component-card" href="#text-area"><div class="cc-icon">📝</div><div class="cc-name">app-text-area</div><div class="cc-desc">dx-text-area</div></a>
+    <a class="component-card" href="#button"><div class="cc-icon">🔲</div><div class="cc-name">app-button</div><div class="cc-desc">dx-button</div></a>
+    <a class="component-card" href="#popup"><div class="cc-icon">🪟</div><div class="cc-name">app-popup</div><div class="cc-desc">dx-popup</div></a>
+    <a class="component-card" href="#tab-panel"><div class="cc-icon">📑</div><div class="cc-name">app-tab-panel</div><div class="cc-desc">dx-tab-panel</div></a>
+    <a class="component-card" href="#accordion"><div class="cc-icon">🪗</div><div class="cc-name">app-accordion</div><div class="cc-desc">dx-accordion</div></a>
+    <a class="component-card" href="#load-panel"><div class="cc-icon">⏳</div><div class="cc-name">app-load-panel</div><div class="cc-desc">dx-load-panel</div></a>
+  </div>
+</section>
+
+<!-- ══ Installation ══ -->
+<section class="section" id="installation">
+  <h2>ติดตั้ง</h2>
+  <h3>1. ตั้งค่า .npmrc</h3>
+  <pre><code><span class="c"># .npmrc</span>
+<span class="p">@darkoum</span>:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=<span class="s">${GITHUB_TOKEN}</span></code></pre>
+  <h3>2. ติดตั้ง</h3>
+  <pre><code>npm install <span class="s">@darkoum/ng-datagrid</span> xlsx</code></pre>
+  <h3>3. Import</h3>
+  <pre><code><span class="k">import</span> { DatagridModule } <span class="k">from</span> <span class="s">'@darkoum/ng-datagrid'</span>;
+
+<span class="d">@Component</span>({ standalone: <span class="n">true</span>, imports: [DatagridModule, FormsModule] })
+<span class="k">export class</span> <span class="kw">MyComponent</span> { }</code></pre>
+</section>
+
+<!-- ══ Quick Start ══ -->
+<section class="section" id="quick-start">
+  <h2>Quick Start</h2>
+  <pre><code>gridOptions: <span class="kw">DataGridOptions</span> = {
+  keyExpr:    <span class="s">'id'</span>,
+  dataSource: { store: myArray },
+  columns: [
+    { dataField: <span class="s">'name'</span>,      caption: <span class="s">'ชื่อ'</span> },
+    { dataField: <span class="s">'orderDate'</span>, caption: <span class="s">'วันที่'</span>, dataType: <span class="s">'date'</span>, format: <span class="s">'medium'</span> },
+    { dataField: <span class="s">'total'</span>,     caption: <span class="s">'ยอดรวม'</span>, format: <span class="s">'#,##0.00'</span>, alignment: <span class="s">'right'</span> },
+  ],
+  paging:  { enabled: <span class="n">true</span>, pageSize: <span class="n">20</span> },
+  editing: { mode: <span class="s">'row'</span>, allowUpdating: <span class="n">true</span>, allowDeleting: <span class="n">true</span> },
+  thaiDate: <span class="n">true</span>,
+};</code></pre>
+</section>
+
+<!-- ══ Publish ══ -->
+<section class="section" id="publish">
+  <h2>📦 Publish &amp; แจกจ่าย</h2>
+  <p>มี 2 วิธีในการแชร์ library ให้ทีมอื่นใช้งาน</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0">
+    <div style="background:#e8f5e9;border:1px solid #a5d6a7;border-radius:8px;padding:16px">
+      <div style="font-weight:700;color:#2e7d32;margin-bottom:6px">🅐 GitHub Packages</div>
+      <div style="font-size:13px;color:#388e3c">เหมาะกับทีม 3+ คน<br>โหลดผ่าน npm ได้เลย<br>มี versioning ชัดเจน</div>
+    </div>
+    <div style="background:#fff8e1;border:1px solid #ffe082;border-radius:8px;padding:16px">
+      <div style="font-weight:700;color:#f57f17;margin-bottom:6px">🅑 แชร์ไฟล์ตรง (.tgz)</div>
+      <div style="font-size:13px;color:#f9a825">เหมาะทีมเล็ก / ทดสอบ<br>ไม่ต้อง login<br>แชร์ไฟล์เองทุกครั้ง</div>
+    </div>
+  </div>
+
+  <!-- ── GitHub Packages ── -->
+  <h3 id="publish-github">🅐 วิธีผ่าน GitHub Packages</h3>
+  <p style="color:#555;margin-bottom:12px">ทำครั้งเดียว ทีมโหลดเองได้ตลอด</p>
+
+  <div style="background:#f5f5f5;border-radius:6px;padding:4px 16px;margin-bottom:16px">
+    <p style="font-weight:600;margin:12px 0 4px">ฝั่งคุณ (ผู้ publish)</p>
+  </div>
+
+  <p><strong>1. สร้าง GitHub Repository</strong> แล้ว push โค้ดขึ้น</p>
+  <pre><code><span class="c"># ใน demo/</span>
+git init
+git remote add origin https://github.com/vn-org/ng-datagrid.git
+git add .
+git commit -m <span class="s">"feat: initial library release"</span>
+git push -u origin main</code></pre>
+
+  <p><strong>2. สร้าง Personal Access Token (PAT)</strong></p>
+  <div style="background:#e3f2fd;border-left:3px solid #1565c0;padding:10px 14px;border-radius:4px;font-size:13px;margin-bottom:12px">
+    GitHub → <strong>Settings</strong> → <strong>Developer settings</strong> → <strong>Personal access tokens</strong> → Tokens (classic)<br>
+    เลือก scope: ✅ <code>write:packages</code> &nbsp; ✅ <code>read:packages</code><br>
+    Copy token ที่ได้ไว้
+  </div>
+
+  <p><strong>3. Login GitHub Packages</strong></p>
+  <pre><code>npm login --registry=https://npm.pkg.github.com
+<span class="c"># Username: your-github-username
+# Password: ghp_xxxxxxxxxxxx  ← PAT ที่เพิ่งสร้าง
+# Email: your@email.com</span></code></pre>
+
+  <p><strong>4. Build &amp; Publish</strong></p>
+  <pre><code>npm run build:lib
+cd dist/ng-datagrid
+npm publish
+<span class="c"># ✅ @darkoum/ng-datagrid@1.0.0 ขึ้น GitHub Packages แล้ว</span></code></pre>
+
+  <div style="background:#f5f5f5;border-radius:6px;padding:4px 16px;margin:16px 0 8px">
+    <p style="font-weight:600;margin:12px 0 4px">ฝั่งคนที่จะใช้ (ทำในโปรเจคตัวเอง)</p>
+  </div>
+
+  <p><strong>1. สร้าง PAT ของตัวเอง</strong> (scope: <code>read:packages</code> เท่านั้น)</p>
+
+  <p><strong>2. เพิ่ม .npmrc ในโปรเจค</strong></p>
+  <pre><code><span class="c"># .npmrc (root ของโปรเจคตัวเอง)</span>
+<span class="p">@darkoum</span>:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=<span class="s">ghp_xxxxxxxxxxxx</span></code></pre>
+
+  <p><strong>3. ติดตั้ง</strong></p>
+  <pre><code>npm install <span class="s">@darkoum/ng-datagrid</span></code></pre>
+
+  <p><strong>4. ใช้งาน</strong></p>
+  <pre><code><span class="k">import</span> { DatagridModule } <span class="k">from</span> <span class="s">'@darkoum/ng-datagrid'</span>;
+
+<span class="d">@Component</span>({
+  standalone: <span class="n">true</span>,
+  imports: [DatagridModule, FormsModule],
+})</code></pre>
+
+  <!-- ── แชร์ไฟล์ตรง ── -->
+  <h3 id="publish-file" style="margin-top:32px">🅑 วิธีแชร์ไฟล์ตรง (.tgz)</h3>
+  <p style="color:#555;margin-bottom:12px">ไม่ต้องมี GitHub Account — ส่งไฟล์แล้วติดตั้งได้เลย</p>
+
+  <p><strong>ฝั่งคุณ — pack เป็นไฟล์</strong></p>
+  <pre><code>npm run build:lib
+cd dist/ng-datagrid
+npm pack
+<span class="c"># ได้ไฟล์: vn-ng-datagrid-1.0.0.tgz</span>
+<span class="c"># ส่งไฟล์นี้ให้ทีมผ่าน Line / Email / Drive</span></code></pre>
+
+  <p><strong>ฝั่งคนที่จะใช้ — ติดตั้งจากไฟล์</strong></p>
+  <pre><code><span class="c"># วาง .tgz ไว้ที่ root ของโปรเจค แล้วรัน</span>
+npm install ./vn-ng-datagrid-1.0.0.tgz</code></pre>
+
+  <pre><code><span class="c">// ใช้งานเหมือนกัน</span>
+<span class="k">import</span> { DatagridModule } <span class="k">from</span> <span class="s">'@darkoum/ng-datagrid'</span>;</code></pre>
+
+  <!-- ── อัปเดต Version ── -->
+  <h3 id="publish-update" style="margin-top:32px">🔄 อัปเดต Version</h3>
+
+  <p><strong>ฝั่งคุณ — bump version</strong></p>
+  <pre><code><span class="c"># bug fix  → 1.0.0 → 1.0.1</span>
+npm run release:patch
+
+<span class="c"># feature ใหม่  → 1.0.0 → 1.1.0</span>
+npm run release:minor
+
+<span class="c"># breaking change  → 1.0.0 → 2.0.0</span>
+npm run release:major
+
+<span class="c"># คำสั่งนี้จะ:
+# ✅ bump version ใน package.json
+# ✅ สร้าง/อัปเดต CHANGELOG.md อัตโนมัติ
+# ✅ สร้าง git tag เช่น v1.1.0</span></code></pre>
+
+  <pre><code><span class="c"># push ขึ้น GitHub → GitHub Actions build + publish อัตโนมัติ</span>
+git push --follow-tags origin main</code></pre>
+
+  <p><strong>ฝั่งคนที่ใช้ — อัปเดต</strong></p>
+  <pre><code>npm update <span class="s">@darkoum/ng-datagrid</span></code></pre>
+
+  <div style="background:#f3e5f5;border:1px solid #ce93d8;border-radius:8px;padding:14px 16px;margin-top:20px">
+    <div style="font-weight:700;color:#6a1b9a;margin-bottom:8px">💡 Commit Message Convention</div>
+    <div style="font-size:13px;color:#555">
+      Husky จะบังคับรูปแบบ commit เพื่อให้ CHANGELOG สวยงาม:
+    </div>
+    <pre style="margin:8px 0 0;font-size:12px"><code>feat: เพิ่ม column pinning
+fix: แก้ Thai date parse ปี 2 หลัก
+docs: อัปเดต README
+feat!: เปลี่ยน API column dataField  <span class="c">← ! = breaking change</span></code></pre>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ══ DataGrid ══ -->
+<section class="section" id="datagrid">
+  <h2>📊 DataGrid</h2>
+  <p>Component หลักสำหรับแสดงและจัดการข้อมูลตาราง — API ใกล้เคียง <code>dx-data-grid</code></p>
+
+  <!-- Demo: mini sortable grid -->
+  <div class="demo-box">
+    <div class="demo-box-tabs">
+      <button class="demo-box-tab active" onclick="demoTab(this,'dg-preview')">▶ Preview</button>
+      <button class="demo-box-tab" onclick="demoTab(this,'dg-code')">💻 Code</button>
+    </div>
+    <div id="dg-preview" class="demo-panel active">
+      <div class="dx-grid-mini">
+        <table id="demo-grid">
+          <thead><tr>
+            <th onclick="sortGrid('id')" style="width:60px">ID <span class="dx-sort" id="s-id"></span></th>
+            <th onclick="sortGrid('name')">ชื่อลูกค้า <span class="dx-sort" id="s-name"></span></th>
+            <th onclick="sortGrid('date')">วันที่สั่ง <span class="dx-sort" id="s-date"></span></th>
+            <th onclick="sortGrid('total')" style="text-align:right">ยอดรวม <span class="dx-sort" id="s-total"></span></th>
+            <th style="width:80px;text-align:center">สถานะ</th>
+          </tr></thead>
+          <tbody id="demo-grid-body"></tbody>
+        </table>
+      </div>
+      <div class="demo-value" id="grid-sort-info">คลิก header เพื่อ sort</div>
+    </div>
+    <div id="dg-code" class="demo-panel code-panel">
+<pre><code><span class="t">&lt;app-datagrid</span> [options]="<span class="v">gridOptions</span>"<span class="t">&gt;</span>
+  <span class="t">&lt;ng-template</span> gridCellTemplate="<span class="v">statusTpl</span>" let-data="data"<span class="t">&gt;</span>
+    <span class="t">&lt;span</span> [class]="<span class="v">getStatusClass(data.status)</span>"<span class="t">&gt;</span>{{ data.status }}<span class="t">&lt;/span&gt;</span>
+  <span class="t">&lt;/ng-template&gt;</span>
+<span class="t">&lt;/app-datagrid&gt;</span>
+
+gridOptions: <span class="kw">DataGridOptions</span> = {
+  keyExpr: <span class="s">'id'</span>,
+  dataSource: { store: myData },
+  columns: [
+    { dataField: <span class="s">'name'</span>,   caption: <span class="s">'ชื่อลูกค้า'</span>, allowSorting: <span class="n">true</span> },
+    { dataField: <span class="s">'date'</span>,   caption: <span class="s">'วันที่'</span>, dataType: <span class="s">'date'</span>, format: <span class="s">'medium'</span> },
+    { dataField: <span class="s">'total'</span>,  caption: <span class="s">'ยอดรวม'</span>, format: <span class="s">'#,##0.00'</span>, alignment: <span class="s">'right'</span> },
+    { dataField: <span class="s">'status'</span>, caption: <span class="s">'สถานะ'</span>, cellTemplate: <span class="s">'statusTpl'</span> },
+  ],
+  paging:      { enabled: <span class="n">true</span>, pageSize: <span class="n">10</span> },
+  sorting:     { mode: <span class="s">'multiple'</span> },
+  filterRow:   { visible: <span class="n">true</span> },
+  showBorders: <span class="n">true</span>,
+  thaiDate:    <span class="n">true</span>,
+};</code></pre>
+    </div>
+  </div>
+
+  <h3 id="datagrid-columns">Columns</h3>
+  <table class="api-table">
+    <thead><tr><th>Property</th><th>Type</th><th>คำอธิบาย</th></tr></thead>
+    <tbody>
+      <tr><td><code>dataField</code></td><td>string</td><td>ชื่อ field</td></tr>
+      <tr><td><code>caption</code></td><td>string</td><td>หัว column</td></tr>
+      <tr><td><code>dataType</code></td><td><code>'string'|'number'|'date'|'boolean'</code></td><td>ประเภทข้อมูล</td></tr>
+      <tr><td><code>format</code></td><td>string</td><td><code>'#,##0.00'</code>, <code>'medium'</code>, <code>'shortDate'</code> ฯลฯ</td></tr>
+      <tr><td><code>width</code></td><td>number|string</td><td>ความกว้าง</td></tr>
+      <tr><td><code>alignment</code></td><td><code>'left'|'center'|'right'</code></td><td>การจัดตำแหน่ง</td></tr>
+      <tr><td><code>cellTemplate</code></td><td>string</td><td>ชื่อ ng-template custom</td></tr>
+      <tr><td><code>allowSorting</code></td><td>boolean</td><td>sort ได้</td></tr>
+      <tr><td><code>allowEditing</code></td><td>boolean</td><td>แก้ไขได้</td></tr>
+    </tbody>
+  </table>
+
+  <h3 id="datagrid-editing">Editing</h3>
+  <pre><code>editing: {
+  mode:          <span class="s">'row'</span>,   <span class="c">// 'row' | 'cell' | 'batch' | 'popup'</span>
+  allowAdding:   <span class="n">true</span>,
+  allowUpdating: <span class="n">true</span>,
+  allowDeleting: <span class="n">true</span>,
+  confirmDelete: <span class="n">true</span>,
+  texts: { saveRowChanges: <span class="s">'บันทึก'</span>, cancelRowChanges: <span class="s">'ยกเลิก'</span>, deleteRow: <span class="s">'ลบ'</span> }
+}</code></pre>
+
+  <h3 id="datagrid-popup">Popup Edit Mode</h3>
+  <pre><code>editing: {
+  mode: <span class="s">'popup'</span>,
+  popup: { title: <span class="s">'แก้ไขข้อมูล'</span>, width: <span class="n">720</span>, height: <span class="n">480</span> },
+  form: {
+    items: [
+      { itemType: <span class="s">'group'</span>, caption: <span class="s">'📋 ข้อมูลหลัก'</span>, colCount: <span class="n">2</span>, items: [
+        { dataField: <span class="s">'name'</span>, label: { text: <span class="s">'ชื่อ'</span> }, isRequired: <span class="n">true</span> },
+        { dataField: <span class="s">'date'</span>, editorType: <span class="s">'dxDateBox'</span> },
+      ]}
+    ]
+  }
+}</code></pre>
+
+  <h3 id="datagrid-tabs">Tabbed Popup Edit <span class="tag-new">v1.1.0</span></h3>
+  <p>Popup form ที่มีแท็บหลายแท็บ เหมาะกับ form ขนาดใหญ่ เช่น ข้อมูลนักศึกษา ข้อมูลลูกค้า</p>
+  <div class="demo-box">
+    <div class="demo-box-tabs">
+      <button class="demo-box-tab active" onclick="demoTab(this,'dg-tabs-preview')">▶ Preview</button>
+      <button class="demo-box-tab" onclick="demoTab(this,'dg-tabs-code')">💻 Code</button>
+    </div>
+    <div id="dg-tabs-preview" class="demo-panel active">
+      <!-- Mini tabbed popup mockup -->
+      <div style="border:1px solid #dee2e6;border-radius:6px;overflow:hidden;max-width:560px">
+        <div style="background:#f8f9fa;padding:10px 14px;border-bottom:1px solid #dee2e6;font-weight:600;color:#212529;font-size:14px">📝 ข้อมูลนักศึกษา</div>
+        <div style="display:flex;border-bottom:2px solid #e0e0e0;background:#f8f9fb;padding:0 14px;gap:2px" id="mock-tabs">
+          <button class="demo-box-tab active" style="border-bottom:2px solid #1565c0;color:#1565c0;font-size:12px" onclick="mockTab(this,0)">📋 ข้อมูลหลัก</button>
+          <button class="demo-box-tab" style="font-size:12px" onclick="mockTab(this,1)">👤 ข้อมูลส่วนบุคคล</button>
+          <button class="demo-box-tab" style="font-size:12px" onclick="mockTab(this,2)">🏠 ที่อยู่</button>
+          <button class="demo-box-tab" style="font-size:12px" onclick="mockTab(this,3)">👨‍👩‍👧 บิดา/มารดา</button>
+        </div>
+        <div style="padding:16px" id="mock-panel-0">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div><div class="dx-form-label-mini" style="margin-bottom:4px">รหัสนักศึกษา *</div><input class="dx-form-input-mini" value="640001001" style="width:100%"></div>
+            <div><div class="dx-form-label-mini" style="margin-bottom:4px">คำนำหน้า</div><select class="dx-form-input-mini" style="width:100%"><option>นาย</option><option>นาง</option><option>นางสาว</option></select></div>
+            <div><div class="dx-form-label-mini" style="margin-bottom:4px">ชื่อ (ไทย) *</div><input class="dx-form-input-mini" value="สมชาย" style="width:100%"></div>
+            <div><div class="dx-form-label-mini" style="margin-bottom:4px">นามสกุล (ไทย) *</div><input class="dx-form-input-mini" value="ใจดี" style="width:100%"></div>
+          </div>
+        </div>
+        <div style="padding:16px;display:none" id="mock-panel-1">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div><div class="dx-form-label-mini" style="margin-bottom:4px">วัน/เดือน/ปีเกิด</div><input class="dx-form-input-mini" value="01/01/2545" style="width:100%"></div>
+            <div><div class="dx-form-label-mini" style="margin-bottom:4px">เลขบัตรประชาชน</div><input class="dx-form-input-mini" value="1-1001-00001-00-1" style="width:100%"></div>
+            <div><div class="dx-form-label-mini" style="margin-bottom:4px">โทรศัพท์</div><input class="dx-form-input-mini" value="081-234-5678" style="width:100%"></div>
+            <div><div class="dx-form-label-mini" style="margin-bottom:4px">อีเมล</div><input class="dx-form-input-mini" value="somchai@email.com" style="width:100%"></div>
+          </div>
+        </div>
+        <div style="padding:16px;display:none" id="mock-panel-2">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div style="grid-column:1/-1"><div class="dx-form-label-mini" style="margin-bottom:4px">ที่อยู่ตามทะเบียนบ้าน</div><input class="dx-form-input-mini" value="123/4 ถ.พหลโยธิน" style="width:100%"></div>
+            <div><div class="dx-form-label-mini" style="margin-bottom:4px">จังหวัด</div><input class="dx-form-input-mini" value="กรุงเทพมหานคร" style="width:100%"></div>
+            <div><div class="dx-form-label-mini" style="margin-bottom:4px">รหัสไปรษณีย์</div><input class="dx-form-input-mini" value="10400" style="width:100%"></div>
+          </div>
+        </div>
+        <div style="padding:16px;display:none" id="mock-panel-3">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div><div class="dx-form-label-mini" style="margin-bottom:4px">ชื่อ-นามสกุล บิดา</div><input class="dx-form-input-mini" value="สมศักดิ์ ใจดี" style="width:100%"></div>
+            <div><div class="dx-form-label-mini" style="margin-bottom:4px">ชื่อ-นามสกุล มารดา</div><input class="dx-form-input-mini" value="สมศรี ใจดี" style="width:100%"></div>
+          </div>
+        </div>
+        <div style="background:#f8f9fa;padding:10px 14px;border-top:1px solid #dee2e6;display:flex;justify-content:flex-end;gap:8px">
+          <button class="dx-btn dx-btn-success">💾 บันทึก</button>
+          <button class="dx-btn dx-btn-normal">ยกเลิก</button>
+        </div>
+      </div>
+      <div class="demo-value">Tabbed Popup — 4 แท็บ · คลิกแท็บเพื่อสลับ</div>
+    </div>
+    <div id="dg-tabs-code" class="demo-panel code-panel">
+<pre><code><span class="k">import</span> { FormTab } <span class="k">from</span> <span class="s">'@darkoum/ng-datagrid'</span>;
+
+editing: {
+  mode: <span class="s">'popup'</span>,
+  popup: { title: <span class="s">'ข้อมูลนักศึกษา'</span>, width: <span class="n">900</span>, height: <span class="n">600</span> },
+  form: {
+    tabs: [
+      {
+        title: <span class="s">'📋 ข้อมูลหลัก'</span>,
+        items: [
+          { dataField: <span class="s">'studentcode'</span>, label: { text: <span class="s">'รหัสนักศึกษา'</span> }, isRequired: <span class="n">true</span> },
+          { dataField: <span class="s">'prefixid'</span>,     label: { text: <span class="s">'คำนำหน้า'</span> }, editorType: <span class="s">'dxSelectBox'</span>,
+            editorOptions: { dataSource: prefixList, valueExpr: <span class="s">'id'</span>, displayExpr: <span class="s">'name'</span> } },
+          { dataField: <span class="s">'studentname'</span>,  label: { text: <span class="s">'ชื่อ (ไทย)'</span> },    isRequired: <span class="n">true</span> },
+          { dataField: <span class="s">'studentsurname'</span>,label: { text: <span class="s">'นามสกุล (ไทย)'</span> }, isRequired: <span class="n">true</span> },
+        ]
+      },
+      {
+        title: <span class="s">'👤 ข้อมูลส่วนบุคคล'</span>,
+        items: [
+          { dataField: <span class="s">'birthdate'</span>, label: { text: <span class="s">'วันเกิด'</span> }, editorType: <span class="s">'dxDateBox'</span> },
+          { dataField: <span class="s">'idcard'</span>,    label: { text: <span class="s">'เลขบัตรประชาชน'</span> } },
+          { dataField: <span class="s">'phone'</span>,     label: { text: <span class="s">'โทรศัพท์'</span> } },
+          { dataField: <span class="s">'email'</span>,     label: { text: <span class="s">'อีเมล'</span> } },
+        ]
+      },
+      {
+        title: <span class="s">'🏠 ที่อยู่'</span>,
+        items: [
+          { dataField: <span class="s">'address'</span>,  label: { text: <span class="s">'ที่อยู่'</span> }, colSpan: <span class="n">2</span> },
+          { dataField: <span class="s">'province'</span>, label: { text: <span class="s">'จังหวัด'</span> } },
+          { dataField: <span class="s">'zipcode'</span>,  label: { text: <span class="s">'รหัสไปรษณีย์'</span> } },
+        ]
+      },
+    ]  <span class="c">// ← ใช้ tabs แทน items</span>
+  }
+}</code></pre>
+    </div>
+  </div>
+  <div class="note">
+    💡 <strong>FormTab vs Form Groups:</strong> ใช้ <code>tabs</code> เมื่อ form มีข้อมูลมาก (5+ fields ต่อกลุ่ม) — แต่ละแท็บโหลดพร้อมกัน ไม่ใช่ lazy
+  </div>
+
+  <h3 id="datagrid-filter">Filter &amp; Search</h3>
+  <pre><code>filterRow:   { visible: <span class="n">true</span> },
+searchPanel: { visible: <span class="n">true</span>, placeholder: <span class="s">'ค้นหา...'</span> },
+toolbar:     { items: [<span class="s">'searchPanel'</span>, <span class="s">'exportButton'</span>] }</code></pre>
+
+  <h3 id="datagrid-export">Export</h3>
+  <pre><code>export: { enabled: <span class="n">true</span>, formats: [<span class="s">'xlsx'</span>, <span class="s">'csv'</span>], fileName: <span class="s">'รายงาน'</span> }</code></pre>
+
+  <h3 id="datagrid-virtual">Virtual Scroll (100,000+ แถว)</h3>
+  <pre><code>scrolling: { mode: <span class="s">'virtual'</span> },
+virtualScrollConfig: { itemHeight: <span class="n">36</span>, bufferSize: <span class="n">10</span> }</code></pre>
+</section>
+
+<hr class="divider">
+
+<!-- ══ Form ══ -->
+<section class="section" id="form">
+  <h2>📋 Form</h2>
+  <p>Standalone Form พร้อม groups, colSpan, editor types ครบ — แทน <code>dx-form</code></p>
+
+  <div class="demo-box">
+    <div class="demo-box-tabs">
+      <button class="demo-box-tab active" onclick="demoTab(this,'form-preview')">▶ Preview</button>
+      <button class="demo-box-tab" onclick="demoTab(this,'form-code')">💻 Code</button>
+    </div>
+    <div id="form-preview" class="demo-panel active">
+      <div class="dx-form-mini">
+        <div class="dx-form-group-mini">
+          <div class="dx-form-group-caption-mini">👤 ข้อมูลส่วนตัว</div>
+          <div class="dx-form-group-body-mini">
+            <div class="dx-form-item-mini"><div class="dx-form-label-mini">ชื่อ <span style="color:#e74c3c">*</span></div><input class="dx-form-input-mini" placeholder="กรอกชื่อ" value="สมชาย"></div>
+            <div class="dx-form-item-mini"><div class="dx-form-label-mini">นามสกุล <span style="color:#e74c3c">*</span></div><input class="dx-form-input-mini" placeholder="กรอกนามสกุล" value="ใจดี"></div>
+            <div class="dx-form-item-mini dx-form-col-full"><div class="dx-form-label-mini">อีเมล</div><input class="dx-form-input-mini" style="max-width:100%;width:100%" placeholder="example@domain.com" value="somchai@example.com"></div>
+          </div>
+        </div>
+        <div class="dx-form-group-mini">
+          <div class="dx-form-group-caption-mini">💼 ข้อมูลการจ้างงาน</div>
+          <div class="dx-form-group-body-mini">
+            <div class="dx-form-item-mini"><div class="dx-form-label-mini">แผนก</div><input class="dx-form-input-mini" value="ฝ่ายไอที"></div>
+            <div class="dx-form-item-mini"><div class="dx-form-label-mini">เงินเดือน (บาท)</div><input class="dx-form-input-mini" type="number" value="55000"></div>
+          </div>
+        </div>
+      </div>
+      <div class="demo-value">colCount: 2 · groups · colSpan · isRequired</div>
+    </div>
+    <div id="form-code" class="demo-panel code-panel">
+<pre><code><span class="t">&lt;app-form</span>
+  [(formData)]="<span class="v">myData</span>"
+  [items]="<span class="v">formItems</span>"
+  [showRequiredMark]="<span class="n">true</span>"
+  (onFieldDataChanged)="<span class="v">onChanged($event)</span>"<span class="t">&gt;</span>
+<span class="t">&lt;/app-form&gt;</span>
+
+formItems: <span class="kw">FormItem</span>[] = [{
+  itemType: <span class="s">'group'</span>, caption: <span class="s">'👤 ข้อมูลส่วนตัว'</span>, colCount: <span class="n">2</span>,
+  items: [
+    { dataField: <span class="s">'firstName'</span>, label: { text: <span class="s">'ชื่อ'</span> }, isRequired: <span class="n">true</span> },
+    { dataField: <span class="s">'lastName'</span>,  label: { text: <span class="s">'นามสกุล'</span> } },
+    { dataField: <span class="s">'email'</span>,     colSpan: <span class="n">2</span> },
+  ]
+}];</code></pre>
+    </div>
+  </div>
+
+  <h3 id="form-items">FormItem Properties</h3>
+  <table class="api-table">
+    <thead><tr><th>Property</th><th>Type</th><th>คำอธิบาย</th></tr></thead>
+    <tbody>
+      <tr><td><code>dataField</code></td><td>string</td><td>อ้างอิง field ใน formData</td></tr>
+      <tr><td><code>itemType</code></td><td><code>'simple'|'group'|'empty'</code></td><td>ประเภท item</td></tr>
+      <tr><td><code>colCount</code></td><td>1 | 2</td><td>คอลัมน์ภายใน group</td></tr>
+      <tr><td><code>colSpan</code></td><td>1 | 2</td><td>2 = เต็มแถว</td></tr>
+      <tr><td><code>isRequired</code></td><td>boolean</td><td>แสดง * ท้าย label</td></tr>
+      <tr><td><code>editorType</code></td><td>string</td><td>ดู Editor Types</td></tr>
+      <tr><td><code>editorOptions</code></td><td>object</td><td>ตัวเลือกของ editor</td></tr>
+    </tbody>
+  </table>
+
+  <h3 id="form-editors">Editor Types</h3>
+  <table class="api-table">
+    <thead><tr><th>editorType</th><th>Component</th><th>editorOptions ที่รองรับ</th></tr></thead>
+    <tbody>
+      <tr><td><code>dxTextBox</code></td><td>input[text]</td><td>placeholder</td></tr>
+      <tr><td><code>dxNumberBox</code></td><td>app-number-box</td><td>min, max, step, showSpinButtons</td></tr>
+      <tr><td><code>dxDateBox</code></td><td>app-thai-datepicker</td><td>format, placeholder</td></tr>
+      <tr><td><code>dxSelectBox</code></td><td>app-select-box</td><td>dataSource, valueExpr, displayExpr, searchEnabled</td></tr>
+      <tr><td><code>dxCheckBox</code></td><td>app-check-box</td><td>text</td></tr>
+      <tr><td><code>dxSwitch</code> <span class="tag-new">new</span></td><td>app-switch</td><td>switchedOnText, switchedOffText</td></tr>
+      <tr><td><code>dxTagBox</code> <span class="tag-new">new</span></td><td>app-tag-box</td><td>dataSource, valueExpr, displayExpr, searchEnabled</td></tr>
+      <tr><td><code>dxRadioGroup</code> <span class="tag-new">new</span></td><td>app-radio-group</td><td>dataSource, layout</td></tr>
+      <tr><td><code>dxTextArea</code></td><td>app-text-area</td><td>rows, placeholder</td></tr>
+      <tr><td><code>custom</code></td><td>ng-template</td><td>ผ่าน FormEditorTemplateDirective</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<hr class="divider">
+
+<!-- ══ SelectBox ══ -->
+<section class="section" id="select-box">
+  <h2>🔽 SelectBox</h2>
+  <p>Dropdown เลือกค่าเดียว — แทน <code>dx-select-box</code> รองรับ search, clear, ControlValueAccessor</p>
+  <div class="demo-box">
+    <div class="demo-box-tabs">
+      <button class="demo-box-tab active" onclick="demoTab(this,'sb-preview')">▶ Preview</button>
+      <button class="demo-box-tab" onclick="demoTab(this,'sb-code')">💻 Code</button>
+    </div>
+    <div id="sb-preview" class="demo-panel active">
+      <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start">
+        <div>
+          <div style="font-size:11px;color:#90a4ae;margin-bottom:6px">ปกติ + search</div>
+          <div class="dx-sb" id="sb1">
+            <div class="dx-sb-control" onclick="toggleSb('sb1')">
+              <span class="dx-sb-text dx-sb-ph" id="sb1-text">เลือกจังหวัด...</span>
+              <span class="dx-sb-arrow">▾</span>
+            </div>
+            <div class="dx-sb-dropdown">
+              <div class="dx-sb-search-wrap"><input class="dx-sb-search" placeholder="ค้นหา..." oninput="filterSb('sb1',this.value)"></div>
+              <div class="dx-sb-list" id="sb1-list"></div>
+            </div>
+          </div>
+          <div class="demo-value" id="sb1-val">value: null</div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:#90a4ae;margin-bottom:6px">disabled</div>
+          <div class="dx-sb" style="opacity:.55;pointer-events:none">
+            <div class="dx-sb-control"><span class="dx-sb-text dx-sb-ph">เลือก...</span><span class="dx-sb-arrow">▾</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="sb-code" class="demo-panel code-panel">
+<pre><code><span class="t">&lt;app-select-box</span>
+  [(ngModel)]="<span class="v">selectedProvince</span>"
+  [dataSource]="<span class="v">provinces</span>"
+  displayExpr="<span class="v">name</span>"
+  valueExpr="<span class="v">id</span>"
+  [searchEnabled]="<span class="n">true</span>"
+  [showClearButton]="<span class="n">true</span>"
+  placeholder="<span class="s">เลือกจังหวัด...</span>"
+  (onValueChanged)="<span class="v">onChanged($event)</span>"<span class="t">&gt;</span>
+<span class="t">&lt;/app-select-box&gt;</span></code></pre>
+    </div>
+  </div>
+  <table class="api-table">
+    <thead><tr><th>Input</th><th>Type</th><th>คำอธิบาย</th></tr></thead>
+    <tbody>
+      <tr><td><code>[dataSource]</code></td><td>any[]</td><td>รายการตัวเลือก</td></tr>
+      <tr><td><code>displayExpr</code></td><td>string|function</td><td>field ที่แสดงผล</td></tr>
+      <tr><td><code>valueExpr</code></td><td>string</td><td>field ที่เป็น value</td></tr>
+      <tr><td><code>[searchEnabled]</code></td><td>boolean</td><td>search box ใน dropdown</td></tr>
+      <tr><td><code>[showClearButton]</code></td><td>boolean</td><td>ปุ่มล้างค่า</td></tr>
+      <tr><td><code>(onValueChanged)</code></td><td>SbValueChangedEvent</td><td><code>{ value, previousValue }</code></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ══ NumberBox ══ -->
+<section class="section" id="number-box">
+  <h2>🔢 NumberBox</h2>
+  <p>Input ตัวเลข — แทน <code>dx-number-box</code> รองรับ spin buttons, min/max, format</p>
+  <div class="demo-box">
+    <div class="demo-box-tabs">
+      <button class="demo-box-tab active" onclick="demoTab(this,'nb-preview')">▶ Preview</button>
+      <button class="demo-box-tab" onclick="demoTab(this,'nb-code')">💻 Code</button>
+    </div>
+    <div id="nb-preview" class="demo-panel active">
+      <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-end">
+        <div>
+          <div style="font-size:11px;color:#90a4ae;margin-bottom:6px">showSpinButtons</div>
+          <div class="dx-nb">
+            <button class="dx-nb-spin" onclick="nbSpin('nb1',-1)">−</button>
+            <input id="nb1" type="number" value="5" min="1" max="99" oninput="nbUpdate(this)">
+            <button class="dx-nb-spin" onclick="nbSpin('nb1',1)">+</button>
+          </div>
+          <div class="demo-value" id="nb1-val">value: 5</div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:#90a4ae;margin-bottom:6px">format #,##0.00</div>
+          <div class="dx-nb" style="max-width:160px">
+            <input id="nb2" type="number" value="55000" oninput="nbUpdate2(this)" style="text-align:right;padding:5px 8px">
+          </div>
+          <div class="demo-value" id="nb2-val">55,000.00</div>
+        </div>
+      </div>
+    </div>
+    <div id="nb-code" class="demo-panel code-panel">
+<pre><code><span class="t">&lt;app-number-box</span>
+  [(ngModel)]="<span class="v">qty</span>"
+  [showSpinButtons]="<span class="n">true</span>"
+  [min]="<span class="n">1</span>" [max]="<span class="n">99</span>" [step]="<span class="n">1</span>"
+  format="<span class="s">#,##0</span>"<span class="t">&gt;</span>
+<span class="t">&lt;/app-number-box&gt;</span></code></pre>
+    </div>
+  </div>
+</section>
+
+<!-- ══ TextBox ══ -->
+<section class="section" id="text-box">
+  <h2>✏️ TextBox</h2>
+  <p>Input ข้อความ — แทน <code>dx-text-box</code> รองรับ clear, password mode, Enter key event</p>
+  <div class="demo-box">
+    <div class="demo-box-tabs">
+      <button class="demo-box-tab active" onclick="demoTab(this,'tb-preview')">▶ Preview</button>
+      <button class="demo-box-tab" onclick="demoTab(this,'tb-code')">💻 Code</button>
+    </div>
+    <div id="tb-preview" class="demo-panel active">
+      <div style="display:flex;gap:16px;flex-direction:column;max-width:320px">
+        <div>
+          <div style="font-size:11px;color:#90a4ae;margin-bottom:6px">text + showClearButton</div>
+          <div class="dx-tb">
+            <input id="tb1" type="text" placeholder="พิมพ์ข้อความ..." value="ทดสอบ" oninput="tbUpdate(this)">
+            <button class="dx-tb-clear" onclick="tbClear('tb1')" title="ล้าง">✕</button>
+          </div>
+          <div class="demo-value" id="tb1-val">value: ทดสอบ</div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:#90a4ae;margin-bottom:6px">password mode</div>
+          <div class="dx-tb">
+            <input type="password" placeholder="รหัสผ่าน" value="secret123">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="tb-code" class="demo-panel code-panel">
+<pre><code><span class="t">&lt;app-text-box</span>
+  [(ngModel)]="<span class="v">searchText</span>"
+  placeholder="<span class="s">ค้นหา...</span>"
+  [showClearButton]="<span class="n">true</span>"
+  (onEnterKey)="<span class="v">onSearch()</span>"<span class="t">&gt;</span>
+<span class="t">&lt;/app-text-box&gt;</span>
+
+<span class="t">&lt;app-text-box</span> mode="<span class="s">password</span>" [(ngModel)]="<span class="v">pwd</span>"<span class="t">&gt;&lt;/app-text-box&gt;</span></code></pre>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CheckBox ══ -->
+<section class="section" id="check-box">
+  <h2>☑️ CheckBox</h2>
+  <p>Checkbox custom UI — แทน <code>dx-check-box</code> <span class="tag-new">new</span></p>
+  <div class="demo-box">
+    <div class="demo-box-tabs">
+      <button class="demo-box-tab active" onclick="demoTab(this,'cb-preview')">▶ Preview</button>
+      <button class="demo-box-tab" onclick="demoTab(this,'cb-code')">💻 Code</button>
+    </div>
+    <div id="cb-preview" class="demo-panel active">
+      <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:center">
+        <label class="dx-cb checked" id="cb1" onclick="toggleCb('cb1')">
+          <span class="dx-cb-box"><span class="dx-cb-check">✓</span></span>
+          <input type="checkbox" checked>
+          <span>เปิดใช้งาน</span>
+        </label>
+        <label class="dx-cb" id="cb2" onclick="toggleCb('cb2')">
+          <span class="dx-cb-box"><span class="dx-cb-check">✓</span></span>
+          <input type="checkbox">
+          <span>รับการแจ้งเตือน</span>
+        </label>
+        <label class="dx-cb" style="opacity:.55;pointer-events:none">
+          <span class="dx-cb-box"></span>
+          <span>disabled</span>
+        </label>
+      </div>
+      <div class="demo-value" id="cb-val">cb1: true · cb2: false</div>
+    </div>
+    <div id="cb-code" class="demo-panel code-panel">
+<pre><code><span class="t">&lt;app-check-box</span>
+  [(ngModel)]="<span class="v">isActive</span>"
+  text="<span class="s">เปิดใช้งาน</span>"
+  (onValueChanged)="<span class="v">fn($event)</span>"<span class="t">&gt;</span>
+<span class="t">&lt;/app-check-box&gt;</span></code></pre>
+    </div>
+  </div>
+</section>
+
+<!-- ══ Switch ══ -->
+<section class="section" id="switch">
+  <h2>🔘 Switch</h2>
+  <p>Toggle switch — แทน <code>dx-switch</code> <span class="tag-new">new</span></p>
+  <div class="demo-box">
+    <div class="demo-box-tabs">
+      <button class="demo-box-tab active" onclick="demoTab(this,'sw-preview')">▶ Preview</button>
+      <button class="demo-box-tab" onclick="demoTab(this,'sw-code')">💻 Code</button>
+    </div>
+    <div id="sw-preview" class="demo-panel active">
+      <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:center">
+        <div>
+          <div style="font-size:11px;color:#90a4ae;margin-bottom:8px">switchedOn/OffText</div>
+          <label class="dx-sw" id="sw1" onclick="toggleSw('sw1')">
+            <input type="checkbox">
+            <span class="dx-sw-track"><span class="dx-sw-thumb"></span><span class="dx-sw-label">ปิด</span></span>
+          </label>
+          <div class="demo-value" id="sw1-val">value: false</div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:#90a4ae;margin-bottom:8px">เปิดอยู่</div>
+          <label class="dx-sw on" id="sw2" onclick="toggleSw('sw2')">
+            <input type="checkbox" checked>
+            <span class="dx-sw-track"><span class="dx-sw-thumb"></span><span class="dx-sw-label">เปิด</span></span>
+          </label>
+          <div class="demo-value" id="sw2-val">value: true</div>
+        </div>
+      </div>
+    </div>
+    <div id="sw-code" class="demo-panel code-panel">
+<pre><code><span class="t">&lt;app-switch</span>
+  [(ngModel)]="<span class="v">isEnabled</span>"
+  switchedOnText="<span class="s">เปิด</span>"
+  switchedOffText="<span class="s">ปิด</span>"<span class="t">&gt;</span>
+<span class="t">&lt;/app-switch&gt;</span></code></pre>
+    </div>
+  </div>
+</section>
+
+<!-- ══ DateBox ══ -->
+<section class="section" id="date-box">
+  <h2>📅 DateBox (Thai)</h2>
+  <p>Date input แสดงปีพุทธศักราช — แทน <code>dx-date-box</code> <span class="tag-new">new standalone</span></p>
+  <div class="demo-box">
+    <div class="demo-box-tabs">
+      <button class="demo-box-tab active" onclick="demoTab(this,'db-preview')">▶ Preview</button>
+      <button class="demo-box-tab" onclick="demoTab(this,'db-code')">💻 Code</button>
+    </div>
+    <div id="db-preview" class="demo-panel active">
+      <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start">
+        <div>
+          <div style="font-size:11px;color:#90a4ae;margin-bottom:6px">format: medium</div>
+          <div class="dx-dp" id="dp1">
+            <div class="dx-dp-input" onclick="dpToggle('dp1')">
+              <span class="dx-dp-icon">📅</span>
+              <span class="dx-dp-text" id="dp1-display">3 มิถุนายน 2568</span>
+            </div>
+            <div class="dx-dp-popup" id="dp1-popup">
+              <div class="dx-dp-header">
+                <button class="dx-dp-nav dp-prev">‹</button>
+                <div class="dx-dp-month-year">
+                  <button class="dx-dp-month-btn" id="dp1-month-btn"></button>
+                  <button class="dx-dp-year-btn" id="dp1-year-btn"></button>
+                </div>
+                <button class="dx-dp-nav dp-next">›</button>
+              </div>
+              <div class="dx-dp-grid" id="dp1-grid" style="grid-template-columns:repeat(7,1fr)"></div>
+              <div class="dx-dp-footer">
+                <button class="dx-dp-footer-btn dp-clear">ล้าง</button>
+                <button class="dx-dp-footer-btn dp-today">วันนี้</button>
+              </div>
+            </div>
+          </div>
+          <div class="demo-value" id="dp1-val">value: 2025-06-03</div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:#90a4ae;margin-bottom:6px">format: shortDate</div>
+          <div class="dx-dp" id="dp2">
+            <div class="dx-dp-input" onclick="dpToggle('dp2')">
+              <span class="dx-dp-icon">📅</span>
+              <span class="dx-dp-text" id="dp2-display">03/06/2568</span>
+            </div>
+            <div class="dx-dp-popup" id="dp2-popup">
+              <div class="dx-dp-header">
+                <button class="dx-dp-nav dp-prev">‹</button>
+                <div class="dx-dp-month-year">
+                  <button class="dx-dp-month-btn" id="dp2-month-btn"></button>
+                  <button class="dx-dp-year-btn" id="dp2-year-btn"></button>
+                </div>
+                <button class="dx-dp-nav dp-next">›</button>
+              </div>
+              <div class="dx-dp-grid" id="dp2-grid" style="grid-template-columns:repeat(7,1fr)"></div>
+              <div class="dx-dp-footer">
+                <button class="dx-dp-footer-btn dp-clear">ล้าง</button>
+                <button class="dx-dp-footer-btn dp-today">วันนี้</button>
+              </div>
+            </div>
+          </div>
+          <div class="demo-value" id="dp2-val">value: 2025-06-03</div>
+        </div>
+      </div>
+    </div>
+    <div id="db-code" class="demo-panel code-panel">
+<pre><code><span class="t">&lt;app-date-box</span>
+  [(ngModel)]="<span class="v">birthDate</span>"
+  format="<span class="s">medium</span>"
+  placeholder="<span class="s">เลือกวันที่</span>"
+  (onValueChanged)="<span class="v">fn($event)</span>"<span class="t">&gt;</span>
+<span class="t">&lt;/app-date-box&gt;</span></code></pre>
+    </div>
+  </div>
+</section>
+
+<!-- ══ TagBox ══ -->
+<section class="section" id="tag-box">
+  <h2>🏷️ TagBox</h2>
+  <p>Multi-select แสดงเป็น tag chips — แทน <code>dx-tag-box</code> <span class="tag-new">new</span></p>
+  <div class="demo-box">
+    <div class="demo-box-tabs">
+      <button class="demo-box-tab active" onclick="demoTab(this,'tbx-preview')">▶ Preview</button>
+      <button class="demo-box-tab" onclick="demoTab(this,'tbx-code')">💻 Code</button>
+    </div>
+    <div id="tbx-preview" class="demo-panel active">
+      <div class="dx-tbx" id="tbx1">
+        <div class="dx-tbx-control" onclick="toggleTbx('tbx1')">
+          <div class="dx-tbx-tags" id="tbx1-tags"></div>
+          <span class="dx-tbx-arrow">▾</span>
+        </div>
+        <div class="dx-tbx-dropdown">
+          <div class="dx-tbx-list" id="tbx1-list"></div>
+        </div>
+      </div>
+      <div class="demo-value" id="tbx1-val">selected: []</div>
+    </div>
+    <div id="tbx-code" class="demo-panel code-panel">
+<pre><code><span class="t">&lt;app-tag-box</span>
+  [(ngModel)]="<span class="v">selectedIds</span>"
+  [dataSource]="<span class="v">employees</span>"
+  displayExpr="<span class="s">name</span>"
+  valueExpr="<span class="s">id</span>"
+  [searchEnabled]="<span class="n">true</span>"
+  [showClearButton]="<span class="n">true</span>"
+  (onValueChanged)="<span class="v">fn($event)</span>"<span class="t">&gt;</span>
+<span class="t">&lt;/app-tag-box&gt;</span></code></pre>
+    </div>
+  </div>
+</section>
+
+<!-- ══ RadioGroup ══ -->
+<section class="section" id="radio-group">
+  <h2>🔵 RadioGroup</h2>
+  <p>กลุ่ม radio buttons — แทน <code>dx-radio-group</code> <span class="tag-new">new</span></p>
+  <div class="demo-box">
+    <div class="demo-box-tabs">
+      <button class="demo-box-tab active" onclick="demoTab(this,'rg-preview')">▶ Preview</button>
+      <button class="demo-box-tab" onclick="demoTab(this,'rg-code')">💻 Code</button>
+    </div>
+    <div id="rg-preview" class="demo-panel active">
+      <div style="display:flex;gap:32px;flex-wrap:wrap">
+        <div>
+          <div style="font-size:11px;color:#90a4ae;margin-bottom:8px">vertical (default)</div>
+          <div class="dx-rg" id="rg1"></div>
+          <div class="demo-value" id="rg1-val">value: M</div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:#90a4ae;margin-bottom:8px">horizontal</div>
+          <div class="dx-rg h" id="rg2"></div>
+          <div class="demo-value" id="rg2-val">value: ปกติ</div>
+        </div>
+      </div>
+    </div>
+    <div id="rg-code" class="demo-panel code-panel">
+<pre><code><span class="t">&lt;app-radio-group</span>
+  [(ngModel)]="<span class="v">gender</span>"
+  [items]="<span class="v">genderOptions</span>"
+  displayExpr="<span class="s">text</span>" valueExpr="<span class="s">value</span>"
+  layout="<span class="s">horizontal</span>"<span class="t">&gt;</span>
+<span class="t">&lt;/app-radio-group&gt;</span>
+
+<span class="c">// plain string array</span>
+<span class="t">&lt;app-radio-group</span>
+  [(ngModel)]="<span class="v">priority</span>"
+  [items]="<span class="v">['ต่ำ','ปกติ','สูง']</span>"<span class="t">&gt;</span>
+<span class="t">&lt;/app-radio-group&gt;</span></code></pre>
+    </div>
+  </div>
+</section>
+
+<!-- ══ TextArea ══ -->
+<section class="section" id="text-area">
+  <h2>📝 TextArea</h2>
+  <p>Textarea พร้อม character counter — แทน <code>dx-text-area</code> <span class="tag-new">new</span></p>
+  <div class="demo-box">
+    <div class="demo-box-tabs">
+      <button class="demo-box-tab active" onclick="demoTab(this,'ta-preview')">▶ Preview</button>
+      <button class="demo-box-tab" onclick="demoTab(this,'ta-code')">💻 Code</button>
+    </div>
+    <div id="ta-preview" class="demo-panel active">
+      <div class="dx-ta" style="max-width:400px">
+        <textarea id="ta1" rows="4" maxlength="200" placeholder="กรอกข้อความ..." oninput="taUpdate(this)">ทดสอบ TextArea</textarea>
+        <div class="dx-ta-counter" id="ta1-counter">15 / 200</div>
+      </div>
+      <div class="demo-value" id="ta1-val">length: 15</div>
+    </div>
+    <div id="ta-code" class="demo-panel code-panel">
+<pre><code><span class="t">&lt;app-text-area</span>
+  [(ngModel)]="<span class="v">description</span>"
+  [rows]="<span class="n">4</span>"
+  [maxLength]="<span class="n">200</span>"
+  placeholder="<span class="s">กรอกข้อความ...</span>"<span class="t">&gt;</span>
+<span class="t">&lt;/app-text-area&gt;</span></code></pre>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ══ Button ══ -->
+<section class="section" id="button">
+  <h2>🔲 Button</h2>
+  <p>ปุ่มกดพร้อม icon — แทน <code>dx-button</code></p>
+  <div class="demo-box">
+    <div class="demo-box-tabs">
+      <button class="demo-box-tab active" onclick="demoTab(this,'btn-preview')">▶ Preview</button>
+      <button class="demo-box-tab" onclick="demoTab(this,'btn-code')">💻 Code</button>
+    </div>
+    <div id="btn-preview" class="demo-panel active">
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+        <button class="dx-btn dx-btn-default" onclick="btnClick(this,'ค้นหา')">🔍 ค้นหา</button>
+        <button class="dx-btn dx-btn-success" onclick="btnClick(this,'บันทึก')">💾 บันทึก</button>
+        <button class="dx-btn dx-btn-danger"  onclick="btnClick(this,'ลบ')">🗑 ลบ</button>
+        <button class="dx-btn dx-btn-normal"  onclick="btnClick(this,'ยกเลิก')">ยกเลิก</button>
+        <button class="dx-btn dx-btn-back"    onclick="btnClick(this,'กลับ')">← กลับ</button>
+        <button class="dx-btn dx-btn-default" disabled>disabled</button>
+      </div>
+      <div class="demo-value" id="btn-val">คลิกปุ่มเพื่อทดสอบ</div>
+    </div>
+    <div id="btn-code" class="demo-panel code-panel">
+<pre><code><span class="t">&lt;app-button</span> text="<span class="s">ค้นหา</span>"   icon="<span class="s">find</span>"  type="<span class="s">default</span>" (onClick)="<span class="v">search()</span>"<span class="t">&gt;&lt;/app-button&gt;</span>
+<span class="t">&lt;app-button</span> text="<span class="s">บันทึก</span>"  icon="<span class="s">save</span>"  type="<span class="s">success</span>"<span class="t">&gt;&lt;/app-button&gt;</span>
+<span class="t">&lt;app-button</span> text="<span class="s">ลบ</span>"     icon="<span class="s">trash</span>" type="<span class="s">danger</span>"<span class="t">&gt;&lt;/app-button&gt;</span>
+<span class="t">&lt;app-button</span> text="<span class="s">ยกเลิก</span>"              type="<span class="s">normal</span>"<span class="t">&gt;&lt;/app-button&gt;</span></code></pre>
+    </div>
+  </div>
+</section>
+
+<!-- ══ Popup ══ -->
+<section class="section" id="popup">
+  <h2>🪟 Popup</h2>
+  <p>Modal dialog — แทน <code>dx-popup</code></p>
+  <div class="demo-box">
+    <div class="demo-box-tabs">
+      <button class="demo-box-tab active" onclick="demoTab(this,'pp-preview')">▶ Preview</button>
+      <button class="demo-box-tab" onclick="demoTab(this,'pp-code')">💻 Code</button>
+    </div>
+    <div id="pp-preview" class="demo-panel active">
+      <button class="dx-btn dx-btn-default" onclick="openPopup()">🪟 เปิด Popup</button>
+      <div class="demo-value">คลิกเพื่อเปิด modal dialog · ปิดด้วย ESC หรือคลิก overlay</div>
+      <!-- Popup -->
+      <div id="demo-popup" class="dx-pp-overlay" style="display:none" onclick="closePopup(event)">
+        <div class="dx-pp-box" onclick="event.stopPropagation()">
+          <div class="dx-pp-header">
+            <span class="dx-pp-title">📝 แก้ไขข้อมูล</span>
+            <button class="dx-pp-close" onclick="closePopup()">✕</button>
+          </div>
+          <div class="dx-pp-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+              <div><div class="dx-form-label-mini" style="margin-bottom:5px">ชื่อ</div><input class="dx-form-input-mini" value="สมชาย ใจดี" style="width:100%"></div>
+              <div><div class="dx-form-label-mini" style="margin-bottom:5px">แผนก</div><input class="dx-form-input-mini" value="ฝ่ายไอที" style="width:100%"></div>
+              <div style="grid-column:1/-1"><div class="dx-form-label-mini" style="margin-bottom:5px">หมายเหตุ</div><textarea class="dx-form-input-mini" style="width:100%;height:60px;resize:none;padding:5px 9px">...</textarea></div>
+            </div>
+          </div>
+          <div class="dx-pp-footer">
+            <button class="dx-btn dx-btn-success" onclick="closePopup()">💾 บันทึก</button>
+            <button class="dx-btn dx-btn-normal" onclick="closePopup()">ยกเลิก</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="pp-code" class="demo-panel code-panel">
+<pre><code><span class="t">&lt;app-popup</span>
+  [(visible)]="<span class="v">popupVisible</span>"
+  title="<span class="s">แก้ไขข้อมูล</span>"
+  [width]="<span class="s">'500px'</span>"
+  [height]="<span class="s">'auto'</span>"
+  [closeOnOutsideClick]="<span class="n">true</span>"
+  (onHiding)="<span class="v">onClose()</span>"<span class="t">&gt;</span>
+
+  <span class="c">&lt;!-- เนื้อหา --&gt;</span>
+
+<span class="t">&lt;/app-popup&gt;</span></code></pre>
+    </div>
+  </div>
+</section>
+
+<!-- ══ TabPanel ══ -->
+<section class="section" id="tab-panel">
+  <h2>📑 TabPanel</h2>
+  <p>Tab panel — แทน <code>dx-tab-panel</code></p>
+  <div class="demo-box">
+    <div class="demo-box-tabs">
+      <button class="demo-box-tab active" onclick="demoTab(this,'tp-preview')">▶ Preview</button>
+      <button class="demo-box-tab" onclick="demoTab(this,'tp-code')">💻 Code</button>
+    </div>
+    <div id="tp-preview" class="demo-panel active">
+      <div class="dx-tp">
+        <div class="dx-tp-tabs">
+          <button class="dx-tp-tab active" onclick="switchDxTab(this,'tp1')">📋 ข้อมูลทั่วไป</button>
+          <button class="dx-tp-tab" onclick="switchDxTab(this,'tp2')">📅 วันที่</button>
+          <button class="dx-tp-tab" onclick="switchDxTab(this,'tp3')">⚙ การตั้งค่า</button>
+        </div>
+        <div id="tp1" class="dx-tp-panel active"><p>เนื้อหา Tab 1 — ข้อมูลทั่วไป</p><p style="color:#90a4ae;font-size:12px">ใส่ component ใดก็ได้ใน app-tab-item</p></div>
+        <div id="tp2" class="dx-tp-panel"><p>เนื้อหา Tab 2 — วันที่</p></div>
+        <div id="tp3" class="dx-tp-panel"><p>เนื้อหา Tab 3 — การตั้งค่า</p></div>
+      </div>
+    </div>
+    <div id="tp-code" class="demo-panel code-panel">
+<pre><code><span class="t">&lt;app-tab-panel</span> [(selectedIndex)]="<span class="v">activeTab</span>"<span class="t">&gt;</span>
+  <span class="t">&lt;app-tab-item</span> title="<span class="s">📋 ข้อมูลทั่วไป</span>"<span class="t">&gt;</span>
+    <span class="c">&lt;!-- เนื้อหา tab 1 --&gt;</span>
+  <span class="t">&lt;/app-tab-item&gt;</span>
+  <span class="t">&lt;app-tab-item</span> title="<span class="s">📅 วันที่</span>"<span class="t">&gt;</span>
+    <span class="c">&lt;!-- เนื้อหา tab 2 --&gt;</span>
+  <span class="t">&lt;/app-tab-item&gt;</span>
+<span class="t">&lt;/app-tab-panel&gt;</span></code></pre>
+    </div>
+  </div>
+</section>
+
+<!-- ══ Accordion ══ -->
+<section class="section" id="accordion">
+  <h2>🪗 Accordion</h2>
+  <p>Collapsible sections — แทน <code>dx-accordion</code></p>
+  <div class="demo-box">
+    <div class="demo-box-tabs">
+      <button class="demo-box-tab active" onclick="demoTab(this,'acc-preview')">▶ Preview</button>
+      <button class="demo-box-tab" onclick="demoTab(this,'acc-code')">💻 Code</button>
+    </div>
+    <div id="acc-preview" class="demo-panel active">
+      <div class="dx-acc">
+        <div class="dx-acc-item">
+          <div class="dx-acc-header open" onclick="toggleAcc(this)">📋 ข้อมูลส่วนตัว <span class="dx-acc-arrow">▾</span></div>
+          <div class="dx-acc-body open">ชื่อ: สมชาย ใจดี · แผนก: ฝ่ายไอที · ตำแหน่ง: Developer</div>
+        </div>
+        <div class="dx-acc-item">
+          <div class="dx-acc-header" onclick="toggleAcc(this)">🏠 ที่อยู่ <span class="dx-acc-arrow">▾</span></div>
+          <div class="dx-acc-body">123/4 ถ.สุขุมวิท กรุงเทพฯ 10110</div>
+        </div>
+        <div class="dx-acc-item">
+          <div class="dx-acc-header" onclick="toggleAcc(this)">💼 การจ้างงาน <span class="dx-acc-arrow">▾</span></div>
+          <div class="dx-acc-body">เงินเดือน: 55,000 บาท · วันเริ่มงาน: 1 กันยายน 2565</div>
+        </div>
+      </div>
+    </div>
+    <div id="acc-code" class="demo-panel code-panel">
+<pre><code><span class="t">&lt;app-accordion</span> [collapsible]="<span class="n">true</span>"<span class="t">&gt;</span>
+  <span class="t">&lt;app-accordion-item</span> title="<span class="s">📋 ข้อมูลส่วนตัว</span>"<span class="t">&gt;</span>
+    <span class="c">&lt;!-- เนื้อหา --&gt;</span>
+  <span class="t">&lt;/app-accordion-item&gt;</span>
+<span class="t">&lt;/app-accordion&gt;</span></code></pre>
+    </div>
+  </div>
+</section>
+
+<!-- ══ LoadPanel ══ -->
+<section class="section" id="load-panel">
+  <h2>⏳ LoadPanel</h2>
+  <p>Overlay loading indicator — แทน <code>dx-load-panel</code></p>
+  <div class="demo-box">
+    <div class="demo-box-tabs">
+      <button class="demo-box-tab active" onclick="demoTab(this,'lp-preview')">▶ Preview</button>
+      <button class="demo-box-tab" onclick="demoTab(this,'lp-code')">💻 Code</button>
+    </div>
+    <div id="lp-preview" class="demo-panel active">
+      <button class="dx-btn dx-btn-default" onclick="showLoadPanel()">⏳ แสดง LoadPanel (2 วินาที)</button>
+      <div id="lp-demo" style="display:none;margin-top:12px">
+        <div class="dx-lp">
+          <div class="dx-lp-spin"></div>
+          <div class="dx-lp-msg">กำลังโหลดข้อมูล...</div>
+        </div>
+      </div>
+    </div>
+    <div id="lp-code" class="demo-panel code-panel">
+<pre><code><span class="t">&lt;app-load-panel</span>
+  [(visible)]="<span class="v">isLoading</span>"
+  message="<span class="s">กำลังโหลด...</span>"
+  [shading]="<span class="n">true</span>"<span class="t">&gt;</span>
+<span class="t">&lt;/app-load-panel&gt;</span></code></pre>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ══ ThaiDate Pipe ══ -->
+<section class="section" id="thai-date-pipe">
+  <h2>📆 ThaiDate Pipe</h2>
+  <p>แปลงวันที่เป็นปีพุทธศักราช (พ.ศ.)</p>
+  <div class="demo-box">
+    <div class="demo-box-tabs">
+      <button class="demo-box-tab active" onclick="demoTab(this,'pipe-preview')">▶ Preview</button>
+      <button class="demo-box-tab" onclick="demoTab(this,'pipe-code')">💻 Code</button>
+    </div>
+    <div id="pipe-preview" class="demo-panel active">
+      <div style="margin-bottom:10px">
+        <label style="font-size:12px;color:#546e7a;margin-right:8px">เลือกวันที่:</label>
+        <input type="date" id="pipe-date" value="2025-01-25" onchange="pipeUpdate(this)"
+               style="border:1px solid #ced4da;border-radius:4px;padding:4px 8px;font-size:13px;font-family:inherit">
+      </div>
+      <table class="api-table" id="pipe-table">
+        <thead><tr><th>Format</th><th>ผลลัพธ์</th></tr></thead>
+        <tbody id="pipe-rows"></tbody>
+      </table>
+    </div>
+    <div id="pipe-code" class="demo-panel code-panel">
+<pre><code>{{ myDate | thaiDate }}              <span class="c">&lt;!-- 25 มกราคม 2568       --&gt;</span>
+{{ myDate | thaiDate:<span class="s">'short'</span> }}      <span class="c">&lt;!-- 25 ม.ค. 68           --&gt;</span>
+{{ myDate | thaiDate:<span class="s">'long'</span> }}       <span class="c">&lt;!-- วันศุกร์ที่ 25 มกราคม พ.ศ. 2568 --&gt;</span>
+{{ myDate | thaiDate:<span class="s">'shortDate'</span> }} <span class="c">&lt;!-- 25/01/2568           --&gt;</span></code></pre>
+    </div>
+  </div>
+  <table class="api-table">
+    <thead><tr><th>Format</th><th>ตัวอย่างผลลัพธ์</th></tr></thead>
+    <tbody>
+      <tr><td><code>short</code></td><td>25 ม.ค. 68</td></tr>
+      <tr><td><code>mediumDate</code></td><td>25 ม.ค. 2568</td></tr>
+      <tr><td><code>medium</code></td><td>25 มกราคม 2568</td></tr>
+      <tr><td><code>long</code></td><td>วันเสาร์ที่ 25 มกราคม พ.ศ. 2568</td></tr>
+      <tr><td><code>shortDate</code></td><td>25/01/2568</td></tr>
+      <tr><td><code>shortDateTime</code></td><td>25 ม.ค. 68 10:30</td></tr>
+      <tr><td><code>timeOnly</code></td><td>10:30</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<div class="note success">
+  ✅ <strong>v1.1.0</strong> · Angular 21 · Standalone · Signals · ไม่มี compile error · ทุก component implement ControlValueAccessor<br>
+  🆕 <strong>v1.1.0 ใหม่:</strong> FormTab (tabbed popup editing) · fix TextBox/SelectBox height consistency<br>
+  📦 <code>npm install @darkoum/ng-datagrid@1.1.0</code> · 🚀 <a href="https://darkoum.github.io/ng-datagrid/" target="_blank">Live Demo</a> · 📂 <a href="https://github.com/darkoum/ng-datagrid" target="_blank">GitHub</a>
+</div>
+
+</main>
+</div>
+
+<a href="#" class="back-top">↑</a>
+
+<script>
+// ── Tab switching ────────────────────────────────────────────────────────────
+function demoTab(btn, panelId) {
+  const box = btn.closest('.demo-box');
+  box.querySelectorAll('.demo-box-tab').forEach(b => b.classList.remove('active'));
+  box.querySelectorAll('.demo-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(panelId).classList.add('active');
+}
+
+// ── Sidebar active ───────────────────────────────────────────────────────────
+const allSections = document.querySelectorAll('section[id]');
+const allLinks    = document.querySelectorAll('.sidebar a');
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const id = e.target.id;
+      allLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#'+id));
+    }
+  });
+}, { rootMargin: '-50px 0px -60% 0px' });
+allSections.forEach(s => io.observe(s));
+
+// ── DataGrid mini ────────────────────────────────────────────────────────────
+const GRID_DATA = [
+  {id:1,name:'สมชาย ใจดี',date:'2025-03-15',total:12500},
+  {id:2,name:'อนันต์ มั่นคง',date:'2025-04-02',total:8900},
+  {id:3,name:'กมลา รักไทย',date:'2025-02-20',total:34200},
+  {id:4,name:'วิชัย ศิลปะ',date:'2025-05-10',total:5600},
+  {id:5,name:'พรทิพย์ สุขใส',date:'2025-01-07',total:21300},
+];
+let gridSort = {col:null,dir:'asc'};
+function renderGrid() {
+  const data = [...GRID_DATA];
+  if (gridSort.col) {
+    data.sort((a,b) => {
+      const va = a[gridSort.col], vb = b[gridSort.col];
+      const cmp = va < vb ? -1 : va > vb ? 1 : 0;
+      return gridSort.dir === 'asc' ? cmp : -cmp;
+    });
+  }
+  const months = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  document.getElementById('demo-grid-body').innerHTML = data.map(r => {
+    const d = new Date(r.date);
+    const thDate = `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()+543}`;
+    return `<tr><td>${r.id}</td><td>${r.name}</td><td>${thDate}</td><td style="text-align:right">${r.total.toLocaleString('th-TH')}</td><td style="text-align:center"><span style="background:${r.total>15000?'#d4edda':r.total>8000?'#fff3cd':'#f8d7da'};color:${r.total>15000?'#155724':r.total>8000?'#856404':'#721c24'};padding:2px 8px;border-radius:10px;font-size:12px">${r.total>15000?'สูง':r.total>8000?'กลาง':'ต่ำ'}</span></td></tr>`;
+  }).join('');
+}
+function sortGrid(col) {
+  if (gridSort.col === col) gridSort.dir = gridSort.dir === 'asc' ? 'desc' : 'asc';
+  else { gridSort.col = col; gridSort.dir = 'asc'; }
+  ['id','name','date','total'].forEach(c => {
+    const el = document.getElementById('s-'+c);
+    el.className = 'dx-sort' + (c===col ? ' '+gridSort.dir : '');
+  });
+  document.getElementById('grid-sort-info').textContent = `Sort: ${col} ${gridSort.dir === 'asc' ? '↑ น้อย→มาก' : '↓ มาก→น้อย'}`;
+  renderGrid();
+}
+renderGrid();
+
+// ── SelectBox ────────────────────────────────────────────────────────────────
+const PROVINCES = [
+  {id:'bkk',name:'กรุงเทพมหานคร'},{id:'cnx',name:'เชียงใหม่'},
+  {id:'kkn',name:'ขอนแก่น'},{id:'nma',name:'นครราชสีมา'},
+  {id:'cbi',name:'ชลบุรี'},{id:'hkt',name:'ภูเก็ต'},
+  {id:'skl',name:'สงขลา'},{id:'udr',name:'อุดรธานี'},
+];
+let sb1Val = null;
+function renderSb1(filter='') {
+  const list = document.getElementById('sb1-list');
+  const items = PROVINCES.filter(p => p.name.includes(filter));
+  list.innerHTML = items.length
+    ? items.map(p => `<div class="dx-sb-item${p.id===sb1Val?' active':''}" onclick="selectSb1('${p.id}','${p.name}',event)">${p.name}</div>`).join('')
+    : '<div class="dx-sb-empty">ไม่พบข้อมูล</div>';
+}
+function selectSb1(id, name, e) {
+  if (e) e.stopPropagation();
+  sb1Val = id;
+  document.getElementById('sb1-text').textContent = name;
+  document.getElementById('sb1-text').classList.remove('dx-sb-ph');
+  document.getElementById('sb1-val').textContent = `value: "${id}"`;
+  document.getElementById('sb1').classList.remove('open');
+  renderSb1();
+}
+function toggleSb(id) {
+  const el = document.getElementById(id);
+  const isOpen = el.classList.toggle('open');
+  if (isOpen) { renderSb1(); setTimeout(() => el.querySelector('.dx-sb-search')?.focus(), 30); }
+}
+function filterSb(id, q) { renderSb1(q); }
+document.addEventListener('click', e => {
+  if (!e.target.closest('#sb1')) document.getElementById('sb1').classList.remove('open');
+});
+renderSb1();
+
+// ── NumberBox ────────────────────────────────────────────────────────────────
+function nbSpin(id, dir) {
+  const el = document.getElementById(id);
+  const v = Math.min(99, Math.max(1, (parseInt(el.value)||0) + dir));
+  el.value = v;
+  document.getElementById(id+'-val').textContent = `value: ${v}`;
+}
+function nbUpdate(el) { document.getElementById('nb1-val').textContent = `value: ${el.value}`; }
+function nbUpdate2(el) {
+  const v = parseFloat(el.value)||0;
+  document.getElementById('nb2-val').textContent = v.toLocaleString('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+
+// ── TextBox ──────────────────────────────────────────────────────────────────
+function tbUpdate(el) { document.getElementById('tb1-val').textContent = `value: ${el.value}`; }
+function tbClear(id) { document.getElementById(id).value=''; document.getElementById('tb1-val').textContent = 'value: (ว่าง)'; }
+
+// ── CheckBox ─────────────────────────────────────────────────────────────────
+function toggleCb(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('checked');
+  const cb1 = document.getElementById('cb1').classList.contains('checked');
+  const cb2 = document.getElementById('cb2').classList.contains('checked');
+  document.getElementById('cb-val').textContent = `cb1: ${cb1} · cb2: ${cb2}`;
+}
+
+// ── Switch ───────────────────────────────────────────────────────────────────
+function toggleSw(id) {
+  const el = document.getElementById(id);
+  const on = el.classList.toggle('on');
+  const lbl = el.querySelector('.dx-sw-label');
+  if (lbl) lbl.textContent = on ? 'เปิด' : 'ปิด';
+  document.getElementById(id+'-val').textContent = `value: ${on}`;
+}
+
+// ── TagBox ───────────────────────────────────────────────────────────────────
+const TBX_ITEMS = [
+  {id:'it',name:'ฝ่ายไอที'},{id:'hr',name:'ฝ่ายบุคคล'},
+  {id:'fin',name:'ฝ่ายการเงิน'},{id:'sales',name:'ฝ่ายขาย'},
+  {id:'ops',name:'ฝ่ายปฏิบัติการ'},
+];
+let tbx1Sel = ['it'];
+function renderTbx1() {
+  const tags = document.getElementById('tbx1-tags');
+  tags.innerHTML = tbx1Sel.length
+    ? tbx1Sel.map(id => {
+        const item = TBX_ITEMS.find(i=>i.id===id);
+        return `<span class="dx-tag">${item.name}<button class="dx-tag-rm" onclick="removeTbxTag('${id}',event)">✕</button></span>`;
+      }).join('')
+    : '<span class="dx-tbx-ph">เลือกแผนก...</span>';
+  const list = document.getElementById('tbx1-list');
+  list.innerHTML = TBX_ITEMS.map(item => `
+    <div class="dx-tbx-item${tbx1Sel.includes(item.id)?' sel':''}" onclick="toggleTbxItem('${item.id}',event)">
+      <span class="dx-tbx-chk">${tbx1Sel.includes(item.id)?'✓':''}</span>${item.name}
+    </div>`).join('');
+  document.getElementById('tbx1-val').textContent = `selected: [${tbx1Sel.map(id=>`"${id}"`).join(', ')}]`;
+}
+function toggleTbx(id) { document.getElementById(id).classList.toggle('open'); renderTbx1(); }
+function toggleTbxItem(id, e) {
+  e.stopPropagation();
+  if (tbx1Sel.includes(id)) tbx1Sel = tbx1Sel.filter(x=>x!==id);
+  else tbx1Sel.push(id);
+  renderTbx1();
+}
+function removeTbxTag(id, e) { e.stopPropagation(); tbx1Sel = tbx1Sel.filter(x=>x!==id); renderTbx1(); }
+document.addEventListener('click', e => {
+  if (!e.target.closest('#tbx1')) document.getElementById('tbx1').classList.remove('open');
+});
+renderTbx1();
+
+// ── RadioGroup ───────────────────────────────────────────────────────────────
+const RG1 = [{value:'M',text:'ชาย'},{value:'F',text:'หญิง'},{value:'O',text:'ไม่ระบุ'}];
+let rg1Val = 'M';
+function renderRg1() {
+  document.getElementById('rg1').innerHTML = RG1.map(item => `
+    <label class="dx-rg-item${rg1Val===item.value?' sel':''}" onclick="selectRg1('${item.value}')">
+      <input type="radio" ${rg1Val===item.value?'checked':''}><span class="dx-rg-radio"><span class="dx-rg-dot"></span></span>${item.text}
+    </label>`).join('');
+  document.getElementById('rg1-val').textContent = `value: ${rg1Val}`;
+}
+function selectRg1(v) { rg1Val=v; renderRg1(); }
+
+const RG2 = ['ต่ำ','ปกติ','สูง'];
+let rg2Val = 'ปกติ';
+function renderRg2() {
+  document.getElementById('rg2').innerHTML = RG2.map(item => `
+    <label class="dx-rg-item${rg2Val===item?' sel':''}" onclick="selectRg2('${item}')">
+      <input type="radio" ${rg2Val===item?'checked':''}><span class="dx-rg-radio"><span class="dx-rg-dot"></span></span>${item}
+    </label>`).join('');
+  document.getElementById('rg2-val').textContent = `value: ${rg2Val}`;
+}
+function selectRg2(v) { rg2Val=v; renderRg2(); }
+renderRg1(); renderRg2();
+
+// ── TextArea ─────────────────────────────────────────────────────────────────
+function taUpdate(el) {
+  document.getElementById('ta1-counter').textContent = `${el.value.length} / 200`;
+  document.getElementById('ta1-val').textContent = `length: ${el.value.length}`;
+}
+
+// ── Button ───────────────────────────────────────────────────────────────────
+function btnClick(btn, label) {
+  document.getElementById('btn-val').textContent = `คลิก: "${label}" @ ${new Date().toLocaleTimeString('th')}`;
+}
+
+// ── Popup ────────────────────────────────────────────────────────────────────
+function openPopup() { document.getElementById('demo-popup').style.display='flex'; }
+function closePopup(e) {
+  if (!e || e.target === document.getElementById('demo-popup')) {
+    document.getElementById('demo-popup').style.display='none';
+  }
+}
+document.addEventListener('keydown', e => { if (e.key==='Escape') document.getElementById('demo-popup').style.display='none'; });
+
+// ── TabPanel ─────────────────────────────────────────────────────────────────
+function switchDxTab(btn, panelId) {
+  const container = btn.closest('.dx-tp');
+  container.querySelectorAll('.dx-tp-tab').forEach(b => b.classList.remove('active'));
+  container.querySelectorAll('.dx-tp-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(panelId).classList.add('active');
+}
+
+// ── Accordion ────────────────────────────────────────────────────────────────
+function toggleAcc(header) {
+  const body = header.nextElementSibling;
+  const isOpen = header.classList.toggle('open');
+  body.classList.toggle('open', isOpen);
+}
+
+// ── LoadPanel ────────────────────────────────────────────────────────────────
+function showLoadPanel() {
+  const lp = document.getElementById('lp-demo');
+  lp.style.display = 'block';
+  setTimeout(() => lp.style.display='none', 2000);
+}
+
+// ── Thai DatePicker engine ────────────────────────────────────────────────────
+const TH_MON_L = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+const TH_MON_S = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+const TH_DOW   = ['อา','จ','อ','พ','พฤ','ศ','ส'];
+const TH_DAYS_FULL = ['วันอาทิตย์','วันจันทร์','วันอังคาร','วันพุธ','วันพฤหัสบดี','วันศุกร์','วันเสาร์'];
+
+const dpState = {
+  dp1: { sel: new Date(2025,5,3), view: new Date(2025,5,1), fmt: 'medium',    mode: 'days' },
+  dp2: { sel: new Date(2025,5,3), view: new Date(2025,5,1), fmt: 'shortDate', mode: 'days' },
+};
+
+function dpFmt(d, fmt) {
+  if (!d) return '';
+  const day=d.getDate(), mon=d.getMonth(), yr=d.getFullYear()+543;
+  if (fmt==='shortDate') return `${String(day).padStart(2,'0')}/${String(mon+1).padStart(2,'0')}/${yr}`;
+  if (fmt==='short')     return `${day} ${TH_MON_S[mon]} ${String(yr).slice(-2)}`;
+  if (fmt==='long')      return `${TH_DAYS_FULL[d.getDay()]}ที่ ${day} ${TH_MON_L[mon]} พ.ศ. ${yr}`;
+  return `${day} ${TH_MON_L[mon]} ${yr}`;
+}
+
+function dpRender(id) {
+  const st = dpState[id];
+  const yr = st.view.getFullYear(), mon = st.view.getMonth(), thYr = yr+543;
+  const grid = document.getElementById(`${id}-grid`);
+  const mbtn = document.getElementById(`${id}-month-btn`);
+  const ybtn = document.getElementById(`${id}-year-btn`);
+
+  // ── Days view ────────────────────────────────
+  if (st.mode === 'days') {
+    mbtn.textContent = TH_MON_L[mon];
+    ybtn.textContent = thYr;
+    mbtn.onclick = e => { e.stopPropagation(); dpState[id].mode='months'; dpRender(id); };
+    ybtn.onclick = e => { e.stopPropagation(); dpState[id].mode='years';  dpRender(id); };
+    const today = new Date(); today.setHours(0,0,0,0);
+    const selStr = st.sel ? st.sel.toDateString() : null;
+    let html = TH_DOW.map(d=>`<div class="dx-dp-dow">${d}</div>`).join('');
+    const offset = new Date(yr,mon,1).getDay();
+    const prevLast = new Date(yr,mon,0).getDate();
+    const prevMon=mon===0?11:mon-1, prevYr=mon===0?yr-1:yr;
+    for (let i=offset-1;i>=0;i--) {
+      const dd=prevLast-i;
+      html+=`<div class="dx-dp-cell other" data-a="sel" data-id="${id}" data-y="${prevYr}" data-m="${prevMon}" data-d="${dd}">${dd}</div>`;
+    }
+    const dim = new Date(yr,mon+1,0).getDate();
+    for (let d=1;d<=dim;d++) {
+      const dt=new Date(yr,mon,d);
+      const cls=(dt.toDateString()===today.toDateString()?' today':'')+(dt.toDateString()===selStr?' selected':'');
+      html+=`<div class="dx-dp-cell${cls}" data-a="sel" data-id="${id}" data-y="${yr}" data-m="${mon}" data-d="${d}">${d}</div>`;
+    }
+    const nextMon=mon===11?0:mon+1, nextYr=mon===11?yr+1:yr;
+    const rem=(offset+dim)%7===0?0:7-(offset+dim)%7;
+    for (let d=1;d<=rem;d++)
+      html+=`<div class="dx-dp-cell other" data-a="sel" data-id="${id}" data-y="${nextYr}" data-m="${nextMon}" data-d="${d}">${d}</div>`;
+    grid.innerHTML = html;
+
+  // ── Months view ─────────────────────────────
+  } else if (st.mode === 'months') {
+    mbtn.textContent = thYr + ' — เลือกเดือน';
+    ybtn.textContent = '';
+    mbtn.onclick = null; ybtn.onclick = null;
+    grid.style.gridTemplateColumns = 'repeat(3,1fr)';
+    grid.innerHTML = TH_MON_L.map((m,i)=>`
+      <div class="dx-dp-cell${i===mon?' selected':''}" style="padding:8px 4px;font-size:12px"
+           data-a="mon" data-id="${id}" data-m="${i}">${m}</div>`).join('');
+
+  // ── Years view ──────────────────────────────
+  } else if (st.mode === 'years') {
+    const baseYr = yr - 6;
+    mbtn.textContent = 'เลือกปี พ.ศ.';
+    ybtn.textContent = '';
+    mbtn.onclick = null; ybtn.onclick = null;
+    grid.style.gridTemplateColumns = 'repeat(4,1fr)';
+    grid.innerHTML = Array.from({length:12},(_,i)=>baseYr+i).map(y=>`
+      <div class="dx-dp-cell${y===yr?' selected':''}" style="padding:8px 2px;font-size:13px"
+           data-a="yr" data-id="${id}" data-y="${y}">${y+543}</div>`).join('');
+  }
+}
+
+// ── Single delegated click handler on each popup ─────────────────────────────
+function dpSetupPopup(id) {
+  const popup = document.getElementById(`${id}-popup`);
+  popup.addEventListener('click', e => {
+    e.stopPropagation();
+    const cell = e.target.closest('[data-a]');
+    if (!cell) return;
+    const action = cell.dataset.a;
+    if (action === 'sel') {
+      const y=+cell.dataset.y, m=+cell.dataset.m, d=+cell.dataset.d;
+      const chosen = new Date(y,m,d);
+      dpState[id].sel = chosen;
+      dpState[id].view = new Date(y,m,1);
+      dpState[id].mode = 'days';
+      document.getElementById(`${id}-display`).textContent = dpFmt(chosen, dpState[id].fmt);
+      document.getElementById(`${id}-display`).classList.remove('ph');
+      document.getElementById(`${id}-val`).textContent = `value: ${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      dpRender(id);
+      setTimeout(() => document.getElementById(id).classList.remove('open'), 160);
+    } else if (action === 'mon') {
+      dpState[id].view = new Date(dpState[id].view.getFullYear(), +cell.dataset.m, 1);
+      dpState[id].mode = 'days';
+      dpRender(id);
+    } else if (action === 'yr') {
+      dpState[id].view = new Date(+cell.dataset.y, dpState[id].view.getMonth(), 1);
+      dpState[id].mode = 'days';
+      dpRender(id);
+    }
+  });
+  // nav arrows
+  popup.querySelector('.dp-prev').addEventListener('click', e => {
+    e.stopPropagation();
+    if (dpState[id].mode === 'years') {
+      dpState[id].view = new Date(dpState[id].view.getFullYear()-12, dpState[id].view.getMonth(), 1);
+    } else {
+      const v=dpState[id].view;
+      dpState[id].view = new Date(v.getFullYear(), v.getMonth()-1, 1);
+    }
+    dpRender(id);
+  });
+  popup.querySelector('.dp-next').addEventListener('click', e => {
+    e.stopPropagation();
+    if (dpState[id].mode === 'years') {
+      dpState[id].view = new Date(dpState[id].view.getFullYear()+12, dpState[id].view.getMonth(), 1);
+    } else {
+      const v=dpState[id].view;
+      dpState[id].view = new Date(v.getFullYear(), v.getMonth()+1, 1);
+    }
+    dpRender(id);
+  });
+  popup.querySelector('.dp-today').addEventListener('click', e => {
+    e.stopPropagation();
+    const t=new Date(); t.setHours(0,0,0,0);
+    dpState[id].sel=t; dpState[id].view=new Date(t.getFullYear(),t.getMonth(),1); dpState[id].mode='days';
+    document.getElementById(`${id}-display`).textContent = dpFmt(t, dpState[id].fmt);
+    document.getElementById(`${id}-display`).classList.remove('ph');
+    document.getElementById(`${id}-val`).textContent = `value: ${t.toISOString().slice(0,10)}`;
+    dpRender(id);
+    setTimeout(() => document.getElementById(id).classList.remove('open'), 160);
+  });
+  popup.querySelector('.dp-clear').addEventListener('click', e => {
+    e.stopPropagation();
+    dpState[id].sel=null; dpState[id].mode='days';
+    document.getElementById(`${id}-display`).textContent='เลือกวันที่';
+    document.getElementById(`${id}-display`).classList.add('ph');
+    document.getElementById(`${id}-val`).textContent='value: null';
+    dpRender(id);
+  });
+}
+
+function dpToggle(id) {
+  const dp=document.getElementById(id), popup=document.getElementById(`${id}-popup`);
+  const willOpen = !dp.classList.contains('open');
+  document.querySelectorAll('.dx-dp').forEach(el=>el.classList.remove('open'));
+  if (willOpen) {
+    const rect = dp.querySelector('.dx-dp-input').getBoundingClientRect();
+    popup.style.top  = (rect.bottom+4)+'px';
+    popup.style.left = rect.left+'px';
+    dpState[id].mode='days';
+    dp.classList.add('open');
+    dpRender(id);
+  }
+}
+
+// close on outside click
+document.addEventListener('click', e => {
+  if (!e.target.closest('.dx-dp')) document.querySelectorAll('.dx-dp').forEach(el=>el.classList.remove('open'));
+});
+
+dpSetupPopup('dp1');
+dpSetupPopup('dp2');
+dpRender('dp1');
+dpRender('dp2');
+
+// ── Mock Tabbed Popup ────────────────────────────────────────────────────────
+function mockTab(btn, idx) {
+  document.querySelectorAll('#mock-tabs .demo-box-tab').forEach((b,i) => {
+    b.classList.toggle('active', i === idx);
+    b.style.borderBottom = i === idx ? '2px solid #1565c0' : '';
+    b.style.color = i === idx ? '#1565c0' : '';
+  });
+  for (let i = 0; i < 4; i++) {
+    const p = document.getElementById('mock-panel-' + i);
+    if (p) p.style.display = i === idx ? 'block' : 'none';
+  }
+}
+
+// ── ThaiDate Pipe preview ────────────────────────────────────────────────────
+const SHORT_M = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+const LONG_M  = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+const DAYS    = ['วันอาทิตย์','วันจันทร์','วันอังคาร','วันพุธ','วันพฤหัสบดี','วันศุกร์','วันเสาร์'];
+function pad2(n) { return String(n).padStart(2,'0'); }
+function thaiFormats(dateStr) {
+  const d = new Date(dateStr);
+  const day=d.getDate(), mon=d.getMonth(), yr=d.getFullYear()+543, dow=d.getDay();
+  const h=d.getHours(), mi=d.getMinutes(), s=d.getSeconds();
+  return [
+    ['short',          `${day} ${SHORT_M[mon]} ${String(yr).slice(-2)}`],
+    ['mediumDate',     `${day} ${SHORT_M[mon]} ${yr}`],
+    ['medium',         `${day} ${LONG_M[mon]} ${yr}`],
+    ['long',           `${DAYS[dow]}ที่ ${day} ${LONG_M[mon]} พ.ศ. ${yr}`],
+    ['shortDate',      `${pad2(day)}/${pad2(mon+1)}/${yr}`],
+    ['shortDateTime',  `${day} ${SHORT_M[mon]} ${String(yr).slice(-2)} ${pad2(h)}:${pad2(mi)}`],
+    ['mediumDateTime', `${day} ${SHORT_M[mon]} ${yr} ${pad2(h)}:${pad2(mi)}:${pad2(s)}`],
+    ['timeOnly',       `${pad2(h)}:${pad2(mi)}`],
+  ];
+}
+function pipeUpdate(el) {
+  const rows = thaiFormats(el.value);
+  document.getElementById('pipe-rows').innerHTML = rows.map(([f,r]) =>
+    `<tr><td><code>${f}</code></td><td>${r}</td></tr>`).join('');
+}
+pipeUpdate(document.getElementById('pipe-date'));
+</script>
+</body>
+</html>
