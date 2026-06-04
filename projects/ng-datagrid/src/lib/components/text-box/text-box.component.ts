@@ -50,6 +50,7 @@ export interface TbValueChangedEvent {
       display: flex; align-items: center; width: 100%; min-width: 0;
       border: 1px solid #ced4da; border-radius: 4px;
       background: #fff; overflow: hidden; transition: border-color .15s;
+      min-height: 34px; box-sizing: border-box;
     }
     .app-tb:focus-within { border-color: #86b7fe; box-shadow: 0 0 0 2px rgba(13,110,253,.15); }
     .app-tb--disabled { background: #e9ecef; }

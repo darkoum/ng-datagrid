@@ -1,0 +1,101 @@
+<div class="page-header">
+  <h2>ผลการเรียน (Grade Result)</h2>
+  <p class="breadcrumb">ระบบทะเบียน › ผลการเรียน</p>
+</div>
+
+<!-- Search bar -->
+<div class="search-bar">
+  <label>รหัสนักศึกษา</label>
+  <div class="search-input-group">
+    <app-text-box [(ngModel)]="searchCode" [showClearButton]="true"
+      placeholder="เช่น 640001001" (keydown.enter)="search()">
+    </app-text-box>
+    <app-button text="🔍 ค้นหา" type="default" (onClick)="search()"></app-button>
+  </div>
+  <span *ngIf="notFound()" class="not-found">ไม่พบนักศึกษา "{{ searchCode }}"</span>
+</div>
+
+<!-- Student header card -->
+<div class="student-card" *ngIf="student() as s">
+  <div class="card-rows">
+    <div class="info-row">
+      <span class="lbl">รหัสนักศึกษา :</span><span class="val code">{{ s.studentcode }}</span>
+      <span class="lbl">ชื่อ-นามสกุล :</span><span class="val">{{ getPrefixLabel(s) }}{{ s.studentname }} {{ s.studentsurname }}</span>
+      <span class="lbl">ชั้นปี :</span><span class="val">{{ s.studentyear }}</span>
+    </div>
+    <div class="info-row">
+      <span class="lbl">คณะ :</span><span class="val">{{ getFacultyLabel(s) }}</span>
+      <span class="lbl">สาขาวิชา :</span><span class="val">{{ getProgramLabel(s) }}</span>
+      <span class="lbl">สถานภาพ :</span>
+      <span class="val badge" [class.active]="s.studentstatus===1">{{ getStatusLabel(s) }}</span>
+    </div>
+  </div>
+</div>
+
+<!-- Summary badges -->
+<div class="summary-strip" *ngIf="summary() as sm">
+  <div class="summary-badge">
+    <div class="badge-num gpax">{{ sm.gpax | number:'1.2-2' }}</div>
+    <div class="badge-lbl">GPAX สะสม</div>
+  </div>
+  <div class="summary-badge">
+    <div class="badge-num">{{ sm.creditSatisfy }}</div>
+    <div class="badge-lbl">หน่วยกิตที่นับได้</div>
+  </div>
+  <div class="summary-badge">
+    <div class="badge-num">{{ sm.creditAttempt }}</div>
+    <div class="badge-lbl">หน่วยกิตทั้งหมด</div>
+  </div>
+  <div class="summary-badge">
+    <div class="badge-num">{{ terms().length }}</div>
+    <div class="badge-lbl">ภาคการศึกษา</div>
+  </div>
+</div>
+
+<!-- Term tabs + grid -->
+<div class="term-layout" *ngIf="student() && terms().length > 0">
+  <!-- Term selector tabs -->
+  <div class="term-tabs-wrap">
+    <div class="term-tabs">
+      <button *ngFor="let t of terms(); let i = index"
+              class="term-tab"
+              [class.active]="activeTermIdx() === i"
+              type="button"
+              (click)="selectTerm(i)">
+        {{ t.acadyear }}/{{ t.semester }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Grid + term summary -->
+  <div class="term-content" *ngIf="activeTerm() as t">
+    <div class="term-header">
+      <span class="term-title">ปีการศึกษา {{ t.acadyear }} ภาค {{ t.semester }}</span>
+      <div class="term-stats" *ngIf="termGPA() !== null">
+        <span class="stat"><b>GPA :</b> {{ termGPA() | number:'1.2-2' }}</span>
+        <span class="stat"><b>หน่วยกิตลง :</b> {{ termCreditAttempt() }}</span>
+        <span class="stat"><b>หน่วยกิตนับ :</b> {{ termCreditSatisfy() }}</span>
+        <span class="stat"><b>คะแนนรวม :</b> {{ termCreditPoint() | number:'1.1-1' }}</span>
+      </div>
+    </div>
+
+    <div class="grid-box" *ngIf="gridOptions() as opts">
+      <app-datagrid [options]="opts"></app-datagrid>
+    </div>
+
+    <!-- Term footer row -->
+    <div class="term-footer" *ngIf="termRows().length > 0">
+      <span class="footer-label">รวม</span>
+      <span class="footer-val">{{ termCreditAttempt() }} หน่วยกิต</span>
+      <span class="footer-sep">|</span>
+      <span class="footer-val">GPA = <b>{{ termGPA() !== null ? (termGPA()! | number:'1.2-2') : 'N/A' }}</b></span>
+    </div>
+  </div>
+</div>
+
+<div class="empty-state" *ngIf="!student() && !notFound()">
+  <span>🔍 กรอกรหัสนักศึกษาแล้วกด ค้นหา</span>
+</div>
+<div class="empty-state" *ngIf="student() && terms().length === 0">
+  <span>ยังไม่มีข้อมูลผลการเรียน</span>
+</div>

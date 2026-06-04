@@ -252,6 +252,137 @@ export class MockDataService {
     return this.bioFieldTemplate.map(f => ({ ...f }));
   }
 
+  // ─── prgenroll — รายวิชาที่เปิดสอน ────────────────────────────────────────
+  openCourses: any[] = [
+    { courseid:1,  coursecode:'01076401', coursename:'การพัฒนา Web Application',   credit:3, sectioncode:'1', weekday:'จ',   timefrom:'08:00', timeto:'11:00', room:'ENG-301', instructor:'ผศ.ดร.สมชาย วิชาการ',   seat:40, enrolled:35 },
+    { courseid:2,  coursecode:'01076402', coursename:'ความมั่นคงระบบสารสนเทศ',      credit:3, sectioncode:'1', weekday:'อ',   timefrom:'09:00', timeto:'12:00', room:'ENG-401', instructor:'รศ.ดร.สุนีย์ ใจดี',     seat:35, enrolled:30 },
+    { courseid:3,  coursecode:'01076403', coursename:'Machine Learning',             credit:3, sectioncode:'1', weekday:'พ',   timefrom:'13:00', timeto:'16:00', room:'ENG-201', instructor:'ผศ.นงนุช มั่นใจ',        seat:40, enrolled:38 },
+    { courseid:4,  coursecode:'01076404', coursename:'Cloud Computing',              credit:3, sectioncode:'1', weekday:'พฤ',  timefrom:'08:00', timeto:'11:00', room:'ENG-302', instructor:'อ.ดร.ประเสริฐ รักเรียน', seat:30, enrolled:25 },
+    { courseid:5,  coursecode:'01076405', coursename:'IoT และระบบสมองกล',           credit:3, sectioncode:'2', weekday:'ศ',   timefrom:'09:00', timeto:'12:00', room:'LAB-201', instructor:'ผศ.ดร.สมชาย วิชาการ',   seat:25, enrolled:20 },
+    { courseid:6,  coursecode:'01076406', coursename:'Data Engineering',             credit:3, sectioncode:'1', weekday:'จ',   timefrom:'13:00', timeto:'16:00', room:'ENG-103', instructor:'ศ.ดร.วิชัย ดีเลิศ',     seat:40, enrolled:32 },
+    { courseid:7,  coursecode:'01076497', coursename:'สหกิจศึกษา',                   credit:6, sectioncode:'1', weekday:'-',   timefrom:'-',     timeto:'-',     room:'-',       instructor:'ผศ.นงนุช มั่นใจ',        seat:50, enrolled:45 },
+    { courseid:8,  coursecode:'01076498', coursename:'การฝึกงาน',                    credit:3, sectioncode:'1', weekday:'-',   timefrom:'-',     timeto:'-',     room:'-',       instructor:'อ.ดร.ประเสริฐ รักเรียน', seat:50, enrolled:40 },
+    { courseid:9,  coursecode:'01076499', coursename:'วิทยานิพนธ์',                  credit:6, sectioncode:'1', weekday:'ส',   timefrom:'09:00', timeto:'16:00', room:'อาจารย์', instructor:'รศ.ดร.สุนีย์ ใจดี',     seat:20, enrolled:12 },
+    { courseid:10, coursecode:'GEN-HUM01', coursename:'มนุษย์และสังคม',              credit:3, sectioncode:'1', weekday:'อ',   timefrom:'13:00', timeto:'16:00', room:'HUM-101', instructor:'ผศ.ดร.สมชาย วิชาการ',   seat:60, enrolled:55 },
+  ];
+
+  // รายวิชาที่ลงทะเบียนแล้ว (studentid_acadyear_semester)
+  registrations: Record<string, any[]> = {
+    '1_2567_1': [
+      { regid:1, courseid:1, coursecode:'01076401', coursename:'การพัฒนา Web Application', credit:3, sectioncode:'1', weekday:'จ',  timefrom:'08:00', timeto:'11:00', room:'ENG-301', regtype:1 },
+      { regid:2, courseid:2, coursecode:'01076402', coursename:'ความมั่นคงระบบสารสนเทศ',   credit:3, sectioncode:'1', weekday:'อ',  timefrom:'09:00', timeto:'12:00', room:'ENG-401', regtype:1 },
+      { regid:3, courseid:4, coursecode:'01076404', coursename:'Cloud Computing',           credit:3, sectioncode:'1', weekday:'พฤ', timefrom:'08:00', timeto:'11:00', room:'ENG-302', regtype:1 },
+      { regid:4, courseid:7, coursecode:'01076497', coursename:'สหกิจศึกษา',               credit:6, sectioncode:'1', weekday:'-',  timefrom:'-',     timeto:'-',     room:'-',       regtype:1 },
+    ],
+    '2_2567_1': [
+      { regid:1, courseid:3, coursecode:'01076403', coursename:'Machine Learning',          credit:3, sectioncode:'1', weekday:'พ',  timefrom:'13:00', timeto:'16:00', room:'ENG-201', regtype:1 },
+      { regid:2, courseid:6, coursecode:'01076406', coursename:'Data Engineering',          credit:3, sectioncode:'1', weekday:'จ',  timefrom:'13:00', timeto:'16:00', room:'ENG-103', regtype:1 },
+    ],
+  };
+
+  regtypeCombo: any[] = [
+    { comboid:1, comboshow:'ปกติ' },
+    { comboid:2, comboshow:'เพิ่มถอน' },
+    { comboid:3, comboshow:'เงื่อนไข' },
+  ];
+
+  acadyearCombo: any[] = [
+    { comboid:2567, comboshow:'2567' },
+    { comboid:2566, comboshow:'2566' },
+    { comboid:2565, comboshow:'2565' },
+    { comboid:2564, comboshow:'2564' },
+  ];
+
+  semesterCombo: any[] = [
+    { comboid:1, comboshow:'1' },
+    { comboid:2, comboshow:'2' },
+    { comboid:3, comboshow:'3 (ฤดูร้อน)' },
+  ];
+
+  // ─── prggrade — ผลการเรียน ────────────────────────────────────────────────
+  gradeResults: Record<number, any[]> = {
+    1: [
+      // 2564/1
+      { termid:1, acadyear:2564, semester:1, coursecode:'01076101', coursename:'แคลคูลัส 1',                credit:3, grade:'B+', gradepoint:3.5, creditpoint:10.5 },
+      { termid:1, acadyear:2564, semester:1, coursecode:'01076102', coursename:'ฟิสิกส์วิศวกรรม',           credit:3, grade:'A',  gradepoint:4.0, creditpoint:12.0 },
+      { termid:1, acadyear:2564, semester:1, coursecode:'01076103', coursename:'การเขียนโปรแกรม',           credit:3, grade:'A',  gradepoint:4.0, creditpoint:12.0 },
+      { termid:1, acadyear:2564, semester:1, coursecode:'01076104', coursename:'วงจรดิจิทัล',               credit:3, grade:'B',  gradepoint:3.0, creditpoint:9.0  },
+      { termid:1, acadyear:2564, semester:1, coursecode:'01076105', coursename:'ภาษาอังกฤษเพื่อวิศวกรรม',   credit:3, grade:'B+', gradepoint:3.5, creditpoint:10.5 },
+      { termid:1, acadyear:2564, semester:1, coursecode:'GEN001',   coursename:'มนุษย์กับสังคม',            credit:3, grade:'A',  gradepoint:4.0, creditpoint:12.0 },
+      // 2564/2
+      { termid:2, acadyear:2564, semester:2, coursecode:'01076201', coursename:'แคลคูลัส 2',                credit:3, grade:'A',  gradepoint:4.0, creditpoint:12.0 },
+      { termid:2, acadyear:2564, semester:2, coursecode:'01076202', coursename:'โครงสร้างข้อมูล',           credit:3, grade:'A',  gradepoint:4.0, creditpoint:12.0 },
+      { termid:2, acadyear:2564, semester:2, coursecode:'01076203', coursename:'คณิตศาสตร์ไม่ต่อเนื่อง',    credit:3, grade:'B+', gradepoint:3.5, creditpoint:10.5 },
+      { termid:2, acadyear:2564, semester:2, coursecode:'01076204', coursename:'ระบบดิจิทัล',               credit:3, grade:'B+', gradepoint:3.5, creditpoint:10.5 },
+      { termid:2, acadyear:2564, semester:2, coursecode:'01076205', coursename:'ระบบสื่อสาร',               credit:3, grade:'B',  gradepoint:3.0, creditpoint:9.0  },
+      { termid:2, acadyear:2564, semester:2, coursecode:'GEN002',   coursename:'ศิลปะและวัฒนธรรม',          credit:3, grade:'A',  gradepoint:4.0, creditpoint:12.0 },
+      // 2565/1
+      { termid:3, acadyear:2565, semester:1, coursecode:'01076301', coursename:'สถาปัตยกรรมคอมพิวเตอร์',   credit:3, grade:'A',  gradepoint:4.0, creditpoint:12.0 },
+      { termid:3, acadyear:2565, semester:1, coursecode:'01076302', coursename:'ระบบปฏิบัติการ',            credit:3, grade:'A',  gradepoint:4.0, creditpoint:12.0 },
+      { termid:3, acadyear:2565, semester:1, coursecode:'01076303', coursename:'อัลกอริทึม',                credit:3, grade:'B+', gradepoint:3.5, creditpoint:10.5 },
+      { termid:3, acadyear:2565, semester:1, coursecode:'01076304', coursename:'คณิตศาสตร์วิศวกรรม',       credit:3, grade:'B',  gradepoint:3.0, creditpoint:9.0  },
+      { termid:3, acadyear:2565, semester:1, coursecode:'01076305', coursename:'ภาษาโปรแกรม',               credit:3, grade:'B+', gradepoint:3.5, creditpoint:10.5 },
+      { termid:3, acadyear:2565, semester:1, coursecode:'01076306', coursename:'สัมมนา',                    credit:1, grade:'S',  gradepoint:null, creditpoint:null },
+      // 2565/2
+      { termid:4, acadyear:2565, semester:2, coursecode:'01076313', coursename:'วิศวกรรมซอฟต์แวร์',        credit:3, grade:'A',  gradepoint:4.0, creditpoint:12.0 },
+      { termid:4, acadyear:2565, semester:2, coursecode:'01076314', coursename:'ฐานข้อมูล',                credit:3, grade:'B+', gradepoint:3.5, creditpoint:10.5 },
+      { termid:4, acadyear:2565, semester:2, coursecode:'01076315', coursename:'เครือข่ายคอมพิวเตอร์',     credit:3, grade:'A',  gradepoint:4.0, creditpoint:12.0 },
+      { termid:4, acadyear:2565, semester:2, coursecode:'01076316', coursename:'ปัญญาประดิษฐ์',            credit:3, grade:'B',  gradepoint:3.0, creditpoint:9.0  },
+      { termid:4, acadyear:2565, semester:2, coursecode:'01076399', coursename:'โครงงานวิศวกรรม',           credit:3, grade:'A',  gradepoint:4.0, creditpoint:12.0 },
+      // 2566/1
+      { termid:5, acadyear:2566, semester:1, coursecode:'01076401', coursename:'การพัฒนา Web Application', credit:3, grade:'A',  gradepoint:4.0, creditpoint:12.0 },
+      { termid:5, acadyear:2566, semester:1, coursecode:'01076402', coursename:'ความมั่นคงระบบสารสนเทศ',   credit:3, grade:'B+', gradepoint:3.5, creditpoint:10.5 },
+      { termid:5, acadyear:2566, semester:1, coursecode:'01076403', coursename:'Machine Learning',          credit:3, grade:'A',  gradepoint:4.0, creditpoint:12.0 },
+      { termid:5, acadyear:2566, semester:1, coursecode:'01076404', coursename:'Cloud Computing',           credit:3, grade:'B+', gradepoint:3.5, creditpoint:10.5 },
+      { termid:5, acadyear:2566, semester:1, coursecode:'01076405', coursename:'IoT และระบบสมองกล',        credit:3, grade:'B',  gradepoint:3.0, creditpoint:9.0  },
+      { termid:5, acadyear:2566, semester:1, coursecode:'01076406', coursename:'Data Engineering',          credit:3, grade:'B+', gradepoint:3.5, creditpoint:10.5 },
+      // 2566/2
+      { termid:6, acadyear:2566, semester:2, coursecode:'01076497', coursename:'สหกิจศึกษา',               credit:6, grade:'A',  gradepoint:4.0, creditpoint:24.0 },
+      { termid:6, acadyear:2566, semester:2, coursecode:'01076498', coursename:'การฝึกงาน',                 credit:3, grade:'A',  gradepoint:4.0, creditpoint:12.0 },
+    ],
+    2: [
+      { termid:1, acadyear:2564, semester:1, coursecode:'SC101', coursename:'แคลคูลัส 1',                   credit:3, grade:'A',  gradepoint:4.0, creditpoint:12.0 },
+      { termid:1, acadyear:2564, semester:1, coursecode:'SC102', coursename:'ฟิสิกส์',                      credit:3, grade:'A',  gradepoint:4.0, creditpoint:12.0 },
+      { termid:1, acadyear:2564, semester:1, coursecode:'SC103', coursename:'เคมี',                          credit:3, grade:'B+', gradepoint:3.5, creditpoint:10.5 },
+      { termid:1, acadyear:2564, semester:1, coursecode:'SC104', coursename:'ชีววิทยา',                     credit:3, grade:'A',  gradepoint:4.0, creditpoint:12.0 },
+      { termid:1, acadyear:2564, semester:1, coursecode:'SC105', coursename:'สถิติ',                         credit:3, grade:'A',  gradepoint:4.0, creditpoint:12.0 },
+      { termid:1, acadyear:2564, semester:1, coursecode:'GEN001', coursename:'มนุษย์กับสังคม',               credit:3, grade:'A',  gradepoint:4.0, creditpoint:12.0 },
+      { termid:2, acadyear:2564, semester:2, coursecode:'SC201', coursename:'แคลคูลัส 2',                   credit:3, grade:'A',  gradepoint:4.0, creditpoint:12.0 },
+      { termid:2, acadyear:2564, semester:2, coursecode:'SC202', coursename:'โปรแกรมคอมพิวเตอร์',           credit:3, grade:'A',  gradepoint:4.0, creditpoint:12.0 },
+      { termid:2, acadyear:2564, semester:2, coursecode:'SC203', coursename:'คณิตศาสตร์',                   credit:3, grade:'B+', gradepoint:3.5, creditpoint:10.5 },
+      { termid:2, acadyear:2564, semester:2, coursecode:'SC204', coursename:'ฟิสิกส์ 2',                    credit:3, grade:'A',  gradepoint:4.0, creditpoint:12.0 },
+    ],
+  };
+
+  getTerms(studentid: number): { acadyear: number; semester: number; label: string }[] {
+    const rows = this.gradeResults[studentid] ?? [];
+    const seen = new Set<string>();
+    const terms: { acadyear: number; semester: number; label: string }[] = [];
+    for (const r of rows) {
+      const key = `${r.acadyear}_${r.semester}`;
+      if (!seen.has(key)) { seen.add(key); terms.push({ acadyear: r.acadyear, semester: r.semester, label: `${r.acadyear}/${r.semester}` }); }
+    }
+    return terms;
+  }
+
+  getGradeByTerm(studentid: number, acadyear: number, semester: number): any[] {
+    return (this.gradeResults[studentid] ?? []).filter(r => r.acadyear === acadyear && r.semester === semester);
+  }
+
+  getGradeSummary(studentid: number): { gpax: number; creditSatisfy: number; creditAttempt: number } {
+    const rows = this.gradeResults[studentid] ?? [];
+    let totalCreditPoint = 0, totalCredit = 0, totalAttempt = 0;
+    for (const r of rows) {
+      totalAttempt += r.credit;
+      if (r.gradepoint !== null && r.gradepoint !== undefined) {
+        totalCredit += r.credit;
+        totalCreditPoint += r.creditpoint;
+      }
+    }
+    const gpax = totalCredit > 0 ? Math.round(totalCreditPoint / totalCredit * 100) / 100 : 0;
+    return { gpax, creditSatisfy: totalCredit, creditAttempt: totalAttempt };
+  }
+
   // รายชื่อนักศึกษาจำลองต่อกลุ่ม (setid → students)
   studentsBySet: Record<number, any[]> = {
     8: [ // COMP-64A — มีนักศึกษาจำนวนมาก (ดึงจาก students เดิม)

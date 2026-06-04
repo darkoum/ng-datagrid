@@ -1,0 +1,95 @@
+<div class="page-header">
+  <h2>ลงทะเบียนเรียน (Course Registration)</h2>
+  <p class="breadcrumb">ระบบทะเบียน › ลงทะเบียนเรียน</p>
+</div>
+
+<!-- Search bar -->
+<div class="search-bar">
+  <div class="search-field">
+    <label>รหัสนักศึกษา</label>
+    <app-text-box [(ngModel)]="searchCode" [showClearButton]="true"
+      placeholder="เช่น 640001001" (keydown.enter)="search()">
+    </app-text-box>
+  </div>
+  <div class="search-field">
+    <label>ปีการศึกษา</label>
+    <app-select-box [(ngModel)]="selectedAcadyear" [dataSource]="mock.acadyearCombo"
+      displayExpr="comboshow" valueExpr="comboid"></app-select-box>
+  </div>
+  <div class="search-field">
+    <label>ภาคการศึกษา</label>
+    <app-select-box [(ngModel)]="selectedSemester" [dataSource]="mock.semesterCombo"
+      displayExpr="comboshow" valueExpr="comboid"></app-select-box>
+  </div>
+  <div class="search-actions">
+    <app-button text="🔍 ค้นหา" type="default" (onClick)="search()"></app-button>
+  </div>
+  <span *ngIf="notFound()" class="not-found">ไม่พบนักศึกษา "{{ searchCode }}"</span>
+</div>
+
+<!-- Student header card -->
+<div class="student-card" *ngIf="student() as s">
+  <div class="card-rows">
+    <div class="info-row">
+      <span class="lbl">รหัสนักศึกษา :</span><span class="val code">{{ s.studentcode }}</span>
+      <span class="lbl">ชื่อ-นามสกุล :</span><span class="val">{{ getPrefixLabel(s) }}{{ s.studentname }} {{ s.studentsurname }}</span>
+      <span class="lbl">ชั้นปี :</span><span class="val">{{ s.studentyear }}</span>
+    </div>
+    <div class="info-row">
+      <span class="lbl">คณะ :</span><span class="val">{{ getFacultyLabel(s) }}</span>
+      <span class="lbl">สาขาวิชา :</span><span class="val">{{ getProgramLabel(s) }}</span>
+      <span class="lbl">สถานภาพ :</span>
+      <span class="val badge" [class.active]="s.studentstatus===1">{{ getStatusLabel(s) }}</span>
+    </div>
+  </div>
+</div>
+
+<!-- Content -->
+<div *ngIf="student()">
+
+  <!-- Top: รายวิชาที่เปิดสอน (full width) -->
+  <div class="section-title">รายวิชาที่เปิดสอน
+    <span class="hint">คลิกแถวเพื่อเพิ่มลงในรายการลงทะเบียน</span>
+  </div>
+  <div class="grid-box open-grid" *ngIf="openGridOptions() as opts">
+    <app-datagrid [options]="opts"></app-datagrid>
+  </div>
+
+  <!-- Bottom: รายวิชาที่ลงทะเบียน -->
+  <div class="reg-section">
+    <div class="reg-header">
+      <div class="section-title" style="margin:0">
+        รายวิชาที่ลงทะเบียน ปี {{ selectedAcadyear }} ภาค {{ selectedSemester }}
+      </div>
+      <!-- Credit summary bar -->
+      <div class="credit-bar">
+        <div class="credit-info">
+          <span class="credit-num">{{ totalCredits() }}</span>
+          <span class="credit-label">/ {{ maxCredits }} หน่วยกิต</span>
+        </div>
+        <div class="credit-track">
+          <div class="credit-fill"
+               [class.over]="totalCredits() > maxCredits"
+               [style.width.%]="(totalCredits() / maxCredits) * 100 | number:'1.0-0'">
+          </div>
+        </div>
+        <span class="credit-count">{{ registered().length }} วิชา</span>
+      </div>
+      <app-button text="💾 บันทึกลงทะเบียน" type="default"
+                  (onClick)="saveRegistration()" [disabled]="registered().length === 0">
+      </app-button>
+    </div>
+
+    <div class="grid-box" *ngIf="regGridOptions() as opts">
+      <app-datagrid [options]="opts"></app-datagrid>
+    </div>
+    <div class="empty-reg" *ngIf="registered().length === 0">
+      ยังไม่มีรายวิชา — คลิกแถวด้านบนเพื่อเพิ่ม
+    </div>
+  </div>
+
+</div>
+
+<div class="empty-state" *ngIf="!student() && !notFound()">
+  <span>🔍 กรอกรหัสนักศึกษาแล้วกด ค้นหา</span>
+</div>

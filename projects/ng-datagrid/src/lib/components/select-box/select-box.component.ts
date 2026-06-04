@@ -87,7 +87,7 @@ export interface SbValueChangedEvent {
     .app-sb__control {
       display: flex; align-items: center; justify-content: space-between;
       border: 1px solid #ced4da; border-radius: 4px; padding: 5px 8px;
-      background: #fff; cursor: pointer; min-height: 34px; user-select: none;
+      background: #fff; cursor: pointer; min-height: 34px; box-sizing: border-box; user-select: none;
       transition: border-color .15s;
     }
     .app-sb--open .app-sb__control,
