@@ -297,7 +297,7 @@ hr.divider{border:none;border-top:1px solid #eeeeee;margin:28px 0}
 <!-- Topbar -->
 <nav class="topbar">
   <a class="topbar-logo" href="#"><span>@darkoum</span>/ng-datagrid</a>
-  <span class="topbar-badge">v1.1.0</span>
+  <span class="topbar-badge">v1.2.0</span>
   <div class="topbar-links">
     <a href="#getting-started">เริ่มต้น</a>
     <a href="#datagrid">DataGrid</a>
@@ -331,6 +331,7 @@ hr.divider{border:none;border-top:1px solid #eeeeee;margin:28px 0}
   <a href="#form">Form</a>
   <a href="#form-items" class="sub">Items &amp; Groups</a>
   <a href="#form-editors" class="sub">Editor Types</a>
+  <a href="#form-validation" class="sub">Validation <span class="tag-new">v1.2.0</span></a>
   <div class="sidebar-section-title">Input Widgets</div>
   <a href="#select-box">SelectBox</a>
   <a href="#number-box">NumberBox</a>
@@ -833,6 +834,96 @@ formItems: <span class="kw">FormItem</span>[] = [{
       <tr><td><code>custom</code></td><td>ng-template</td><td>ผ่าน FormEditorTemplateDirective</td></tr>
     </tbody>
   </table>
+  <!-- ══ Validation ══ -->
+  <h3 id="form-validation">Validation <span class="tag-new">v1.2.0</span></h3>
+  <p>ตรวจสอบความถูกต้องของข้อมูลผ่าน <code>validate()</code> method — รองรับ 5 rule types, แสดงขอบแดง + ข้อความ error อัตโนมัติ</p>
+
+  <h4 style="margin:18px 0 8px;color:#546e7a;font-size:13px">ValidationRule Types</h4>
+  <table class="api-table">
+    <thead><tr><th>type</th><th>ตัวเลือก</th><th>คำอธิบาย</th></tr></thead>
+    <tbody>
+      <tr><td><code>required</code></td><td>message?</td><td>ห้ามว่าง — รองรับ string, array, null</td></tr>
+      <tr><td><code>stringLength</code></td><td>min?, max?, message?</td><td>จำกัดความยาวตัวอักษร</td></tr>
+      <tr><td><code>range</code></td><td>min?, max?, message?</td><td>จำกัดค่าตัวเลข</td></tr>
+      <tr><td><code>pattern</code></td><td>pattern (RegExp|string), message?</td><td>ตรวจ format ด้วย Regular Expression</td></tr>
+      <tr><td><code>custom</code></td><td>validationCallback: (v)=>boolean, message?</td><td>เขียน logic ตรวจเองได้</td></tr>
+    </tbody>
+  </table>
+
+  <h4 style="margin:18px 0 8px;color:#546e7a;font-size:13px">FormComponent API</h4>
+  <table class="api-table">
+    <thead><tr><th>Method</th><th>คืนค่า</th><th>คำอธิบาย</th></tr></thead>
+    <tbody>
+      <tr><td><code>validate()</code></td><td>ValidationResult</td><td>ตรวจทุก field — แสดง error border + message ทันที</td></tr>
+      <tr><td><code>clearErrors()</code></td><td>void</td><td>ล้าง error ทั้งหมดออก</td></tr>
+    </tbody>
+  </table>
+
+  <div class="demo-box" style="margin-top:14px">
+    <div class="demo-box-tabs">
+      <button class="demo-box-tab active" onclick="demoTab(this,'val-code')">💻 Code</button>
+    </div>
+    <div id="val-code" class="demo-panel code-panel active">
+<pre><code><span class="c">// 1. กำหนด rules ใน FormItem</span>
+formItems: FormItem[] = [
+  {
+    dataField: <span class="s">'studentcode'</span>,
+    label: { text: <span class="s">'รหัสนักศึกษา'</span> },
+    isRequired: <span class="n">true</span>,           <span class="c">// แสดง * + required check อัตโนมัติ</span>
+    validationRules: [
+      { type: <span class="s">'stringLength'</span>, min: <span class="n">8</span>, max: <span class="n">10</span>,
+        message: <span class="s">'ต้องมี 8-10 ตัวอักษร'</span> },
+      { type: <span class="s">'pattern'</span>, pattern: <span class="s">/^[0-9]+$/</span>,
+        message: <span class="s">'ต้องเป็นตัวเลขเท่านั้น'</span> },
+    ],
+  },
+  {
+    dataField: <span class="s">'gpa'</span>,
+    validationRules: [
+      { type: <span class="s">'range'</span>, min: <span class="n">0</span>, max: <span class="n">4</span> },
+    ],
+  },
+  {
+    dataField: <span class="s">'email'</span>,
+    validationRules: [
+      { type: <span class="s">'pattern'</span>,
+        pattern: <span class="s">/^[^\s@]+@[^\s@]+\.[^\s@]+$/</span>,
+        message: <span class="s">'รูปแบบอีเมลไม่ถูกต้อง'</span> },
+    ],
+  },
+  {
+    dataField: <span class="s">'score'</span>,
+    validationRules: [
+      { type: <span class="s">'custom'</span>,
+        validationCallback: v =&gt; v % 0.5 === 0,
+        message: <span class="s">'คะแนนต้องเป็นทวีคูณของ 0.5'</span> },
+    ],
+  },
+];
+
+<span class="c">// 2. เรียก validate() ผ่าน ViewChild</span>
+<span class="t">@ViewChild</span>(<span class="s">'myForm'</span>) formRef!: FormComponent;
+
+save() {
+  const result = this.formRef.validate();
+  <span class="c">// result.isValid        — true / false</span>
+  <span class="c">// result.brokenRules    — [{ dataField, message }, ...]</span>
+
+  if (result.isValid) {
+    <span class="c">// บันทึกข้อมูล</span>
+  }
+}
+
+<span class="c">// 3. ล้าง error ทั้งหมด</span>
+this.formRef.clearErrors();</code></pre>
+    </div>
+  </div>
+
+  <div style="margin-top:12px;padding:10px 14px;background:#e8f5e9;border-left:3px solid #4caf50;border-radius:4px;font-size:13px">
+    💡 <strong>พฤติกรรม:</strong> error border + ข้อความแดงปรากฏใต้ field ทันทีที่ <code>validate()</code> ถูกเรียก
+    — เมื่อผู้ใช้แก้ไข field นั้น error จะหายอัตโนมัติ
+    — ลอง <a href="../validation-demo" style="color:#337ab7">🛡 Validation Demo</a>
+  </div>
 </section>
 
 <hr class="divider">

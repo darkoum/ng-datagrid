@@ -1,6 +1,6 @@
 {
   "name": "@darkoum/ng-datagrid",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Angular DataGrid with Thai Date — Drop-in replacement for DevExtreme",
   "keywords": ["angular", "datagrid", "thai-date", "datepicker", "devextreme", "standalone", "signals"],
   "author": "Your Organization",
