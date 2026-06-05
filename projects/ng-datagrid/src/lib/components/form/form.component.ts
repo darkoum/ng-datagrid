@@ -4,7 +4,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { FormItem } from '../../models/datagrid.types';
+import { FormItem, ValidationRule, ValidationResult } from '../../models/datagrid.types';
 import { ThaiDatepickerComponent } from '../thai-datepicker/thai-datepicker.component';
 import { SelectBoxComponent } from '../select-box/select-box.component';
 import { NumberBoxComponent } from '../number-box/number-box.component';
@@ -73,7 +73,9 @@ export class FormComponent implements AfterContentInit {
   }
 
   // ─── State ─────────────────────────────────────────────────────────────────
-  private _data = signal<Record<string, any>>({});
+  private _data   = signal<Record<string, any>>({});
+  private _errors = signal<Record<string, string>>({});
+
   readonly data = computed(() => this._data());
 
   // ─── Public API ────────────────────────────────────────────────────────────
@@ -86,8 +88,93 @@ export class FormComponent implements AfterContentInit {
     if (!dataField) return;
     const previousValue = this._data()[dataField];
     this._data.update(d => ({ ...d, [dataField]: value }));
+    // ล้าง error ของ field นี้เมื่อผู้ใช้แก้ไข
+    if (this._errors()[dataField]) {
+      this._errors.update(e => { const next = { ...e }; delete next[dataField]; return next; });
+    }
     this.formDataChange.emit(this._data());
     this.onFieldDataChanged.emit({ dataField, value, previousValue });
+  }
+
+  /** ตรวจสอบ validation ทั้ง form — คืน { isValid, brokenRules } */
+  validate(): ValidationResult {
+    const errors: Record<string, string> = {};
+    const broken: { dataField: string; message: string }[] = [];
+
+    const checkItem = (item: FormItem) => {
+      if (item.itemType === 'group') { item.items?.forEach(checkItem); return; }
+      if (!item.dataField || item.visible === false) return;
+
+      const value  = this._data()[item.dataField];
+      const rules  = [...(item.validationRules ?? [])];
+
+      // isRequired → auto-prepend required rule ถ้ายังไม่มี
+      if (item.isRequired && !rules.find(r => r.type === 'required')) {
+        rules.unshift({ type: 'required' });
+      }
+
+      for (const rule of rules) {
+        const msg = this._checkRule(rule, value, item);
+        if (msg) {
+          errors[item.dataField] = msg;
+          broken.push({ dataField: item.dataField, message: msg });
+          break; // แสดง error แรกที่เจอต่อ field
+        }
+      }
+    };
+
+    this.items.forEach(checkItem);
+    this._errors.set(errors);
+    return { isValid: broken.length === 0, brokenRules: broken };
+  }
+
+  /** ล้าง error ทั้งหมด */
+  clearErrors(): void { this._errors.set({}); }
+
+  /** ข้อความ error ของ field (ใช้ใน template) */
+  getFieldError(dataField?: string): string {
+    if (!dataField) return '';
+    return this._errors()[dataField] ?? '';
+  }
+
+  // ─── Private ───────────────────────────────────────────────────────────────
+  private _checkRule(rule: ValidationRule, value: any, item: FormItem): string | null {
+    const label = this.getItemLabel(item);
+
+    switch (rule.type) {
+      case 'required': {
+        const empty = value === null || value === undefined || value === ''
+                   || (Array.isArray(value) && value.length === 0);
+        return empty ? (rule.message ?? `${label} จำเป็นต้องระบุ`) : null;
+      }
+      case 'stringLength': {
+        const len = String(value ?? '').length;
+        if (rule.min !== undefined && len < rule.min)
+          return rule.message ?? `${label} ต้องมีอย่างน้อย ${rule.min} ตัวอักษร`;
+        if (rule.max !== undefined && len > rule.max)
+          return rule.message ?? `${label} ต้องไม่เกิน ${rule.max} ตัวอักษร`;
+        return null;
+      }
+      case 'range': {
+        const num = Number(value);
+        if (isNaN(num)) return rule.message ?? `${label} ต้องเป็นตัวเลข`;
+        if (rule.min !== undefined && num < rule.min)
+          return rule.message ?? `${label} ต้องไม่น้อยกว่า ${rule.min}`;
+        if (rule.max !== undefined && num > rule.max)
+          return rule.message ?? `${label} ต้องไม่มากกว่า ${rule.max}`;
+        return null;
+      }
+      case 'pattern': {
+        if (value === null || value === undefined || value === '') return null; // ให้ required handle
+        const re = typeof rule.pattern === 'string' ? new RegExp(rule.pattern) : rule.pattern!;
+        return re.test(String(value)) ? null : (rule.message ?? `${label} รูปแบบไม่ถูกต้อง`);
+      }
+      case 'custom': {
+        if (!rule.validationCallback) return null;
+        return rule.validationCallback(value) ? null : (rule.message ?? `${label} ไม่ถูกต้อง`);
+      }
+      default: return null;
+    }
   }
 
   // ─── Item helpers ──────────────────────────────────────────────────────────

@@ -6,7 +6,9 @@
 
   <!-- ── Shared editor template ────────────────────────────────────────────── -->
   <ng-template #editorTpl let-item="item">
-    <div class="dx-form-editor" [ngSwitch]="getEditorType(item)">
+    <div class="dx-form-editor"
+         [ngSwitch]="getEditorType(item)"
+         [class.dx-form-editor--invalid]="!!getFieldError(item.dataField)">
 
       <!-- Custom template -->
       <ng-container *ngSwitchCase="'custom'">
@@ -110,6 +112,11 @@
     <!-- hint text -->
     <div *ngIf="item.editorOptions?.['hint']" class="dx-form-hint">
       ℹ {{ item.editorOptions?.['hint'] }}
+    </div>
+
+    <!-- validation error message -->
+    <div *ngIf="getFieldError(item.dataField)" class="dx-form-error">
+      ⚠ {{ getFieldError(item.dataField) }}
     </div>
   </ng-template>
 

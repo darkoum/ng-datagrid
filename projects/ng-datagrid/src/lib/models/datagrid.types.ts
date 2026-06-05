@@ -64,6 +64,30 @@ export interface FormTab {
   items: FormItem[];
 }
 
+// ─── Validation ────────────────────────────────────────────────────────────
+
+/** กฎ validation สำหรับ FormItem.validationRules */
+export interface ValidationRule {
+  /** ประเภทกฎ */
+  type: 'required' | 'stringLength' | 'range' | 'pattern' | 'custom';
+  /** ข้อความ error (ถ้าไม่ระบุจะสร้างให้อัตโนมัติ) */
+  message?: string;
+  /** ความยาวต่ำสุด (stringLength) / ค่าต่ำสุด (range) */
+  min?: number;
+  /** ความยาวสูงสุด (stringLength) / ค่าสูงสุด (range) */
+  max?: number;
+  /** pattern สำหรับ type: 'pattern' */
+  pattern?: RegExp | string;
+  /** callback สำหรับ type: 'custom' — คืน true = ผ่าน */
+  validationCallback?: (value: any) => boolean;
+}
+
+/** ผลการ validate ทั้ง form */
+export interface ValidationResult {
+  isValid: boolean;
+  brokenRules: { dataField: string; message: string }[];
+}
+
 /**
  * FormItem — เหมือน DevExtreme dxForm items
  * รองรับ simple field, group, empty
@@ -91,7 +115,10 @@ export interface FormItem {
   /** items ภายใน group */
   items?: FormItem[];
   visible?: boolean;
+  /** แสดงดอกจัน * และ validate required อัตโนมัติ */
   isRequired?: boolean;
+  /** กฎ validation เพิ่มเติม — ถ้า isRequired: true จะถูก prepend ให้อัตโนมัติ */
+  validationRules?: ValidationRule[];
 }
 
 export interface EditingConfig {
