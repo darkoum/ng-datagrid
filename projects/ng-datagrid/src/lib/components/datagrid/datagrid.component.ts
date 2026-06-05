@@ -1,7 +1,7 @@
 import {
   Component, Input, Output, EventEmitter, OnInit, OnDestroy,
   ContentChildren, QueryList, Directive, TemplateRef,
-  signal, computed, DestroyRef, inject, AfterContentInit,
+  signal, computed, DestroyRef, inject, AfterContentInit, Optional,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -21,6 +21,7 @@ import { VirtualScrollService } from '../../services/virtual-scroll.service';
 import { ThaiDatePipe } from '../../pipes/thai-date.pipe';
 import { ResizableColumnDirective } from '../../directives/resizable-column.directive';
 import { ThaiDatepickerComponent } from '../thai-datepicker/thai-datepicker.component';
+import { DATAGRID_DEFAULT_OPTIONS } from '../../datagrid-defaults';
 
 @Directive({ selector: '[gridCellTemplate]', standalone: true })
 export class GridCellTemplateDirective {
@@ -81,9 +82,11 @@ export class DatagridComponent<T = any> implements OnInit, AfterContentInit, OnD
   private expSvc      = inject(ExportService);
   private virtSvc     = inject(VirtualScrollService);
   private destroyRef  = inject(DestroyRef);
+  // Global defaults จาก provideDatagridDefaults() — optional (ถ้าไม่ได้ provide จะเป็น null)
+  private _defaults   = inject(DATAGRID_DEFAULT_OPTIONS, { optional: true });
 
   private _options  = signal<DataGridOptions<T>>({});
-  readonly opts     = computed(() => this._options());
+  readonly opts     = computed(() => this._mergeWithDefaults(this._options()));
 
   readonly columns = computed<NormalizedColumn<T>[]>(() =>
     (this.opts().columns ?? [])
@@ -137,6 +140,28 @@ export class DatagridComponent<T = any> implements OnInit, AfterContentInit, OnD
   filterValues: Record<string, string> = {};
 
   templateMap:    Record<string, TemplateRef<any>> = {};
+
+  // ─── Merge global defaults กับ instance options (instance wins) ────────────
+  private _mergeWithDefaults(instance: DataGridOptions<T>): DataGridOptions<T> {
+    if (!this._defaults) return instance;
+
+    // Nested keys ที่ต้อง deep-merge ระดับเดียว
+    const nestedKeys: (keyof DataGridOptions)[] = [
+      'paging', 'pager', 'selection', 'editing', 'sorting',
+      'filterRow', 'export', 'scrolling', 'masterDetail',
+    ];
+
+    const merged: DataGridOptions<T> = { ...this._defaults as any, ...instance };
+
+    for (const key of nestedKeys) {
+      const def = (this._defaults as any)[key];
+      const ins = (instance as any)[key];
+      if (def !== undefined || ins !== undefined) {
+        (merged as any)[key] = { ...(def ?? {}), ...(ins ?? {}) };
+      }
+    }
+    return merged;
+  }
   detailTemplate: TemplateRef<any> | null = null;
 
   ngOnInit(): void {

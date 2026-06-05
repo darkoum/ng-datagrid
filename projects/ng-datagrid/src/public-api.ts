@@ -3,6 +3,9 @@
 // Models
 export * from './lib/models/datagrid.types';
 
+// Global defaults
+export * from './lib/datagrid-defaults';
+
 // Pipes
 export * from './lib/pipes/thai-date.pipe';
 
