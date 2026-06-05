@@ -315,6 +315,7 @@ hr.divider{border:none;border-top:1px solid #eeeeee;margin:28px 0}
   <a href="#getting-started" class="active">ภาพรวม</a>
   <a href="#installation">ติดตั้ง</a>
   <a href="#quick-start">Quick Start</a>
+  <a href="#global-config">Global Config <span class="tag-new">v1.2.0</span></a>
   <a href="#publish">Publish & แจกจ่าย</a>
   <a href="#publish-github" class="sub">GitHub Packages</a>
   <a href="#publish-file" class="sub">แชร์ไฟล์ตรง</a>
@@ -422,6 +423,87 @@ hr.divider{border:none;border-top:1px solid #eeeeee;margin:28px 0}
   thaiDate: <span class="n">true</span>,
 };</code></pre>
 </section>
+
+<!-- ══ Global Config ══ -->
+<section class="section" id="global-config">
+  <h2>⚙️ Global Config <span class="tag-new">v1.2.0</span></h2>
+  <p>
+    ตั้งค่า DataGrid ครั้งเดียวจาก <code>app.config.ts</code> — ทุก <code>&lt;app-datagrid&gt;</code> ในทุกหน้า
+    ได้ config นี้อัตโนมัติ เทียบเท่า <code>dxDataGrid.defaultOptions()</code> ของ DevExtreme
+  </p>
+
+  <div style="margin:16px 0;padding:12px 16px;background:#e8f5e9;border-left:3px solid #4caf50;border-radius:4px;font-size:13px">
+    ✅ <strong>Instance options ชนะเสมอ</strong> — ถ้าหน้าไหนต้องการ config ต่างออกไป ระบุใน <code>[options]</code> ได้ปกติ
+    โดยไม่กระทบหน้าอื่น
+  </div>
+
+  <div class="demo-box">
+    <div class="demo-box-tabs">
+      <button class="demo-box-tab active" onclick="demoTab(this,'gc-config')">📄 app.config.ts</button>
+      <button class="demo-box-tab" onclick="demoTab(this,'gc-page')">📄 any-page.component.ts</button>
+    </div>
+    <div id="gc-config" class="demo-panel code-panel active">
+<pre><code><span class="c">// app.config.ts — ตั้งครั้งเดียว ใช้ทุกหน้า</span>
+<span class="kw">import</span> { provideDatagridDefaults } <span class="kw">from</span> <span class="s">'@darkoum/ng-datagrid'</span>;
+
+<span class="kw">export const</span> appConfig: ApplicationConfig = {
+  providers: [
+    provideRouter(routes),
+    provideHttpClient(),
+    provideAnimationsAsync(),
+
+    <span class="c">// ─── Global DataGrid defaults ─────────────────</span>
+    provideDatagridDefaults({
+      showBorders:           <span class="n">true</span>,
+      rowAlternationEnabled: <span class="n">true</span>,
+      hoverStateEnabled:     <span class="n">true</span>,
+      allowColumnResizing:   <span class="n">true</span>,
+      columnMinWidth:        <span class="n">50</span>,
+      paging:    { enabled: <span class="n">true</span>, pageSize: <span class="n">15</span> },
+      pager:     { showPageSizeSelector: <span class="n">true</span>,
+                   allowedPageSizes: [<span class="n">15</span>, <span class="n">20</span>, <span class="n">30</span>, <span class="n">0</span>],
+                   showInfo: <span class="n">true</span> },
+      selection: { mode: <span class="s">'single'</span> },
+      editing:   { popup: { showTitle: <span class="n">true</span> } },
+    }),
+  ],
+};</code></pre>
+    </div>
+    <div id="gc-page" class="demo-panel code-panel">
+<pre><code><span class="c">// any-page.component.ts — ระบุแค่สิ่งที่ต่างออกไป</span>
+gridOptions: DataGridOptions = {
+  keyExpr:    <span class="s">'studentid'</span>,
+  dataSource: { store: this.students },
+  columns: [ ... ],
+  <span class="c">// ไม่ต้องระบุ showBorders, paging, pager ซ้ำ</span>
+  <span class="c">// ถ้าหน้านี้ต้องการ pageSize ต่าง — override ได้</span>
+  paging: { pageSize: <span class="n">20</span> },   <span class="c">// override default 15 → 20 เฉพาะหน้านี้</span>
+};</code></pre>
+    </div>
+  </div>
+
+  <table class="api-table" style="margin-top:16px">
+    <thead><tr><th>Default Option</th><th>Type</th><th>คำอธิบาย</th></tr></thead>
+    <tbody>
+      <tr><td><code>showBorders</code></td><td>boolean</td><td>แสดงเส้นกรอบตาราง</td></tr>
+      <tr><td><code>rowAlternationEnabled</code></td><td>boolean</td><td>สีสลับแถว</td></tr>
+      <tr><td><code>hoverStateEnabled</code></td><td>boolean</td><td>highlight เมื่อ hover</td></tr>
+      <tr><td><code>allowColumnResizing</code></td><td>boolean</td><td>ปรับความกว้าง column ได้</td></tr>
+      <tr><td><code>columnMinWidth</code></td><td>number</td><td>ความกว้างขั้นต่ำ (px)</td></tr>
+      <tr><td><code>paging</code></td><td>PagingConfig</td><td><code>{ enabled, pageSize }</code></td></tr>
+      <tr><td><code>pager</code></td><td>PagerConfig</td><td><code>{ showPageSizeSelector, allowedPageSizes, showInfo }</code></td></tr>
+      <tr><td><code>selection</code></td><td>SelectionConfig</td><td><code>{ mode: 'none'|'single'|'multiple' }</code></td></tr>
+      <tr><td><code>editing</code></td><td>EditingConfig</td><td>ดู Editing section สำหรับ options ทั้งหมด</td></tr>
+    </tbody>
+  </table>
+
+  <div style="margin-top:12px;padding:10px 14px;background:#fff3e0;border-left:3px solid #ff9800;border-radius:4px;font-size:13px">
+    💡 <strong>Merge logic:</strong> nested objects เช่น <code>paging</code>, <code>pager</code>, <code>selection</code>, <code>editing</code>
+    จะถูก deep-merge — instance property ชนะ default ทีละ key ไม่ใช่ replace ทั้ง object
+  </div>
+</section>
+
+<hr class="divider">
 
 <!-- ══ Publish ══ -->
 <section class="section" id="publish">
