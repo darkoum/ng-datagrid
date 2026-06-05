@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { APP_BASE_HREF } from '@angular/common';
+import { DOCUMENT } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
@@ -11,9 +11,13 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
     .docs-iframe{width:100%;height:100%;border:none;display:block}`],
 })
 export class DocsComponent {
-  private base    = inject(APP_BASE_HREF, { optional: true }) ?? '/';
-  private san     = inject(DomSanitizer);
-  readonly docsUrl: SafeResourceUrl = this.san.bypassSecurityTrustResourceUrl(
-    this.base.replace(/\/$/, '') + '/assets/api-docs.html'
-  );
+  private doc = inject(DOCUMENT);
+  private san = inject(DomSanitizer);
+
+  readonly docsUrl: SafeResourceUrl = (() => {
+    // อ่าน base href จาก <base> tag ใน index.html (รองรับ --base-href /ng-datagrid/)
+    const baseHref = this.doc.querySelector('base')?.getAttribute('href') ?? '/';
+    const base = baseHref.replace(/\/$/, '');
+    return this.san.bypassSecurityTrustResourceUrl(base + '/assets/api-docs.html');
+  })();
 }
